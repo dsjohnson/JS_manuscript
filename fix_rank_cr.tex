@@ -1,0 +1,530 @@
+\documentclass[12pt]{article}
+
+\usepackage[margin=1in]{geometry}
+
+\usepackage{amsmath,amssymb,amsthm,epsfig,rotfloat,psfrag,natbib,url,graphicx,lineno}
+\usepackage{authblk}
+
+\usepackage[symbol]{footmisc}
+
+\usepackage{blkarray}
+
+\usepackage{booktabs} 
+\usepackage{makecell}
+
+\usepackage{algorithm, algorithmic}
+
+
+
+\bibliographystyle{apalike}
+
+%%%%
+% Some shortcut notation
+%%%%
+
+\newcommand{\bu}{\ensuremath{\mathbf{u}}}
+\newcommand{\bx}{\ensuremath{\mathbf{x}}}
+\newcommand{\by}{\ensuremath{\mathbf{y}}}
+\newcommand{\bB}{\ensuremath{\mathbf{B}}}
+\newcommand{\bp}{\ensuremath{\mathbf{p}}}
+\newcommand{\bc}{\ensuremath{\mathbf{c}}}
+\newcommand{\bfr}{\ensuremath{\mathbf{f}}}
+\newcommand{\bn}{\ensuremath{\mathbf{n}}}
+\newcommand{\bP}{\ensuremath{\mathbf{P}}}
+\newcommand{\bz}{\ensuremath{\mathbf{z}}}
+\newcommand{\bN}{\ensuremath{\mathbf{N}}}
+\newcommand{\bT}{\ensuremath{\mathbf{T}}}
+
+\newcommand{\bxi}{\ensuremath{\boldsymbol{\xi}}}
+\newcommand{\bPsi}{\ensuremath{\boldsymbol{\Psi}}}
+\newcommand{\bphi}{\ensuremath{\boldsymbol{\phi}}}
+\newcommand{\bpi}{\ensuremath{\boldsymbol{\pi}}}
+\newcommand{\bG}{\ensuremath{\boldsymbol{\Gamma}}}
+\newcommand{\bt}{\ensuremath{\boldsymbol{\theta}}}
+
+%%%%%%%%%%%%%
+
+
+\newcommand{\bX}{\ensuremath{\mathbf{X}}}
+\newcommand{\bC}{\ensuremath{\mathbf{C}}}
+\newcommand{\bW}{\ensuremath{\mathbf{W}}}
+\newcommand{\bK}{\ensuremath{\mathbf{K}}}
+\newcommand{\bk}{\ensuremath{\mathbf{k}}}
+\newcommand{\bI}{\ensuremath{\mathbf{I}}}
+\newcommand{\bH}{\ensuremath{\mathbf{H}}}
+\newcommand{\bh}{\ensuremath{\mathbf{h}}}
+\newcommand{\bw}{\ensuremath{\mathbf{w}}}
+\newcommand{\bD}{\ensuremath{\mathbf{D}}}
+
+
+
+
+\newcommand{\bb}{\ensuremath{\boldsymbol{\beta}}}
+
+\newcommand{\ba}{\ensuremath{\boldsymbol{\alpha}}}
+\newcommand{\be}{\ensuremath{\boldsymbol{\epsilon}}}
+\newcommand{\bSig}{\ensuremath{\boldsymbol{\Sigma}}}
+\newcommand{\bmu}{\ensuremath{\boldsymbol{\mu}}}
+\newcommand{\bd}{\ensuremath{\boldsymbol{\delta}}}
+\newcommand{\bO}{\ensuremath{\boldsymbol{\Omega}}}
+\newcommand{\bs}{\ensuremath{\boldsymbol{\sigma}}}
+\newcommand{\bo}{\ensuremath{\boldsymbol{\omega}}}
+\newcommand{\bg}{\ensuremath{\boldsymbol{\gamma}}}
+
+
+
+%mathcal
+\newcommand{\fN}{\ensuremath{\mathcal{N}}}
+\newcommand{\fG}{\ensuremath{\mathcal{G}}}
+\newcommand{\fP}{\ensuremath{\mathcal{P}}}
+\newcommand{\fH}{\ensuremath{\mathcal{H}}}
+
+\raggedright
+\raggedbottom
+
+\begin{document}
+%\vspace*{0.15\textheight}
+
+\vspace*{1in}
+
+%\begin{center}
+\setlength{\parindent}{0pt}
+\renewcommand{\baselinestretch}{1.8}\normalsize
+
+\begin{center}
+\noindent\hrulefill
+
+{\Large Bayesian Abundance Estimation from Capture-Recapture Data Without Data Augmentation} 
+
+\noindent\hrulefill
+
+\end{center}
+
+\renewcommand{\baselinestretch}{1.15}\normalsize 
+\bigskip
+
+\begin{center}
+{\bf Devin S. Johnson}\\
+ Pacific Islands Fisheries Science Center,\\
+ National Marine Fisheries Service, NOAA, \\
+ Fort Collins, Colorado, USA \\
+ email: {\tt devin.johnson@noaa.gov} \\ \bigskip
+
+{\bf Janelle J. Badger} \\
+ Pacific Islands Fisheries Science Center,\\
+ National Marine Fisheries Service, NOAA, \\
+ Seattle, Washington, USA \\ \bigskip
+
+{\bf Shelbie Ishimaru} \\
+Hawai`i Institute of Marine Biology, \\
+University of Hawai`i at Mānoa, \\
+Honolulu, Hawai`i, USA\\ \bigskip
+
+\bigskip
+
+\today
+
+\end{center}
+
+\vspace*{\fill}
+
+\clearpage
+
+
+
+
+%\renewcommand{\baselinestretch}{1.15}\normalsize
+\linenumbers
+
+%% ABSTRACT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\vspace*{0.25\textheight}
+\begin{center}
+\begin{minipage}{0.65\paperwidth}
+\renewcommand{\baselinestretch}{1}\normalsize
+
+\centerline{\bf Abstract} 
+This happens last. \bigskip
+
+{\bf Key words}: Some, Key, words, Go, Here
+\end{minipage}
+\end{center}
+
+\clearpage
+
+
+\renewcommand{\baselinestretch}{1.25}\normalsize
+\raggedright
+\setlength{\parindent}{2em}
+\raggedbottom
+\linenumbers
+
+
+\section{Introduction}
+
+Using the accumulated knowledge in the literature we demonstrate that Bayesian inference from open population capture-recapture models does not require data augmentation for relatively easy implementation in MCMC software such as {\tt NIMBLE}. 
+
+Here are some relevant references the paper will need later:
+\cite{saracco2023fast}
+\cite{Hooten:2023aa} 
+\cite{hooten2024geostatistical}
+\cite{hooten2018prior}
+\cite{schwarz1996general}
+\cite{Royle:2007kx}
+\cite{link2013cautionary}
+\cite{schofield2023estimating}
+\cite{schofield201650}
+\cite{link2005modeling}
+\cite{johnson2010model}
+\cite{king2015capture}
+\cite{mcclintock2020uncovering}
+\cite{glennie2019open}
+\cite{zhang2023flexible}
+\cite{yackulic2020need}
+
+
+
+
+\section{Methods}
+
+History of Bayesian abundance estimation from CR data... 
+
+There are many different capture-recapture models for estimating abundance, however, for this exposition we use the \cite{crosbie1985parsimonious} and \citet{schwarz1996general} [SA96] version, often denoted POPAN, of the Jolly-Seber \citep{xxx} open-population model as a base for description. Through parameter specification we can form closed population models, multistate models, and detection heterogeneity models, such as spatially explicit capture-recapture models \citep{efford2020spatial}. In order to easily adapt the basic POPAN model to each situation, we first formulate it as a hidden Markov model (HMM) for the individuals captured at least once, then form a model for the number of individuals captured. This has shown to be equivalent to the original SA96 model \citep{glennie2019open,mcclintock2020uncovering}. In addition to ease of statistical generalization, the HMM version is more amenable to coding in MCMC software such as {\tt NIMBLE} or {\\tt JAGS}. Following the model specification we can use a Poisson version of the POPAN model described by \cite{schofield201650} and \cite{schofield2023estimating}. The Poisson version has beneficial properties related to the ancillary, blah, blah, blah...
+
+\subsection{Notation for a general Jolly-Seber type model}
+
+In a Jolly-Seber (JS) model the population is described as $N$ individuals that are available for capture in at least one occasion during the study. This is sometimes referred to as a superpopulation because not all individuals may be present at the same time. We use the notation $\mathcal{A}_t$ to mean the collection of individuals available for capture on occasion $t=1,\dots,K$, that is, those individuals that have entered prior to the occasion $t$ and have not yet exited. The superpopulation of individuals is $\mathcal{A} = \bigcup_{t=1}^k \mathcal{A}_t$. The occasion specific abundance is the size of the available population on occasion $t$, $N_t= |\mathcal{A}_t|$. Note, for an open population, $N = |\mathcal{A}| \ne \sum_{t=1}^k N_t$. Traditionally, data for the JS model are composed of capture histories for each individual observed at least once, $\bx_i = (x_{i1},\dots,x_{ik})$ where $x_{it} \in \{0,1\}$ depending on whether or not individual $i$, $i=1,\dots,n$ was captured on occasion $t$. However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was detected in $R_t$ sub-occasions during primary occasion $t$ for robust design samples. Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured. Technically all JS models are multistate in essence, with states, ``pre-entry" (birth), ``available", and ``exit" (death). For this paper we will expand the set of states so that we may include multistate models \citep{xxx} as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the exit state. The notation $z_{it}$ will represent the true state of individual $i$ on occasion $t$, which may, or may not, be observed accurately upon capture. 
+
+Now that we have the population and individual data described we can document the components of the probabilistic process for generating abundance and individual states. The probability that the individual enters an available population between occasions $t-1$ and $t$ given it has not already entered (recruitment) is denoted by $\rho_t$, $t=1,\dots,K$. Without constraints there is a nonzero probability that the individual may not enter the population before $K$, so, we must condition on the fact that entry happens before occasion $K$. This conditional probability is 
+\[
+\xi_t = \frac{\rho_t}{1-\prod_{j=t}^{K} (1-\rho_j)}
+\]
+Note that there are only $K-1$ free parameters as $\xi_K \equiv 1$. \citet{schwarz1996general} and \cite{crosbie1985parsimonious} parmeterized entry the JS model using marginal multinomial probabilities $\beta_1,\dots,\beta_K$ which are the unconditional probabilities that an individual first enters between occasions $t-1$ and $t$. Note that $\sum \beta_t = 1$ still enforces entry before the end of the study. In terms of the recruitment probabilities, we can form the marginal $\beta$ parameters with the relationship,
+\[
+\beta_t \propto \left\{ \begin{array}{ll}
+\rho_1  & t=1\\
+\rho_t \prod_{j=1}^{t-1} (1-\rho_j) & t=2,\dots,K
+\end{array} \right.
+\]
+We can obtain the conditional recruitment probabilities using  
+\[
+\xi_t = \frac{\beta_t}{\sum_{j=t}^K\beta_j}, \text{ for } t=1,\dots,K.
+\]
+Note, we only need to have the $\beta_t$ values up to a proportional constant to calculate the $\xi_t$. We prefer the recruitment probability parameterization of the JS model because the constant model, i.e., $\rho_t=\rho$, has biological interpretation about recruitment over time, however the constant model for $\beta_t$ implies changing recruitment probabilities that are not readily apparent. An alternative $\beta_t$ model is presented by \cite{link2005modeling} based on {\it per capita} recruitment parameters. We present this version in the example analysis of Section \ref{sec:dipper} as an alternative to direct estimation of $\boldsymbol{\beta}$.
+
+Now we need to parameterize how an individual enters into the population. When the individual first enters the available population, $\mathcal{A}_t$ it enters into state $s_l$, $l=2,\dots,J-1$ with probability $\alpha_{t-1,l}$. The probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{t,l}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. Finally, $\psi_{t,l,l'}$ is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$. The exit probability $\phi_{t,l}$ can be thought of as a transition probability from state $s_l$ to $s_J$, the absorbing exit state. 
+
+
+
+\subsection{HMM formulations of the Jolly-Seber Model}
+
+ As \cite{glennie2019open} and \cite{mcclintock2020uncovering} show, an individual capture history in a JS models can be formulated as a Hidden Markov Model (HMM). That is, the distribution function for an individual capture-history is calculated with the matrix product,
+%
+\begin{equation}
+\label{eq.uncond.lik}
+[\bx_i|\bt] = \bpi\bP_1(x_{i1})\bG_1\bP_2(x_{i2}) \cdots \bG_{K-1}\bP_k(x_{iK})\mathbf{1}.
+\end{equation}
+where $\bt$ represents the collection of parameters in the model, $\bpi_0$ is the initial state probability vector, $\bP_t(x)$ is a diagonal matrix of observation likelihoods for each state, $\bG_t$ is the probability transition matrix for states, and $\mathbf{1}$ is a vector of ones. Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. 
+
+
+For the general multistate JS model the the matrices in the unconditional likelihood function (\ref{eq.uncond.lik}) are given as follows. First, he initial state probability vector is 
+%
+\[
+\bpi = \begin{blockarray}{cccccc} 
+s_1 & s_2 & \cdots & s_{J-1} & s_J \\
+\begin{block}{[cccccc]}
+1-\xi_1 & \xi_1\alpha_{1,2} & \cdots & \xi_1\alpha_{1,J-1} & 0 \\
+\end{block}
+\end{blockarray}.
+\]
+% 
+
+The observation likelihood matrix in the HMM formulation is
+%
+\[
+\bP_t(x_{it}) = \begin{blockarray}{cccccc} 
+s_1 & s_2 & \cdots & s_{J-1} & s_J \\
+\begin{block}{[ccccc]l}
+I(x_{it}=0) & 0 & 0 & 0 & 0 & s_1\\
+0 & [x_{it} | s_2] & 0 & 0 & 0 & s_2\\
+0 &  0 & \ddots & 0 & 0 & \vdots \\
+0 &  & 0 & [x_{it} | s_{J-1}] & 0 & s_{J-1}\\
+0 & 0 & 0 & 0 & I(x_{it}=0) & s_J\\
+\end{block}
+\end{blockarray},
+\]
+%
+where $[x_{it}|s_l]$ is the likelihood of observing $x_{it}$ given the individual is in state $s_l$. We briefly present a few examples for common models. For a standard Jolly-Seber model with a binary capture history and only 1 available state ($s_2$ = ``alive'') the likelihood would be,
+\[
+[x_{it}|s_2] = \text{Bernoulli}(x_{it}|p_t),
+\]
+where $p_t$ is the probability of capture on occasion $t$. If the model being fit is a robust design formulation \citep{xxx} where $x_{it}$, are the number of captures in $R_t$ sub-occasions within each main occasion, the likelihood would be,
+\[
+[x_{it}|s_2] = \text{Binomial}(x_{it}|R_t, p_t). 
+\]
+In a continuous-time version of the robust design where capturing occurs continuously over $\tau_t$ time units one might use the Poisson distribution 
+\[
+[x_{it}|s_2] = \text{Poisson}(x_{it}|r_t\tau_t),
+\]
+where $r_t$ is the Poisson process detection rate. For a multistate model where $x_{it}$ is recorded as a categorical state with uncertainty (e.g., \citealt{johnson2016multivariate}) then we use the mixture distribution
+\[
+[x_{it}|s_l] = (1-p_{t,l})I(x_{it}=0) + p_{t,l}\text{Categorical}(x_{it}|\bd_l,x_{it}\ne0)
+\]
+where $\bd_l$ is the vector of probabilities for the range of categories that can be observed when the individual is captured in state $s_l$. For example, one might accurately observe the state $x_{it} = s_l$ or it is unknown, say $x_{it} = $``u'', then $\delta_l$ would represent the probability of observing the true state. Finally, the probability transition matrix is, for $t=1,\dots,K-1$,
+%
+\begin{equation}
+\label{eq.gamma.mat}
+\bG_t = \begin{blockarray}{cccccc} 
+s_1 & s_2 & \cdots & s_{J-1} & s_J \\
+\begin{block}{[ccccc]l}
+1-\xi_{t+1} & \xi_{t+1}\alpha_{t+1,2} & \cdots & \xi_{t+1}\alpha_{t+1,J-1} & 0 & s_1\\
+0 & \phi_{t,2} \psi_{t,2,2} & \cdots & \phi_{t,2} \psi_{t,2,J-1} & 1-\phi_{t,2} & s_2\\
+\vdots &  \vdots & \vdots &\vdots & \vdots & \vdots \\
+0 & \phi_{t,J-1} \psi_{t,J-1,2} & \cdots & \phi_{t,J-1} \psi_{t,J-1,J-1} & 1-\phi_{t,J-1} & s_{J-1}\\
+0 & 0 & \cdots & 0 & 1 & s_J\\
+\end{block}
+\end{blockarray}.
+\end{equation}
+%
+
+Now that we have a probabilistic model for generating capture-recapture data we can formulate the likelihood for a set of observed data. First recall that only the individuals that are captured at least once (i.e., $\bx_i \ne \mathbf{0}$) are represented in the capture histories. Therefore, to model the full process that produces the observed data the probability of capture has to be included. Thus the likelihood is
+\begin{equation}
+\label{eq.lik}
+\begin{aligned}
+[\bx,n|\bt,N] &= \prod_{i=1}^n [\bx_i|\bt, \bx_i\ne\mathbf{0}][\bx_i\ne\mathbf{0}|\bt, N] \\
+&\propto \text{Binomial}(n|N,p_*) \times \prod_{i=1}^n \frac{[\bx_i|\bt]}{p_*}
+\end{aligned}
+\end{equation}
+where $p_* = 1- [\bx=\mathbf{0}|\bt]$ is the probability of being captured at least once. \cite{king2015capture} note that the interpretation that the likelihood is the product of the likelihood of capturing $n$ of $N$ individuals at least once multiplied by the likelihood of capture histories conditioned on at least one capture. Readers should note that we have left the portion of the original JS models dealing with loss upon capture. We find this part is often omitted in practice. If needed, it can be included in the model using a either second absorbing state in the transition matrices or a nontrivial observation likelihood, $[x_{it}|s_J]$, to allow, respectively, (1) death upon capture to be modeled as a separate process from natural mortality or (2) acknowledge that the exit (death) state can be explicitly observed with some probability. 
+ 
+
+\subsection{Fully Marginal Bayesian Inference}
+
+The posterior distribution for Bayesian inference of JS models we consider is of the form
+\[
+[\bt, N|\bx, n] \propto [\bx,n|\bt,N]\ [\bt]\ [N],
+\]
+where $[\bt]$ and $[N]$ are the parameter prior distributions. Specifically, for $N$, we are using the abundance prior and hyperprior
+\[
+[N] = \text{Poisson}(N|\lambda)\times  \text{Gamma}(\lambda|\epsilon, \epsilon),
+\]
+where $\epsilon$ is a chosen value near zero. We discuss later that this choice is actually not as consequential as it might seem. Because we assume a Poisson prior distribution for $N$, however, one can easily marginalize over it, to obtain the Poisson form of the JS model,
+\begin{equation}
+\begin{aligned}
+[\bx, n|\bt, \lambda] &= \sum_N[\bx, n|\bt, N]\times \text{Poisson}(N|\lambda) \\
+&\propto \text{Poisson}(n|\lambda p_*) \times \prod_{i=1}^n \frac{[\bx_i|\bt]}{p_*}
+\end{aligned}
+\end{equation}
+This is equivalent in form to the likelihood derived by \cite{glennie2019open} for spatial capture-recapture models when individuals are distributed as a spatial Poisson process. It might seem rather trivial to exchange a Binomial distribution for a Poisson one, however, after this marginalization, the number of undetected animals in the population, $n_u$, is conditionally independent of the observed data, $\bx$ and $n$, that is, 
+\[
+[n_u|\bt, \lambda, \bx, n] = [n_u|p_*, \lambda] = \text{Poisson}(\lambda(1-p_*)).
+\]
+So, for each iteration of an MCMC algorithm it can be directly updated with a draw from a standard Poisson distribution as a posterior predictive variable. Then the prediction for the overall abundance, $N$, results directly from $N = n_u + n$. \cite{schofield2023estimating} and \cite{johnson2010model} both describe abundance estimation in the Poisson approach as {\it predicting} the number of undetected individuals. 
+
+Now we shift our focus to other predictive abundance quantities. While $N$ can be easily sampled at each iteration of an MCMC routine, the $K$ different $N_t$ and, possibly, functions of the series, e.g., population growth, are more likely the desired object of interest. Because we have marginalized over the true states, $z_{it}$ with the HMM-based likelihood calculations it is not as readily apparent how this can be accomplished, however, we can make posterior predictions of these quantities as well. 
+
+The first step for whatever type of inference we want is to sample the $z_{it}$ for the observed individuals from the predictive distribution, $[\bz_{i}| \bt, \bx_i]$. This can be accomplished efficiently with the backward-sampling algorithm for conditional state sampling of HMMs \citep{scott2002bayesian}. The details of the of the backward-sampling algorithm can be found in Appendix A. Heuristically, the algorithm works by first using the HMM forward algorithm \citep{xxx} followed by a backward pass through the capture history to sample the true states at each time. Once we perform the the backward-sampling algorithm for each observed individual we can calculate the derived quantity, $n_{t,l} = \sum_{i=1}^n I(z_{it}=s_l)$, the abundance of individuals in state $s_l$ at time $t$. For simplicity, we use the bold notation, $\bn_t = (n_{t,1},\dots,n_{t,J})$, to represent the vector of state-specific abundances and $n_t = \sum_{l=2}^{J-1} n_{t,l}$ to represent the total abundance of animals in any one of the available states, $s_2,\dots,s_{J-1}$. Of course, depending on what inference is desired that could also be any combination of the available states, for example, reproductive state individuals.    
+
+Now that we have the state and time-specific abundances for the observed individuals, we shift to the undetected individuals. Because there is no capture history to condition upon we can simulate $n_u \sim \text{Poisson}(\lambda(1-p_*))$ realizations of the Markov process formed from $\bpi$ and $\{\bG_1,\dots,\bG_{K-1}\}$. However, because we only need the counts in each state, we do not need to simulate individual capture-histories for all $n_u$ individuals. Algorithm (\ref{alg.undet.abund}) illustrates how this can be accomplished using a sequence of Multinomial draws. 
+\begin{algorithm}
+\label{alg.undet.abund}
+\caption{Posterior predictive sampling of abundance for unobserved individuals}
+\begin{algorithmic}[1]
+\STATE{$\bn_{u,1} \sim \text{Multinomial}(n_u, \bpi_0)$} 
+\FOR{$t$ in $2,\dots,K$}
+	\FOR{$l$ in $1,\dots,J$}
+		\STATE $\mathbf{q}_{t}[l,l'] \propto \bG_{t-1}[l,l'][x_t=0|s_{l'}]$
+		\STATE $\bT_{t-1}[l,1\!:\!J] \sim \text{Multinomial}(\bn_{u,t-1}[l], \mathbf{q}_{t}[l,1\!:\!J])$
+    \ENDFOR
+    \STATE $\bn_{u,t} = \bT_{t-1}'\mathbf{1}$
+    \STATE $n_{u,t} = \sum_{l=2}^{J-1} \bn_{u,t}[l]$
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+Now that we have posterior samples of $\bn_t$ and $\bn_{u,t}$ we can predict the state and time-specific abundances $\bN_t =  \bn_t + \bn_{u,t}$ and $N_t =  n_t + n_{u,t}$ and any function, $f(\bN_1,\dots,\bN_K)$, such as population growth or per capita recruitment \citep{schwarz2001jolly}. 
+
+\section{Examples and Extensions}
+
+\subsection{The Dipper Data}\label{sec:dipper}
+
+In this model we can define 
+\[
+\beta_t \propto \left\{ \begin{array}{ll}
+1  & t=1\\
+d_{t-1} f_{t-1} & t=2,\dots,K
+\end{array} \right.
+\]
+$d_t \propto E[N_t/N_1|\bt, N_1]$ is the expected relative abundance, and $f_t$ is the {\it per capita} recruitment parameter that is estimated. The quantity $d_t$ is calculated with the recursion, $d_{t} = d_{t-1}(\phi_{t-1} + f_{t-1})$ where $d_1 \equiv 1$. 
+
+\subsection{Bottlenose dolphin Abundance, Demography, and Heterogeneity}
+
+Using the results of the previous model development and inference section we will investigate analysis of a population with several issues which complicate Jolly-Seber modeling, heterogeneity in entry, capture, and survival probabilities. 
+
+\cite{caruso2024finite} present an analysis of a common bottlenose dolphin ({\it Tursiops truncatus}) population in the Tiber River estuary of the Mediterranean Sea. This population has one main aspect which makes abundance analysis using a standard JS model complicated. There are three groups of individuals: resident, part-time resident, and transient and it is unknown to which group each individual belongs. These three groups have differences in capture probability because part-time and transient animals have times which they are not in the study area, hence, $p_t = 0$ for these animals on these occasions. Moreover, transient animals enter briefly and leave permanently, thus, $\phi$ will be reduced for these animals. Also, when these animals enter the population might be different, that is, $\beta_t$ is unequal between latent groups. The second issue which complicates the analysis is that the time interval between capture occasions is not constant. Therefore, simplifying assumptions like constant survival ($\phi_t=\phi$) have to be adjusted in the model structure because the intervals over which this process plays out are different. This is straightforward for exit probability, e.g., $\phi_t = \phi^{h_t}$, where $h_t=\tau_{t+1}-\tau_t$ and $\tau_t$ is the time of capture occasion $t$. This will place $\phi$ on a per time unit basis. However, entry probability is more difficult, with big time gaps there may be a significant probability that an individual will enter the population and exit between occasions. 
+
+
+
+
+
+
+
+
+\subsection{Multistate Jolly-Seber Abundance of nesting marine turtles}
+
+Extension to multistate JS models
+
+\subsection{Individual $\times$ time covariates}
+
+Don't think this will happen, but maybe?
+
+\section{Discussion}
+
+why go to the trouble to marginalize to undo it with abundance sampling
+
+There are several reasons for this choice. First \cite{schofield201650} and \cite{schofield2023estimating} show there are several beneficial numerical and statistical properties of the Poisson abundance model. In addition, we can motivate the choice from the data augmentation approach. The prior induced on $N$ using data augmentation is  
+\[
+[N|M, \psi] = \text{binomial}(M,\psi)
+\]
+where $M$ is a chosen upper bound and $\psi$ is an inclusion probability. If we are concerned about issues arising because we choose $M$ too small, then the solution is to let $M\to\infty$, simultaneously letting $\psi \to 0$. If $M\psi \to \lambda$ in the limit we get the Poisson prior we use here. Finally, \cite{link2013cautionary} suggests the scale prior $[N] \propto N^{-1}$ for abundance estimation. One method of approximating this prior is to specify the Poisson prior with Gamma hyper prior as we are using here. Moreover, \cite{schofield2023estimating} shows the posterior distributions are equivalent if one uses the scale priors $[N] \propto N^{-1}$ and $[\lambda] \propto \lambda^{-1}$. Of course, one can always use the improper prior distribution in bespoke MCMC code but the Gamma distribution in already included in software such as NIMBLE and JAGS and can be made as similar as desired, because $\text{Gamma}(\lambda|\epsilon,\epsilon) \to \lambda^{-1}$ as $\epsilon \to 0$. 
+
+
+
+
+\section*{Acknowledgments}
+The findings and conclusions in the paper are those of the authors and do not necessarily represent the views of the National Marine Fisheries Service, NOAA. Reference to trade names does not imply endorsement by the National Marine Fisheries Service, NOAA.
+
+
+\bibliography{bayes_jolly_seber.bib}
+
+\clearpage
+
+%\begin{table}
+%\caption{\label{tab:notation}Glossary of notation for Bayesian abundance estimation from capture-recapture data}
+%\centering
+%\begin{tabular}[t]{l>{\raggedright\arraybackslash}p{10cm}}
+%\toprule
+%Notation & Description\\
+%\midrule
+%$N$ & Total number of individuals to be in the population at some point during the study\\
+%$n$ & Total number of individuals captured at least once during the study\\
+%$n_u$ & Number of individuals in the population at some point that were never captured\\
+%$i$ & Observed individual index ($i=1,\dots,n$)\\
+%$t$ & Capture occasion index ($t=1,\dots,T$)\\
+%$c_{it}$ & Capture indicator for individual $i$ on occasion $t$\\
+%$\bc_i$ & Capture history for individual $i=1,\dots,n$, $\bc_i = (c_{i1},\dots,c_{iT})$\\
+%\midrule
+%$\beta_t$ & Probability that an individual enters (or ``born") into the population between occasion $t$ and $t+1$, $t=0,\dots,T-1$, given that it will enter the population at some time during the study\\ 
+%$\gamma_t$ & Probability that an individual enters the population between occasions $t$ and $t+1$ given that it will do so sometime during the study and it has not done so before occasion $t$, $t=1,\dots,T-1$\\
+%$\delta$ & Probability that an individual is captured at least once during the study\\
+%$\phi_t$ & Probability that an animal survives from occasion $t$ to $t+1$; $t=1,\dots,T-1$\\
+%$p_t$ & Probability that an individual available for capture, i.e., has entered the population and is currently alive, is captured\\
+%\bottomrule
+%\end{tabular}
+%\end{table}
+
+\clearpage 
+
+\appendix
+
+%\section*{Appendix A: A brief review of data augmentation for abundance estimation}
+%
+%To this point, we have not discussed estimation of capture-recapture model parameters and abundance, merely reformulated the the POPAN version of the Jolly-Seber model likelihood. Now we can begin discussing Bayesian estimation via Markov chain Monte Carlo (MCMC). MCMC is universally used do to the fact that for most general cases, closed form solutions are not obtainable. In early versions of MCMC software calculation of the unconditional detection probability, $\delta$, was not always straightforward as model complexity increased. To overcome this \cite{Royle:2007kx} introduced the concept of ``data augmentation'' (DA) for abundance estimation. DA uses the power of MCMC to stochastically integrate over all possible states for all individuals in the population. If we were able to know how many unseen individuals existed in the population, as well as, the states for all individuals, we could use the complete data likelihood, which is composed of many simple models that can easily be implemented in MCMC software. The DA method is formulated as follows. First, suppose there are $M>N$ known {\it possible} members of the population. The analyst must choose a large enough $M$ such that is known to be much larger than $N$. Then $M-n$ null individuals are added to the observed capture-histories to to form the complete capture histories, $\tilde{c}$. The DA posterior distribution is given by,    
+%\[
+%[\bphi, \bp, \ba, \mathbf{w}, \bz, \psi| \tilde{\bc}, M] = \prod_{i=1}^M [w_i|\psi] \prod_{t=1}^T[c_{it}|w_i, z_{it},p_t][z_{it}|\bz_{i,1:(t-1)},\phi_{t-1},\xi_t]
+%\]
+%where $\tilde{\bc}$ represents the capture-histories for all $M$ individuals in the augmented population and $z_{it}$ is an indicator that individual $i$ is in $\mathcal{A}_t$, $w_i$ is an indicator that animal $i$ belongs to the actual population. note that for observed individuals $w_i = 1$ for augmented individuals it must be estimated. The models for each component are
+%\[
+%[w_i|\psi] = \text{Bernoulli}(\psi),
+%\]
+%\[
+%[c_{it}|w_i,z_{it},p_t] = \text{Bernoulli}(w_iz_{it}p_t),
+%\]
+%and
+%\[
+%[z_{i1}|\xi_1 = \alpha_0] = \text{Bernoulli}(\xi_1),
+%\]
+%\[
+%[z_{it}|\bz_{i,1:(t-1)},\phi_{t-1},\xi_t] = \text{Bernoulli}\left(\phi_{t-1}z_{i,t-1} + \xi_t\prod_{k=1}^{t-1}(1-z_{ik})\right),\quad t=2,\dots,T.
+%\]
+%Using the DA approach, $N$ is not a parameter, but a derived calculation $N = \sum_{i=1}^M w_i$ and abundance at each occasion is $N_t = \sum_{i=1}^M w_i z_{it}$ \citep{Royle:2008kx}.
+
+
+\section{Posterior Abundance Sampling Algorithms}
+
+
+\section{Transition matrices for unequal capture occasions}
+
+Here we develop analytical solutions for accounting for unequal capture intervals for standard JS models or models where groups membership is unknown, such as in the dolphin example. If we have other states then solutions become quite cumbersome and we suggest the best approach is to augment occasions where $p_{t,l}=0$ for all states. If the occasions times are not integer based for some time unit, we suggest a continuous-time model (see \citealt{xxx}) for multistate situations. However, if a group-based JS model is desired, there are analytic solutions as illustrated below.  
+
+\subsection{Matrices based on continuous-time models}
+
+When we have uneven sampling intervals, the obvious choice is to model the entry and exit process in continuous time. A continuous-time Markov chain model for a JS entry-exit process is defined by the rate matrix 
+\[
+\mathbf{Q} = \left[
+\begin{array}{ccc}
+-b & b & 0 \\ 
+0 & -d & d \\
+0 & 0 & 0
+\end{array}
+\right],
+\]
+where $b$ is the rate of ``birth'' (entry) and $d$ is the rate of ``death'' (exit). The probability transition matrix for the JS-HMM formulation for a time gap of $h$ units is
+\[
+\bG = \text{expm}(\mathbf{Q}h),
+\]
+where expm() is the matrix exponential function. Unfortunately the expm() function is not readily available in MCMC software such as NIMBLE, however, for the basic JS model with 3 states there is an analytical solution. If we combine this with occasion specific transition rates, $b_t$ and $d_t$, and the fact that we need to condition on entry before the end of the study, we get the following probability that an individual has not recruited by occasion $t+1$ given it has not recruited by occasion $t$,
+\[
+\Gamma_{t,1,1} = \frac{\exp(-b_th_t) - \exp(-\sum_{s=t}^{K-1} b_s h_s)}{1-\exp(-\sum_{s=t}^{K-1} b_s h_s)}
+\]
+This is derived from the fact that in a CTMC wait times between transitions are exponentially distributed with rates equal to the diagonal of $\mathbf{Q}$ and the exponential distribution is also memoryless. The memoryless property implies that given the individual has not recruited by a capture occassion, the exponential distribution resets with the (possibly) new rate. Using these same results we can obtain the probability that an individual has been recruited but not exited between occasions
+\[
+\begin{aligned}
+\Gamma_{t,1,2} &= \frac{\int_0^{h_t} b_t\exp(-bu)\exp(-d(h_t-u))du}{1-\exp(-\sum_{s=t}^{K-1} b_s h_s)} \\
+&= \frac{}{1-\exp(-\sum_{s=t}^{K-1} b_s h_s)}
+\end{aligned}
+\]
+
+\subsection{Matrices for integer based capture occasions}
+
+For integer-based capture occasions we assume that the unequal intervals are based on failure to perform capture sessions at certain times resulting in integer valued $h_t = \tau_{t+1}-\tau_t$. The Markov process for the true states of the individuals at all times are governed by the base transition probability matrices,
+\[
+\tilde{\bG}_{t(s)} = \left[
+\begin{array}{ccc}
+1-\gamma_{t(s)} & \gamma_{t(s)} & 0 \\
+0 & \phi_{t(s)} & 1-\phi_{t(s)} \\
+0 & 0 & 1
+\end{array} 
+\right]
+\]
+where $s$ refers to the evenly spaced time unit intervals between occasions. Thus, what we need for the HMM likelihood are
+\[
+\bG_t = \prod_{s=1}^{h_t} \bG_{t(s)}
+\]
+conditioned on the fact that entry happens before $\tau_K$. We will make the simplifying assumption that $\gamma_{t(s)} = \gamma_t$ and $\phi_{t(s)} = \phi_t$. To determine the transition probabilities over $h_t$ missed occasions we only need to closely examine the first row. Once an individual transitions from $s_1 \to s_2$ the probability of $s_2 \to s_2$, i.e., not exiting is just $\phi_t^{h_t}$ and the probability of $s_2 \to s_3$, exiting the population is $1-\phi_t^{h_t}$ as is classically done in Cormack-Jolly-Seber (CJS) models for survival estimation. So, let us examine the transitions from $s_1$. For $s_1 \to s_1$ these are given by
+\[
+\Gamma_{t,1,1} = \frac{ (1-\gamma_t)^{h_t} - \prod_{u=t}^{K-1}(1-\gamma_t)^{h_u}}{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}}
+\]
+This is just the probability that entry happens after $\tau_t$ but before $\tau_K$ given it happens between $\tau_t$ and $\tau_K$. For $s_1 \to s_2$ we get
+\[
+\begin{aligned}
+\Gamma_{t,1,2} &= \frac{\sum_{u=0}^{h_t-1} (1-\gamma_t)^u \gamma_t \phi^{h_t-u-1} }{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}} \\
+&= \frac{\gamma_t \phi^{h_t-1} \sum_{u=0}^{h_t-1} \left(\frac{1-\gamma_t}{\phi}\right)^u }{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}} \\
+&= \frac{\gamma_t \phi^{h_t-1} \cdot \frac{1-\left(\frac{1-\gamma_t}{\phi_t}\right)^{h_t}}{1-\left(\frac{1-\gamma_t}{\phi_t}\right)}}{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}}
+\end{aligned}
+\]
+The last equality results because the sum is a geometric series with closed form solution. 
+
+
+
+
+\clearpage
+
+
+Figures.
+
+\begin{figure}
+\caption{Test caption}
+\end{figure}
+
+\end{document}
+
