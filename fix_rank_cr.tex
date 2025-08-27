@@ -358,7 +358,7 @@ $d_t \propto E[N_t/N_1|\bt, N_1]$ is the expected relative abundance, and $f_t$ 
 
 Using the results of the previous model development and inference section we will investigate analysis of a population with several issues which complicate Jolly-Seber modeling, heterogeneity in entry, capture, and survival probabilities. 
 
-\cite{caruso2024finite} present an analysis of a common bottlenose dolphin ({\it Tursiops truncatus}) population in the Tiber River estuary of the Mediterranean Sea. This population has one main aspect which makes abundance analysis using a standard JS model complicated. There are three groups of individuals: resident, part-time resident, and transient and it is unknown to which group each individual belongs. These three groups have differences in capture probability because part-time and transient animals have times which they are not in the study area, hence, $p_t = 0$ for these animals on these occasions. Moreover, transient animals enter briefly and leave permanently, thus, $\phi$ will be reduced for these animals. Also, when these animals enter the population might be different, that is, $\beta_t$ is unequal between latent groups. The second issue which complicates the analysis is that the time interval between capture occasions is not constant. Therefore, simplifying assumptions like constant survival ($\phi_t=\phi$) have to be adjusted in the model structure because the intervals over which this process plays out are different. This is straightforward for exit probability, e.g., $\phi_t = \phi^{h_t}$, where $h_t=\tau_{t+1}-\tau_t$ and $\tau_t$ is the time of capture occasion $t$. This will place $\phi$ on a per time unit basis. However, entry probability is more difficult, with big time gaps there may be a significant probability that an individual will enter the population and exit between occasions. 
+\cite{caruso2024finite} present an analysis of a common bottlenose dolphin ({\it Tursiops truncatus}) population in the Tiber River estuary of the Mediterranean Sea. This population has one main aspect which makes abundance analysis using a standard JS model complicated. There are three groups of individuals: resident, part-time resident, and transient and it is unknown to which group each individual belongs. These three groups have differences in capture probability because part-time and transient animals have times which they are not in the study area, hence, there is a reduced detection rate over capture intervals, for these animals. Moreover, transient animals enter briefly and leave permanently, thus, $\phi$ will be reduced for these animals. Also, when these animals enter the population might be different, that is, $\beta_t$ is unequal between latent groups. The second issue which complicates the analysis is that the time interval between capture occasions is not constant. Therefore, simplifying assumptions like constant survival ($\phi_t=\phi$) have to be adjusted in the model structure because the intervals over which this process plays out are different. This is straightforward for exit probability, e.g., $\phi_t = \phi^{h_t}$, where $h_t=\tau_{t+1}-\tau_t$ and $\tau_t$ is the time of capture occasion $t$. This will place $\phi$ on a per time unit basis. However, entry probability is more difficult, with big time gaps there may be a significant probability that an individual will enter the population and exit between occasions. 
 
 
 
@@ -444,7 +444,7 @@ The findings and conclusions in the paper are those of the authors and do not ne
 %Using the DA approach, $N$ is not a parameter, but a derived calculation $N = \sum_{i=1}^M w_i$ and abundance at each occasion is $N_t = \sum_{i=1}^M w_i z_{it}$ \citep{Royle:2008kx}.
 
 
-\section{Posterior State and Abundance Sampling Algorithms}
+\section{Forward-Backward Posterior Abundance Sampling Algorithms}
 
 Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS) algorithm for sampling the conditional posterior distribution of the true state of an individual(s). These algorithms are used within each round of MCMC updates to draw from the state distributions conditional on the observed data and the parameters, $\bt$ at the current iteration. The first version is for updating the true state, $\bz_i=(z_{i,1},\dots,z_{i,K})$ of an observed individual with capture history $\bx_i\ne\mathbf{0}$. The second version is for updating the state and time-specific abundance of all unobserved individuals given the observed data, $\bx=\{\bx_1,\dots,\bx_n\}$, the superpopulation of unobserved individuals, $n_u$, and the current parameters, $\bt$. Both of these algorithms are coded as {\tt nimble} functions ({\tt \verb|sample_det_**|} and {\tt \verb|sample_undet_**|}) in the {\tt nimbleJSextras} package available at \href{https://github.com/dsjohnson/nimbleJSextras}{https://github.com/dsjohnson/nimbleJSextras} and their use is illustrated in the code for each of the example analyses/ 
 
@@ -567,6 +567,68 @@ Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS)
 % \end{aligned}
 % \]
 % The last equality results because the sum is a geometric series with closed form solution. 
+
+%\section{Transition matrices for unequal capture occasions}
+%
+%Here we develop analytical solutions for accounting for unequal capture intervals for standard JS models or models where groups membership is unknown, such as in the dolphin example. If we have other states then solutions become quite cumbersome and we suggest the best approach is to augment occasions where $p_{t,l}=0$ for all states. If the occasions times are not integer based for some time unit, we suggest a continuous-time model (see \citealt{xxx}) for multistate situations. However, if a group-based JS model is desired, there are analytic solutions as illustrated below.  
+%
+%\subsection{Matrices based on continuous-time models}
+%
+%When we have uneven sampling intervals, the obvious choice is to model the entry and exit process in continuous time. A continuous-time Markov chain model for a JS entry-exit process is defined by the rate matrix 
+%\[
+%\mathbf{Q} = \left[
+%\begin{array}{ccc}
+%-b & b & 0 \\ 
+%0 & -d & d \\
+%0 & 0 & 0
+%\end{array}
+%\right],
+%\]
+%where $b$ is the rate of ``birth'' (entry) and $d$ is the rate of ``death'' (exit). The probability transition matrix for the JS-HMM formulation for a time gap of $h$ units is
+%\[
+%\bG = \text{expm}(\mathbf{Q}h),
+%\]
+%where expm() is the matrix exponential function. Unfortunately the expm() function is not readily available in MCMC software such as NIMBLE, however, for the basic JS model with 3 states there is an analytical solution. If we combine this with occasion specific transition rates, $b_t$ and $d_t$, and the fact that we need to condition on entry before the end of the study, we get the following probability that an individual has not recruited by occasion $t+1$ given it has not recruited by occasion $t$,
+%\[
+%\Gamma_{t,1,1} = \frac{\exp(-b_th_t) - \exp(-\sum_{s=t}^{K-1} b_s h_s)}{1-\exp(-\sum_{s=t}^{K-1} b_s h_s)}
+%\]
+%This is derived from the fact that in a CTMC wait times between transitions are exponentially distributed with rates equal to the diagonal of $\mathbf{Q}$ and the exponential distribution is also memoryless. The memoryless property implies that given the individual has not recruited by a capture occassion, the exponential distribution resets with the (possibly) new rate. Using these same results we can obtain the probability that an individual has been recruited but not exited between occasions
+%\[
+%\begin{aligned}
+%\Gamma_{t,1,2} &= \frac{\int_0^{h_t} b_t\exp(-bu)\exp(-d(h_t-u))du}{1-\exp(-\sum_{s=t}^{K-1} b_s h_s)} \\
+%&= \frac{}{1-\exp(-\sum_{s=t}^{K-1} b_s h_s)}
+%\end{aligned}
+%\]
+%
+%\subsection{Matrices for integer based capture occasions}
+%
+%For integer-based capture occasions we assume that the unequal intervals are based on failure to perform capture sessions at certain times resulting in integer valued $h_t = \tau_{t+1}-\tau_t$. The Markov process for the true states of the individuals at all times are governed by the base transition probability matrices,
+%\[
+%\tilde{\bG}_{t(s)} = \left[
+%\begin{array}{ccc}
+%1-\gamma_{t(s)} & \gamma_{t(s)} & 0 \\
+%0 & \phi_{t(s)} & 1-\phi_{t(s)} \\
+%0 & 0 & 1
+%\end{array} 
+%\right]
+%\]
+%where $s$ refers to the evenly spaced time unit intervals between occasions. Thus, what we need for the HMM likelihood are
+%\[
+%\bG_t = \prod_{s=1}^{h_t} \bG_{t(s)}
+%\]
+%conditioned on the fact that entry happens before $\tau_K$. We will make the simplifying assumption that $\gamma_{t(s)} = \gamma_t$ and $\phi_{t(s)} = \phi_t$. To determine the transition probabilities over $h_t$ missed occasions we only need to closely examine the first row. Once an individual transitions from $s_1 \to s_2$ the probability of $s_2 \to s_2$, i.e., not exiting is just $\phi_t^{h_t}$ and the probability of $s_2 \to s_3$, exiting the population is $1-\phi_t^{h_t}$ as is classically done in Cormack-Jolly-Seber (CJS) models for survival estimation. So, let us examine the transitions from $s_1$. For $s_1 \to s_1$ these are given by
+%\[
+%\Gamma_{t,1,1} = \frac{ (1-\gamma_t)^{h_t} - \prod_{u=t}^{K-1}(1-\gamma_t)^{h_u}}{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}}
+%\]
+%This is just the probability that entry happens after $\tau_t$ but before $\tau_K$ given it happens between $\tau_t$ and $\tau_K$. For $s_1 \to s_2$ we get
+%\[
+%\begin{aligned}
+%\Gamma_{t,1,2} &= \frac{\sum_{u=0}^{h_t-1} (1-\gamma_t)^u \gamma_t \phi^{h_t-u-1} }{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}} \\
+%&= \frac{\gamma_t \phi^{h_t-1} \sum_{u=0}^{h_t-1} \left(\frac{1-\gamma_t}{\phi}\right)^u }{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}} \\
+%&= \frac{\gamma_t \phi^{h_t-1} \cdot \frac{1-\left(\frac{1-\gamma_t}{\phi_t}\right)^{h_t}}{1-\left(\frac{1-\gamma_t}{\phi_t}\right)}}{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}}
+%\end{aligned}
+%\]
+%The last equality results because the sum is a geometric series with closed form solution. 
 
 
 
