@@ -2,7 +2,7 @@
 
 \usepackage[margin=1in]{geometry}
 
-\usepackage{amsmath,amssymb,amsthm,epsfig,rotfloat,psfrag,natbib,url,graphicx,lineno}
+\usepackage{amsmath,amssymb,amsthm,epsfig,rotfloat,psfrag,natbib,url,graphicx,lineno,hyperref}
 \usepackage{authblk}
 
 \usepackage[symbol]{footmisc}
@@ -107,18 +107,23 @@
 {\bf Devin S. Johnson}\\
  Pacific Islands Fisheries Science Center,\\
  National Marine Fisheries Service, NOAA, \\
- Fort Collins, Colorado, USA \\
+ Honolulu, Hawai`i, USA \\
  email: {\tt devin.johnson@noaa.gov} \\ \bigskip
 
 {\bf Janelle J. Badger} \\
  Pacific Islands Fisheries Science Center,\\
  National Marine Fisheries Service, NOAA, \\
- Seattle, Washington, USA \\ \bigskip
+ Honolulu, Hawai`i, USA \\ \bigskip
 
 {\bf Shelbie Ishimaru} \\
 Hawai`i Institute of Marine Biology, \\
 University of Hawai`i at Mānoa, \\
-Honolulu, Hawai`i, USA\\ \bigskip
+Honolulu, Hawai`i, USA\\ 
+and \\
+ Pacific Islands Fisheries Science Center,\\
+ National Marine Fisheries Service, NOAA, \\
+ Honolulu, Hawai`i, USA \\ \bigskip
+
 
 \bigskip
 
@@ -193,13 +198,13 @@ There are many different capture-recapture models for estimating abundance, howe
 
 \subsection{Notation for a general Jolly-Seber type model}
 
-In a Jolly-Seber (JS) model the population is described as $N$ individuals that are available for capture in at least one occasion during the study. This is sometimes referred to as a superpopulation because not all individuals may be present at the same time. We use the notation $\mathcal{A}_t$ to mean the collection of individuals available for capture on occasion $t=1,\dots,K$, that is, those individuals that have entered prior to the occasion $t$ and have not yet exited. The superpopulation of individuals is $\mathcal{A} = \bigcup_{t=1}^k \mathcal{A}_t$. The occasion specific abundance is the size of the available population on occasion $t$, $N_t= |\mathcal{A}_t|$. Note, for an open population, $N = |\mathcal{A}| \ne \sum_{t=1}^k N_t$. Traditionally, data for the JS model are composed of capture histories for each individual observed at least once, $\bx_i = (x_{i1},\dots,x_{ik})$ where $x_{it} \in \{0,1\}$ depending on whether or not individual $i$, $i=1,\dots,n$ was captured on occasion $t$. However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was detected in $R_t$ sub-occasions during primary occasion $t$ for robust design samples. Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured. Technically all JS models are multistate in essence, with states, ``pre-entry" (birth), ``available", and ``exit" (death). For this paper we will expand the set of states so that we may include multistate models \citep{xxx} as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the exit state. The notation $z_{it}$ will represent the true state of individual $i$ on occasion $t$, which may, or may not, be observed accurately upon capture. 
+In a Jolly-Seber (JS) model the population is described as $N$ individuals that are available for capture in at least one occasion during the study. This is sometimes referred to as a superpopulation because not all individuals are usually present at the same time. We use the notation $\mathcal{A}_t$ to mean the collection of individuals available for capture on occasion $t=1,\dots,K$, that is, those individuals that have entered prior to the occasion $t$ and have not yet exited. The superpopulation of individuals is $\mathcal{A} = \bigcup_{t=1}^k \mathcal{A}_t$. The occasion specific abundance is the size of the available population on occasion $t$, $N_t= |\mathcal{A}_t|$. Note, for an open population, $N = |\mathcal{A}| \ne \sum_{t=1}^k N_t$. Traditionally, data for the JS model are composed of capture histories for each individual observed at least once, $\bx_i = (x_{i1},\dots,x_{ik})$ where $x_{it} \in \{0,1\}$ depending on whether or not individual $i$, $i=1,\dots,n$ was captured on occasion $t$. However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was detected in $R_t$ sub-occasions during primary occasion $t$ for robust design samples. Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured. Technically all JS models are multistate in essence, with states, ``pre-entry" (birth), ``available", and ``exit" (death). For this paper we will expand the set of states so that we may include multistate models \citep{xxx} as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the exit state. The notation $z_{it}$ will represent the true state of individual $i$ on occasion $t$, which may, or may not, be observed accurately upon capture. 
 
 Now that we have the population and individual data described we can document the components of the probabilistic process for generating abundance and individual states. The probability that the individual enters an available population between occasions $t-1$ and $t$ given it has not already entered (recruitment) is denoted by $\rho_t$, $t=1,\dots,K$. Without constraints there is a nonzero probability that the individual may not enter the population before $K$, so, we must condition on the fact that entry happens before occasion $K$. This conditional probability is 
 \[
 \xi_t = \frac{\rho_t}{1-\prod_{j=t}^{K} (1-\rho_j)}
 \]
-Note that there are only $K-1$ free parameters as $\xi_K \equiv 1$. \citet{schwarz1996general} and \cite{crosbie1985parsimonious} parmeterized entry the JS model using marginal multinomial probabilities $\beta_1,\dots,\beta_K$ which are the unconditional probabilities that an individual first enters between occasions $t-1$ and $t$. Note that $\sum \beta_t = 1$ still enforces entry before the end of the study. In terms of the recruitment probabilities, we can form the marginal $\beta$ parameters with the relationship,
+Note that there are only $K-1$ free parameters as $\xi_K \equiv 1$. \citet{schwarz1996general} and \cite{crosbie1985parsimonious} parameterized entry in the JS model using marginal multinomial probabilities $\beta_1,\dots,\beta_K$ which are the unconditional probabilities that an individual enters between occasions $t-1$ and $t$. In terms of the recruitment probabilities, we can form the marginal $\beta$ parameters with the relationship,
 \[
 \beta_t \propto \left\{ \begin{array}{ll}
 \rho_1  & t=1\\
@@ -210,9 +215,9 @@ We can obtain the conditional recruitment probabilities using
 \[
 \xi_t = \frac{\beta_t}{\sum_{j=t}^K\beta_j}, \text{ for } t=1,\dots,K.
 \]
-Note, we only need to have the $\beta_t$ values up to a proportional constant to calculate the $\xi_t$. We prefer the recruitment probability parameterization of the JS model because the constant model, i.e., $\rho_t=\rho$, has biological interpretation about recruitment over time, however the constant model for $\beta_t$ implies changing recruitment probabilities that are not readily apparent. An alternative $\beta_t$ model is presented by \cite{link2005modeling} based on {\it per capita} recruitment parameters. We present this version in the example analysis of Section \ref{sec:dipper} as an alternative to direct estimation of $\boldsymbol{\beta}$.
+Note, we only need to have the $\beta_t$ values up to a proportional constant to calculate the $\xi_t$. We prefer the recruitment probability parameterization of the JS model because the constant model, i.e., $\rho_t=\rho$, has biological interpretation about recruitment over time, however the constant model for $\beta_t$ implies changing recruitment probabilities that are not readily apparent. An alternative $\beta_t$ model is presented by \cite{link2005modeling} based on {\it per capita} recruitment parameters. We present this version in the example analysis of Section \ref{sec:dipper} as an alternative to direct estimation of $\boldsymbol{\beta}$ as presented by \citet{Royle:2008kx}.
 
-Now we need to parameterize how an individual enters into the population. When the individual first enters the available population, $\mathcal{A}_t$ it enters into state $s_l$, $l=2,\dots,J-1$ with probability $\alpha_{t-1,l}$. The probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{t,l}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. Finally, $\psi_{t,l,l'}$ is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$. The exit probability $\phi_{t,l}$ can be thought of as a transition probability from state $s_l$ to $s_J$, the absorbing exit state. 
+Now we proceed in describing how an individual enters into the population and transitions between states and exits. When the individual first enters the available population, $\mathcal{A}_t$ it enters into state $s_l$, $l=2,\dots,J-1$ with probability $\alpha_{t,l}$ ($\sum_{l=2}^{J-1} \alpha_{t,l}=1$). The probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{t,l}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. Finally, $\psi_{t,l,l'}$ ($\sum_{l'=2}^{J-1}\psi_{t,l,l'} = 1$) is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$ . The exit probability $\phi_{t,l}$ can be thought of as a transition probability from state $s_l$ to $s_J$, the absorbing exit state just as $\xi_t$ is the transition probability out of $s_1$. 
 
 
 
@@ -224,7 +229,7 @@ Now we need to parameterize how an individual enters into the population. When t
 \label{eq.uncond.lik}
 [\bx_i|\bt] = \bpi\bP_1(x_{i1})\bG_1\bP_2(x_{i2}) \cdots \bG_{K-1}\bP_k(x_{iK})\mathbf{1}.
 \end{equation}
-where $\bt$ represents the collection of parameters in the model, $\bpi_0$ is the initial state probability vector, $\bP_t(x)$ is a diagonal matrix of observation likelihoods for each state, $\bG_t$ is the probability transition matrix for states, and $\mathbf{1}$ is a vector of ones. Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. 
+where $\bt$ represents the collection of parameters in the model, $\bpi$ is the initial state probability vector, $\bP_t(x)$ is a diagonal matrix of observation likelihoods for each state, $\bG_t$ is the probability transition matrix for states, and $\mathbf{1}$ is a vector of ones. Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. 
 
 
 For the general multistate JS model the the matrices in the unconditional likelihood function (\ref{eq.uncond.lik}) are given as follows. First, he initial state probability vector is 
@@ -321,31 +326,24 @@ This is equivalent in form to the likelihood derived by \cite{glennie2019open} f
 \]
 So, for each iteration of an MCMC algorithm it can be directly updated with a draw from a standard Poisson distribution as a posterior predictive variable. Then the prediction for the overall abundance, $N$, results directly from $N = n_u + n$. \cite{schofield2023estimating} and \cite{johnson2010model} both describe abundance estimation in the Poisson approach as {\it predicting} the number of undetected individuals. 
 
-Now we shift our focus to other predictive abundance quantities. While $N$ can be easily sampled at each iteration of an MCMC routine, the $K$ different $N_t$ and, possibly, functions of the series, e.g., population growth, are more likely the desired object of interest. Because we have marginalized over the true states, $z_{it}$ with the HMM-based likelihood calculations it is not as readily apparent how this can be accomplished, however, we can make posterior predictions of these quantities as well. 
+Now we shift our focus to other predictive abundance quantities. While $N$ can be easily sampled at each iteration of an MCMC routine, the $K$ different $N_t$ and, possibly, functions of the series, e.g., population growth, are more likely the desired object of interest. Because we have marginalized over the true states, $z_{it}$ with the HMM-based likelihood calculations it is not as readily apparent how this can be accomplished, however, we can use standard HMM algorithms to efficiently draw from those posterior distributions as well. 
 
-The first step for whatever type of inference we want is to sample the $z_{it}$ for the observed individuals from the predictive distribution, $[\bz_{i}| \bt, \bx_i]$. This can be accomplished efficiently with the backward-sampling algorithm for conditional state sampling of HMMs \citep{scott2002bayesian}. The details of the of the backward-sampling algorithm can be found in Appendix A. Heuristically, the algorithm works by first using the HMM forward algorithm \citep{xxx} followed by a backward pass through the capture history to sample the true states at each time. Once we perform the the backward-sampling algorithm for each observed individual we can calculate the derived quantity, $n_{t,l} = \sum_{i=1}^n I(z_{it}=s_l)$, the abundance of individuals in state $s_l$ at time $t$. For simplicity, we use the bold notation, $\bn_t = (n_{t,1},\dots,n_{t,J})$, to represent the vector of state-specific abundances and $n_t = \sum_{l=2}^{J-1} n_{t,l}$ to represent the total abundance of animals in any one of the available states, $s_2,\dots,s_{J-1}$. Of course, depending on what inference is desired that could also be any combination of the available states, for example, reproductive state individuals.    
+The first step for whatever type of inference we want is to sample the $z_{it}$ for the observed individuals from the predictive distribution, $[\bz_{i}| \bx_i,\bt]$. This can be accomplished efficiently with the Forward--Filtering Backward--Sampling (FFBS) algorithm for conditional state sampling of HMMs \citep{scott2002bayesian}. The details of the of the FFBS algorithm can be found in Appendix A (algorithm 1). Heuristically, the algorithm works by first using the HMM forward algorithm \citep{xxx} followed by a backward pass through the capture history to sample $z_{i,t}\sim [z_{i,t}|z_{i,t+1},\dots,z_{i,K},\bx_i,\bt]$ at each time. Once we perform the the backward-sampling algorithm for each observed individual we can calculate the derived quantity, $n_{t,l} = \sum_{i=1}^n I(z_{i,t}=s_l)$, the abundance of individuals in state $s_l$ at time $t$. For simplicity, we use the bold notation, $\bn_t = (n_{t,1},\dots,n_{t,J})$, to represent the vector of state-specific abundances and $n_t = \sum_{l=2}^{J-1} n_{t,l}$ to represent the total abundance of animals in any one of the available states, $s_2,\dots,s_{J-1}$. Of course, depending on what inference is desired that could also be any combination of the available states, for example, number of reproductive state individuals.    
 
-Now that we have the state and time-specific abundances for the observed individuals, we shift to the undetected individuals. Because there is no capture history to condition upon we can simulate $n_u \sim \text{Poisson}(\lambda(1-p_*))$ realizations of the Markov process formed from $\bpi$ and $\{\bG_1,\dots,\bG_{K-1}\}$. However, because we only need the counts in each state, we do not need to simulate individual capture-histories for all $n_u$ individuals. Algorithm (\ref{alg.undet.abund}) illustrates how this can be accomplished using a sequence of Multinomial draws. 
-\begin{algorithm}
-\label{alg.undet.abund}
-\caption{Posterior predictive sampling of abundance for unobserved individuals}
-\begin{algorithmic}[1]
-\STATE{$\bn_{u,1} \sim \text{Multinomial}(n_u, \bpi_0)$} 
-\FOR{$t$ in $2,\dots,K$}
-	\FOR{$l$ in $1,\dots,J$}
-		\STATE $\mathbf{q}_{t}[l,l'] \propto \bG_{t-1}[l,l'][x_t=0|s_{l'}]$
-		\STATE $\bT_{t-1}[l,1\!:\!J] \sim \text{Multinomial}(\bn_{u,t-1}[l], \mathbf{q}_{t}[l,1\!:\!J])$
-    \ENDFOR
-    \STATE $\bn_{u,t} = \bT_{t-1}'\mathbf{1}$
-    \STATE $n_{u,t} = \sum_{l=2}^{J-1} \bn_{u,t}[l]$
-\ENDFOR
-\end{algorithmic}
-\end{algorithm}
+Now that we have the state and time-specific abundances for the observed individuals, we shift to the individuals that are never captured. We begin by drawing the uncaptured superpopulation size $n_u \sim \text{Poisson}(\lambda(1-p_*))$.  We could use the same FFBS algorithm to individually sample the states of all $n_u$ individuals all with the capture-history $\bx_i=\mathbf{0}$. However, Because all uncaptured individuals have the same capture-history, we can use a multinational version of the FFBS, to sample the state and time-specific abundance in one forward and backward algorithm (Appendix A, algorithm 2) without simulating individual state histories.  
+
 Now that we have posterior samples of $\bn_t$ and $\bn_{u,t}$ we can predict the state and time-specific abundances $\bN_t =  \bn_t + \bn_{u,t}$ and $N_t =  n_t + n_{u,t}$ and any function, $f(\bN_1,\dots,\bN_K)$, such as population growth or per capita recruitment \citep{schwarz2001jolly}. 
 
 \section{Examples and Extensions}
 
 \subsection{The Dipper Data}\label{sec:dipper}
+
+cormack (1964 Biometrika) cjs
+
+Lebreton, Burnham, Clobert and Anderson (1992, Ecological Monographs) as JS
+
+Royle and Dorazio (2008) in a bayesian example
+
 
 In this model we can define 
 \[
@@ -373,9 +371,6 @@ Using the results of the previous model development and inference section we wil
 
 Extension to multistate JS models
 
-\subsection{Individual $\times$ time covariates}
-
-Don't think this will happen, but maybe?
 
 \section{Discussion}
 
@@ -449,70 +444,129 @@ The findings and conclusions in the paper are those of the authors and do not ne
 %Using the DA approach, $N$ is not a parameter, but a derived calculation $N = \sum_{i=1}^M w_i$ and abundance at each occasion is $N_t = \sum_{i=1}^M w_i z_{it}$ \citep{Royle:2008kx}.
 
 
-\section{Posterior Abundance Sampling Algorithms}
+\section{Posterior State and Abundance Sampling Algorithms}
 
+Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS) algorithm for sampling the conditional posterior distribution of the true state of an individual(s). These algorithms are used within each round of MCMC updates to draw from the state distributions conditional on the observed data and the parameters, $\bt$ at the current iteration. The first version is for updating the true state, $\bz_i=(z_{i,1},\dots,z_{i,K})$ of an observed individual with capture history $\bx_i\ne\mathbf{0}$. The second version is for updating the state and time-specific abundance of all unobserved individuals given the observed data, $\bx=\{\bx_1,\dots,\bx_n\}$, the superpopulation of unobserved individuals, $n_u$, and the current parameters, $\bt$. Both of these algorithms are coded as {\tt nimble} functions ({\tt \verb|sample_det_**|} and {\tt \verb|sample_undet_**|}) in the {\tt nimbleJSextras} package available at \href{https://github.com/dsjohnson/nimbleJSextras}{https://github.com/dsjohnson/nimbleJSextras} and their use is illustrated in the code for each of the example analyses/ 
 
-\section{Transition matrices for unequal capture occasions}
+\begin{algorithm}[H]
+\caption{FFBS for Observed Individuals}
+\begin{algorithmic}[1]
+\STATE \textbf{Inputs:} $\bx_i$, $\bpi$, $\{\bG_t\}$, $\{\mathbf{P}_t(x_{i,t})\}$
+\STATE \textbf{Output:} posterior draw of hidden state sequence $\mathbf{z}_i \sim [\mathbf{z}_i|\bx_i, \bt]$
 
-Here we develop analytical solutions for accounting for unequal capture intervals for standard JS models or models where groups membership is unknown, such as in the dolphin example. If we have other states then solutions become quite cumbersome and we suggest the best approach is to augment occasions where $p_{t,l}=0$ for all states. If the occasions times are not integer based for some time unit, we suggest a continuous-time model (see \citealt{xxx}) for multistate situations. However, if a group-based JS model is desired, there are analytic solutions as illustrated below.  
+\vspace{0.5em}
+\STATE \textbf{Forward pass:}
+\STATE Compute $\mathbf{f}_1 = \bpi \mathbf{P}_1(x_{i,1})$
+\STATE Normalize $\mathbf{f}_{1} = \mathbf{f}_{1}/\text{sum}(\mathbf{f}_{1})$
+\FOR{$t = 1$ to $K-1$}
+    \STATE $\mathbf{f}_{t+1} = \mathbf{f}_{t} \bG_{t} \mathbf{P}_{t+1}(x_{i,t+1}) $
+    \STATE Normalize $\mathbf{f}_{t+1} = \mathbf{f}_{t+1}/\text{sum}(\mathbf{f}_{t+1})$
+\ENDFOR
 
-\subsection{Matrices based on continuous-time models}
+\vspace{0.5em}
+\STATE \textbf{Backward sampling:}
+\STATE Sample $z_{i,K} \sim \text{categorical}(\mathbf{f}_K)$
+\FOR{$t = K-1$ down to $1$}
+    \STATE Compute $\mathbf{b} = \mathbf{f}_t \odot \bG_t[,z_{i,t+1}]$ ($\odot$ \text{ is elementwise multiplication})
+    \STATE Normalize $\mathbf{b} = \mathbf{b}/\text{sum}(\mathbf{b})$
+     \STATE Sample $z_{i,t} \sim \text{categorical}(\mathbf{b})$
+\ENDFOR
+\STATE Return $\mathbf{z}_i=(z_{i,1},\dots,z_{i,K})$
+\end{algorithmic}
+\end{algorithm}
 
-When we have uneven sampling intervals, the obvious choice is to model the entry and exit process in continuous time. A continuous-time Markov chain model for a JS entry-exit process is defined by the rate matrix 
-\[
-\mathbf{Q} = \left[
-\begin{array}{ccc}
--b & b & 0 \\ 
-0 & -d & d \\
-0 & 0 & 0
-\end{array}
-\right],
-\]
-where $b$ is the rate of ``birth'' (entry) and $d$ is the rate of ``death'' (exit). The probability transition matrix for the JS-HMM formulation for a time gap of $h$ units is
-\[
-\bG = \text{expm}(\mathbf{Q}h),
-\]
-where expm() is the matrix exponential function. Unfortunately the expm() function is not readily available in MCMC software such as NIMBLE, however, for the basic JS model with 3 states there is an analytical solution. If we combine this with occasion specific transition rates, $b_t$ and $d_t$, and the fact that we need to condition on entry before the end of the study, we get the following probability that an individual has not recruited by occasion $t+1$ given it has not recruited by occasion $t$,
-\[
-\Gamma_{t,1,1} = \frac{\exp(-b_th_t) - \exp(-\sum_{s=t}^{K-1} b_s h_s)}{1-\exp(-\sum_{s=t}^{K-1} b_s h_s)}
-\]
-This is derived from the fact that in a CTMC wait times between transitions are exponentially distributed with rates equal to the diagonal of $\mathbf{Q}$ and the exponential distribution is also memoryless. The memoryless property implies that given the individual has not recruited by a capture occassion, the exponential distribution resets with the (possibly) new rate. Using these same results we can obtain the probability that an individual has been recruited but not exited between occasions
-\[
-\begin{aligned}
-\Gamma_{t,1,2} &= \frac{\int_0^{h_t} b_t\exp(-bu)\exp(-d(h_t-u))du}{1-\exp(-\sum_{s=t}^{K-1} b_s h_s)} \\
-&= \frac{}{1-\exp(-\sum_{s=t}^{K-1} b_s h_s)}
-\end{aligned}
-\]
+\begin{algorithm}[H]
+\caption{FFBS for Unobserved Individuals}
+\begin{algorithmic}[1]
+\STATE \textbf{Inputs:} $\bpi$, $\{\bG_t\}$, $\{\mathbf{P}_t(0)\}$, $n_u$.
+\STATE \textbf{Output:} posterior draw of abundance of unobserved individuals $\mathbf{n}_{u} \sim [\mathbf{n}_{u}|\bx, n, \bt]$, where $\mathbf{n}_u$ is a $J\times K$ matrix of state- and occasion-specific abundance. 
 
-\subsection{Matrices for integer based capture occasions}
+\vspace{0.5em}
+\STATE \textbf{Forward pass:}
+\STATE Compute $\mathbf{f}_1 = \bpi \mathbf{P}(0)$
+\STATE Normalize $\mathbf{f}_{1} = \mathbf{f}_{1}/\text{sum}(\mathbf{f}_{1})$
+\FOR{$t = 1$ to $K-1$}
+    \STATE $\mathbf{f}_{t+1} = \mathbf{f}_{t} \bG_{t} \mathbf{P}_{t+1}(0) $
+    \STATE Normalize $\mathbf{f}_{t+1} = \mathbf{f}_{t+1}/\text{sum}(\mathbf{f}_{t+1})$
+\ENDFOR
+\vspace{0.5em}
+\STATE \textbf{Backward sampling:}
+\STATE Sample $\mathbf{n}_u[,K] \sim \text{multinomial}(n_u,\mathbf{f}_K)$
+\FOR{$t = K-1$ down to $1$}
+    \FOR{$l=1$ to $J$}
+     \STATE Compute $\mathbf{b} = \mathbf{f}_t \odot \bG_t[,l]$ ($\odot$ \text{ is elementwise multiplication})
+     \STATE Normalize $\mathbf{b} = \mathbf{b}/\text{sum}(\mathbf{b})$
+     \STATE Sample $\mathbf{Z}[,l] \sim \text{multinomial}(\mathbf{n}_u[l,t+1], \mathbf{b})$
+    \ENDFOR
+    \FOR{$l=1$ to $J$}
+        \STATE $\mathbf{n}_u[l,t] = \text{sum}(\mathbf{Z}[l,])$
+    \ENDFOR
+\ENDFOR
+\STATE Return $\mathbf{\mathbf{n}_u}$
+\end{algorithmic}
+\end{algorithm}
 
-For integer-based capture occasions we assume that the unequal intervals are based on failure to perform capture sessions at certain times resulting in integer valued $h_t = \tau_{t+1}-\tau_t$. The Markov process for the true states of the individuals at all times are governed by the base transition probability matrices,
-\[
-\tilde{\bG}_{t(s)} = \left[
-\begin{array}{ccc}
-1-\gamma_{t(s)} & \gamma_{t(s)} & 0 \\
-0 & \phi_{t(s)} & 1-\phi_{t(s)} \\
-0 & 0 & 1
-\end{array} 
-\right]
-\]
-where $s$ refers to the evenly spaced time unit intervals between occasions. Thus, what we need for the HMM likelihood are
-\[
-\bG_t = \prod_{s=1}^{h_t} \bG_{t(s)}
-\]
-conditioned on the fact that entry happens before $\tau_K$. We will make the simplifying assumption that $\gamma_{t(s)} = \gamma_t$ and $\phi_{t(s)} = \phi_t$. To determine the transition probabilities over $h_t$ missed occasions we only need to closely examine the first row. Once an individual transitions from $s_1 \to s_2$ the probability of $s_2 \to s_2$, i.e., not exiting is just $\phi_t^{h_t}$ and the probability of $s_2 \to s_3$, exiting the population is $1-\phi_t^{h_t}$ as is classically done in Cormack-Jolly-Seber (CJS) models for survival estimation. So, let us examine the transitions from $s_1$. For $s_1 \to s_1$ these are given by
-\[
-\Gamma_{t,1,1} = \frac{ (1-\gamma_t)^{h_t} - \prod_{u=t}^{K-1}(1-\gamma_t)^{h_u}}{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}}
-\]
-This is just the probability that entry happens after $\tau_t$ but before $\tau_K$ given it happens between $\tau_t$ and $\tau_K$. For $s_1 \to s_2$ we get
-\[
-\begin{aligned}
-\Gamma_{t,1,2} &= \frac{\sum_{u=0}^{h_t-1} (1-\gamma_t)^u \gamma_t \phi^{h_t-u-1} }{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}} \\
-&= \frac{\gamma_t \phi^{h_t-1} \sum_{u=0}^{h_t-1} \left(\frac{1-\gamma_t}{\phi}\right)^u }{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}} \\
-&= \frac{\gamma_t \phi^{h_t-1} \cdot \frac{1-\left(\frac{1-\gamma_t}{\phi_t}\right)^{h_t}}{1-\left(\frac{1-\gamma_t}{\phi_t}\right)}}{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}}
-\end{aligned}
-\]
-The last equality results because the sum is a geometric series with closed form solution. 
+% \section{Transition matrices for unequal capture occasions}
+
+% Here we develop analytical solutions for accounting for unequal capture intervals for standard JS models or models where groups membership is unknown, such as in the dolphin example. If we have other states then solutions become quite cumbersome and we suggest the best approach is to augment occasions where $p_{t,l}=0$ for all states. If the occasions times are not integer based for some time unit, we suggest a continuous-time model (see \citealt{xxx}) for multistate situations. However, if a group-based JS model is desired, there are analytic solutions as illustrated below.  
+
+% \subsection{Matrices based on continuous-time models}
+
+% When we have uneven sampling intervals, the obvious choice is to model the entry and exit process in continuous time. A continuous-time Markov chain model for a JS entry-exit process is defined by the rate matrix 
+% \[
+% \mathbf{Q} = \left[
+% \begin{array}{ccc}
+% -b & b & 0 \\ 
+% 0 & -d & d \\
+% 0 & 0 & 0
+% \end{array}
+% \right],
+% \]
+% where $b$ is the rate of ``birth'' (entry) and $d$ is the rate of ``death'' (exit). The probability transition matrix for the JS-HMM formulation for a time gap of $h$ units is
+% \[
+% \bG = \text{expm}(\mathbf{Q}h),
+% \]
+% where expm() is the matrix exponential function. Unfortunately the expm() function is not readily available in MCMC software such as NIMBLE, however, for the basic JS model with 3 states there is an analytical solution. If we combine this with occasion specific transition rates, $b_t$ and $d_t$, and the fact that we need to condition on entry before the end of the study, we get the following probability that an individual has not recruited by occasion $t+1$ given it has not recruited by occasion $t$,
+% \[
+% \Gamma_{t,1,1} = \frac{\exp(-b_th_t) - \exp(-\sum_{s=t}^{K-1} b_s h_s)}{1-\exp(-\sum_{s=t}^{K-1} b_s h_s)}
+% \]
+% This is derived from the fact that in a CTMC wait times between transitions are exponentially distributed with rates equal to the diagonal of $\mathbf{Q}$ and the exponential distribution is also memoryless. The memoryless property implies that given the individual has not recruited by a capture occassion, the exponential distribution resets with the (possibly) new rate. Using these same results we can obtain the probability that an individual has been recruited but not exited between occasions
+% \[
+% \begin{aligned}
+% \Gamma_{t,1,2} &= \frac{\int_0^{h_t} b_t\exp(-bu)\exp(-d(h_t-u))du}{1-\exp(-\sum_{s=t}^{K-1} b_s h_s)} \\
+% &= \frac{}{1-\exp(-\sum_{s=t}^{K-1} b_s h_s)}
+% \end{aligned}
+% \]
+
+% \subsection{Matrices for integer based capture occasions}
+
+% For integer-based capture occasions we assume that the unequal intervals are based on failure to perform capture sessions at certain times resulting in integer valued $h_t = \tau_{t+1}-\tau_t$. The Markov process for the true states of the individuals at all times are governed by the base transition probability matrices,
+% \[
+% \tilde{\bG}_{t(s)} = \left[
+% \begin{array}{ccc}
+% 1-\gamma_{t(s)} & \gamma_{t(s)} & 0 \\
+% 0 & \phi_{t(s)} & 1-\phi_{t(s)} \\
+% 0 & 0 & 1
+% \end{array} 
+% \right]
+% \]
+% where $s$ refers to the evenly spaced time unit intervals between occasions. Thus, what we need for the HMM likelihood are
+% \[
+% \bG_t = \prod_{s=1}^{h_t} \bG_{t(s)}
+% \]
+% conditioned on the fact that entry happens before $\tau_K$. We will make the simplifying assumption that $\gamma_{t(s)} = \gamma_t$ and $\phi_{t(s)} = \phi_t$. To determine the transition probabilities over $h_t$ missed occasions we only need to closely examine the first row. Once an individual transitions from $s_1 \to s_2$ the probability of $s_2 \to s_2$, i.e., not exiting is just $\phi_t^{h_t}$ and the probability of $s_2 \to s_3$, exiting the population is $1-\phi_t^{h_t}$ as is classically done in Cormack-Jolly-Seber (CJS) models for survival estimation. So, let us examine the transitions from $s_1$. For $s_1 \to s_1$ these are given by
+% \[
+% \Gamma_{t,1,1} = \frac{ (1-\gamma_t)^{h_t} - \prod_{u=t}^{K-1}(1-\gamma_t)^{h_u}}{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}}
+% \]
+% This is just the probability that entry happens after $\tau_t$ but before $\tau_K$ given it happens between $\tau_t$ and $\tau_K$. For $s_1 \to s_2$ we get
+% \[
+% \begin{aligned}
+% \Gamma_{t,1,2} &= \frac{\sum_{u=0}^{h_t-1} (1-\gamma_t)^u \gamma_t \phi^{h_t-u-1} }{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}} \\
+% &= \frac{\gamma_t \phi^{h_t-1} \sum_{u=0}^{h_t-1} \left(\frac{1-\gamma_t}{\phi}\right)^u }{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}} \\
+% &= \frac{\gamma_t \phi^{h_t-1} \cdot \frac{1-\left(\frac{1-\gamma_t}{\phi_t}\right)^{h_t}}{1-\left(\frac{1-\gamma_t}{\phi_t}\right)}}{1 - \prod_{u=t}^{K-1}(1-\gamma_u)^{h_u}}
+% \end{aligned}
+% \]
+% The last equality results because the sum is a geometric series with closed form solution. 
 
 
 
