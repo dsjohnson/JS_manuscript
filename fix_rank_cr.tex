@@ -328,7 +328,7 @@ So, for each iteration of an MCMC algorithm it can be directly updated with a dr
 
 Now we shift our focus to other predictive abundance quantities. While $N$ can be easily sampled at each iteration of an MCMC routine, the $K$ different $N_t$ and, possibly, functions of the series, e.g., population growth, are more likely the desired object of interest. Because we have marginalized over the true states, $z_{it}$ with the HMM-based likelihood calculations it is not as readily apparent how this can be accomplished, however, we can use standard HMM algorithms to efficiently draw from those posterior distributions as well. 
 
-The first step for whatever type of inference we want is to sample the $z_{it}$ for the observed individuals from the predictive distribution, $[\bz_{i}| \bx_i,\bt]$. This can be accomplished efficiently with the Forward--Filtering Backward--Sampling (FFBS) algorithm for conditional state sampling of HMMs \citep{scott2002bayesian}. The details of the of the FFBS algorithm can be found in Appendix A (algorithm 1). Heuristically, the algorithm works by first using the HMM forward algorithm \citep{xxx} followed by a backward pass through the capture history to sample $z_{i,t}\sim [z_{i,t}|z_{i,t+1},\dots,z_{i,K},\bx_i,\bt]$ at each time. Once we perform the the backward-sampling algorithm for each observed individual we can calculate the derived quantity, $n_{t,l} = \sum_{i=1}^n I(z_{i,t}=s_l)$, the abundance of individuals in state $s_l$ at time $t$. For simplicity, we use the bold notation, $\bn_t = (n_{t,1},\dots,n_{t,J})$, to represent the vector of state-specific abundances and $n_t = \sum_{l=2}^{J-1} n_{t,l}$ to represent the total abundance of animals in any one of the available states, $s_2,\dots,s_{J-1}$. Of course, depending on what inference is desired that could also be any combination of the available states, for example, number of reproductive state individuals.    
+The first step for whatever type of inference we want is to sample the $z_{it}$ for the observed individuals from the predictive distribution, $[\bz_{i}| \bx_i,\bt]$. This can be accomplished efficiently with the Forward--Filtering Backward--Sampling (FFBS) algorithm for conditional state sampling of HMMs \citep{scott2002bayesian}. The details of the of the FFBS algorithm can be found in Appendix A (algorithm 1). Heuristically, the algorithm works by first using the HMM forward algorithm \citep{xxx} followed by a backward pass through the capture history to sample from $[z_{i,t}|z_{i,t+1},\dots,z_{i,K},\bx_i,\bt]$ at each time. Once we perform the the backward-sampling algorithm for each observed individual we can calculate the derived quantity, $n_{t,l} = \sum_{i=1}^n I(z_{i,t}=s_l)$, the abundance of individuals in state $s_l$ at time $t$. For simplicity, we use the bold notation, $\bn_t = (n_{t,1},\dots,n_{t,J})$, to represent the vector of state-specific abundances and $n_t = \sum_{l=2}^{J-1} n_{t,l}$ to represent the total abundance of animals in any one of the available states, $s_2,\dots,s_{J-1}$. Of course, depending on what inference is desired that could also be any combination of the available states, for example, number of reproductive state individuals.    
 
 Now that we have the state and time-specific abundances for the observed individuals, we shift to the individuals that are never captured. We begin by drawing the uncaptured superpopulation size $n_u \sim \text{Poisson}(\lambda(1-p_*))$.  We could use the same FFBS algorithm to individually sample the states of all $n_u$ individuals all with the capture-history $\bx_i=\mathbf{0}$. However, Because all uncaptured individuals have the same capture-history, we can use a multinational version of the FFBS, to sample the state and time-specific abundance in one forward and backward algorithm (Appendix A, algorithm 2) without simulating individual state histories.  
 
@@ -338,27 +338,33 @@ Now that we have posterior samples of $\bn_t$ and $\bn_{u,t}$ we can predict the
 
 \subsection{The Dipper Data}\label{sec:dipper}
 
-\cite{Cormack1964} was first
-
-\cite{Lebreton:1992gr} was first JS
-
-\cite{Royle:2008kx} Bayes example
-
-
-In this model we can define 
+The first examination of the ubiquitous European dipper data was presented by \cite{Cormack1964} who used it for demonstration of the Cormack-Jolly-Seber (CJS) model for survival estimation from capture-recapture data. Many years later \cite{Lebreton:1992gr} used the data to demonstrate a JS analysis for abundance estimation. More recently, \cite{Royle:2008kx} demonstrate a Bayesian version of JS modeling using data augmentation. Here we demonstration the fully marginal Bayes approach using the parameterization of \cite{link2005modeling}, which makes use of {\it per captia} fecundity parameters to model $\beta_t$. The {\it per capita} fecundity parameterization entry probabilities are modeled as,
 \[
 \beta_t \propto \left\{ \begin{array}{ll}
 1  & t=1\\
 d_{t-1} f_{t-1} & t=2,\dots,K
 \end{array} \right.
 \]
-$d_t \propto E[N_t/N_1|\bt, N_1]$ is the expected relative abundance, and $f_t$ is the {\it per capita} recruitment parameter that is estimated. The quantity $d_t$ is calculated with the recursion, $d_{t} = d_{t-1}(\phi_{t-1} + f_{t-1})$ where $d_1 \equiv 1$. 
+where $d_t \propto E[N_t/N_1|\bt, N_1]$ is the expected relative abundance on occasion $t$, and $f_t$ is the {\it per capita} recruitment parameter. The quantity $d_t$ is calculated with the recursion, $d_{t} = d_{t-1}(\phi_{t-1} + f_{t-1})$ where $d_1 \equiv 1$. The benefit of this form is that it provides a biological driver for defining entry. Similar to recruitment, $\rho_t$ the constant $f_t=f$ model provides are realistic simplification of the full time-specific model. 
 
-\subsection{Bottlenose dolphin Abundance, Demography, and Heterogeneity}
+In addition to the fecundity parameterization we also use a hierarchical approach for estimation of the  parameters. The hierarchical model is adds the prior and hyperprior components,
+\begin{center}
+$[\text{logit } \phi_t] = N(\mu_\phi,\sigma_\phi^2)$ \\
+$[\text{logit } p_t] = N(\mu_p,\sigma_p^2)$, and $[\text{log } f_t] = N(\mu_f,\sigma_f^2)$
+\end{center}
+To allow shrinkage of the full time model to the temporally constant model we use the complexity prior distribution \citep{xxx} on the variance components, $[\sigma] =\text{Exponential}(1)$. All mean components of the random effect where given the vague $N(0,10)$ prior distribution. 
 
-Using the results of the previous model development and inference section we will investigate analysis of a population with several issues which complicate Jolly-Seber modeling, heterogeneity in entry, capture, and survival probabilities. 
+To fit this model with MCMC we used the {\tt R} package {\tt nimble} \citep{xxx} and developed several additional functions in the R package {\tt nimbleJSextras} for executing the fully marginal JS model. The {\tt nimbleJSextras} package is available for installation from GitHub\footnote{\url{https://github.com/dsjohnson/nimbleJSextras}}. The {\tt nimbleJSextras} package uses functionality in the {\tt nimble} \citep{xxx} and {\tt nimbleEcology} \citep{xxx} packages to fit general HMMs. Using the functions and distributions in those two packages we included the JS conditional HMM likelihood functions as well as functions for simulating true states for detected and undetected individuals. Code for this example is provided in the package and the dipper data was obtained from the {\tt marked} package \citep{xxx}. In addition, code to fit the fully marginal version of the specification in \cite{Royle:2008kx} is also provided for comparison. 
 
-\cite{caruso2024finite} present an analysis of a common bottlenose dolphin ({\it Tursiops truncatus}) population in the Tiber River estuary of the Mediterranean Sea. This population has one main aspect which makes abundance analysis using a standard JS model complicated. There are three groups of individuals: resident, part-time resident, and transient and it is unknown to which group each individual belongs. These three groups have differences in capture probability because part-time and transient animals have times which they are not in the study area, hence, there is a reduced detection rate over capture intervals, for these animals. Moreover, transient animals enter briefly and leave permanently, thus, $\phi$ will be reduced for these animals. Also, when these animals enter the population might be different, that is, $\beta_t$ is unequal between latent groups. The second issue which complicates the analysis is that the time interval between capture occasions is not constant. Therefore, simplifying assumptions like constant survival ($\phi_t=\phi$) have to be adjusted in the model structure because the intervals over which this process plays out are different. This is straightforward for exit probability, e.g., $\phi_t = \phi^{h_t}$, where $h_t=\tau_{t+1}-\tau_t$ and $\tau_t$ is the time of capture occasion $t$. This will place $\phi$ on a per time unit basis. However, entry probability is more difficult, with big time gaps there may be a significant probability that an individual will enter the population and exit between occasions. 
+ We omitted the \cite{Royle:2008kx} analysis estimates here because they are virtually the same (outside of Monte Carlo error) as provided in their Table 10.xxx. This was the expected result as we fit the same model with the same prior distributions. Parameter estimates for the \cite{link2005modeling} parameterization are given in Table \ref{tab:dipper}. The super population size estimate is $N = 327$ with SD = 17 and 95\% HPD interval [300--359]. Yearly abundance estimates are illustrated in Figure \ref{}. 
+
+
+\subsection{Bottlenose Dolphin Abundance, Demography, and Heterogeneity}
+
+Using the results of Section 2 we demonstrate the fully marginal analysis of a population with several issues which complicate Jolly-Seber modeling, namely heterogeneity in entry, capture, and survival probabilities. \cite{caruso2024finite} present an analysis of common bottlenose dolphin ({\it Tursiops truncatus}) populations in the Tiber River estuary of the Mediterranean Sea. This population has one main aspect which makes abundance analysis using a standard JS model not feasible. There are three populations of individuals: resident, part-time resident, and transient and it is unknown to which population each individual belongs. These three groups have differences in capture probability because part-time and transient animals have times which they are not in the study area, hence, there is a reduced detection probability within capture occasions compared to resident individuals. Moreover, transient animals enter briefly and leave permanently, thus, $\phi$ will be reduced for these individuals compared to resident and part-time resident individuals. Also, recruitment of each population might be different, that is, $\rho_t$ is unequal between latent groups. 
+
+In addition to latent population structure another issue complicates this particular analysis, the time interval between capture occasions is not constant. Therefore, entry and exit probabilities have to be adjusted in the model structure because the intervals over which this process plays out are different. This is straightforward for exit probability, e.g., $\phi_t = \phi^{h_t}$, where $h_t=\tau_{t+1}-\tau_t$ and $\tau_t$ is the time of capture occasion $t$. This will place $\phi$ on a per time unit basis. However, entry probability is more difficult because we are conditioning on entry before the end of the study. Also, with big time gaps there may be a significant probability that an individual can enter the population and exit between occasions. This violates the assumption that an individual cannot enter directly to $s_J$, the exit state. \cite{caruso2024finite} used the per time unit parameterization, as well as, time-specific recruitment probabilities, this adjusts for differing time gaps, however, it does not account for individuals entering and exiting between capture occasions. \cite{caruso2024finite} assume this probability is zero, the standard JS assumption. There are intervals within this data that range between days and months, so this assumption is quite dubious. When occasions are only days apart, individuals can enter and exit within days, however, with a months-long interval individuals cannot exit once they enter. Here we present a multistate robust-design alternative to account for latent structure, as well as, unequal capture intervals.
+
 
 
 
@@ -392,6 +398,59 @@ The findings and conclusions in the paper are those of the authors and do not ne
 \bibliography{bayes_jolly_seber.bib}
 
 \clearpage
+
+
+\begin{table}
+    \caption{Parameter estimates for the {\it per capita} fecundity analysis of the dipper data.} \bigskip
+    \label{tab:dipper}
+    \centering
+    \begin{tabular}{cccc}
+        \hline\hline
+        Parameter & Estimate &  SD & HPI \\
+        \hline
+        $\lambda$ & 326.96 & 24.79 & [280.51--376.26] \\
+        \hline
+        $f_1$ & 1.19 & 0.77 & [0.29--2.67] \\
+         $f_2$ &  0.68 & 0.20 &  [0.39--1.07] \\
+         $f_3$ &  0.52 & 0.09 &  [0.35--0.72] \\
+         $f_4$ &  0.47 & 0.08 &  [0.30--0.63] \\
+         $f_5$ &  0.49 & 0.08 &  [0.33--0.66] \\
+         $f_6$ &  0.43 & 0.08 &  [0.27--0.58] \\
+         \hline
+         $\phi_1$ & 0.60 & 0.07 &  [0.46--0.76] \\
+         $\phi_2$ &  0.51 & 0.06 &  [0.40--0.61] \\
+         $\phi_3$ &  0.52 & 0.05 &  [0.42--0.61] \\
+         $\phi_4$ &  0.59 & 0.05 &  [0.50--0.69] \\
+         $\phi_5$ &  0.58 & 0.05 &  [0.50--0.68] \\
+         $\phi_6$ &  0.59 & 0.06&  [0.48--0.73] \\
+         \hline
+         $p_1$ & 0.60 & 0.27 &  [0.22--0.96] \\
+         $p_2$ &  0.80 & 0.11 &  [0.59--0.96] \\
+         $p_3$ &  0.89 & 0.06 &  [0.78--0.99] \\
+         $p_4$ &  0.89 & 0.05 &  [0.79--0.98] \\
+         $p_5$ &  0.89 & 0.04 &  [0.80--0.97] \\
+         $p_6$ &  0.91 & 0.04 & [0.83--0.98]  \\
+         $p_7$ &  0.87 & 0.08 &  [0.72--1.00] \\
+         \hline
+         $\mu_f$ &  -0.58 & 0.29 &  [-1.06--0.08] \\
+         $\sigma_f $ & 0.46 & 0.39 &  [0.00--1.16] \\
+         $\mu_\phi$ &  0.27 & 0.20 &  [-0.12--0.67] \\
+         $\sigma_\phi $ & 0.30 & 0.23 &  [0.01--0.73] \\
+         $\mu_p$ &  1.78 & 0.57 &  [0.62--2.58] \\
+         $\sigma_p $ & 0.90 & 0.64 &  [0.05--2.02] \\
+         \hline
+    \end{tabular}
+\end{table}
+
+\clearpage
+
+
+Figures.
+
+\begin{figure}
+\caption{Test caption}
+\end{figure}
+
 
 %\begin{table}
 %\caption{\label{tab:notation}Glossary of notation for Bayesian abundance estimation from capture-recapture data}
@@ -505,6 +564,7 @@ Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS)
 \STATE Return $\mathbf{\mathbf{n}_u}$
 \end{algorithmic}
 \end{algorithm}
+
 
 % \section{Transition matrices for unequal capture occasions}
 
@@ -630,17 +690,6 @@ Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS)
 %\]
 %The last equality results because the sum is a geometric series with closed form solution. 
 
-
-
-
-\clearpage
-
-
-Figures.
-
-\begin{figure}
-\caption{Test caption}
-\end{figure}
 
 \end{document}
 
