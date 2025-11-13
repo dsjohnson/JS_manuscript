@@ -2,6 +2,6 @@
 *.bbl
 *.blg
 *.log
-*.pdf
 *.gz
 .DS_Store
+fix_rank_cr.pdf
