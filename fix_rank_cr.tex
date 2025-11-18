@@ -196,22 +196,6 @@ The overall goal of this paper is to demonstrate the collapsed approach using th
 
 \section{Methods}
 
-Collapsed Gibbs samplers offer a method to improve MCMC convergence over standard Gibbs samplers. \cite{Liu1994a} provides a mathematical proof which shows that the rate of convergence for a collapsed Gibbs sampler is at least as good, but often better, than the standard Gibbs sampler for any particular model.  In general a collapsed samplers is constructed by marginalizing over some components of the model, using a standard Gibbs sampler to sample the remaining parameters, then the marginalized parameters are sampled using their posterior predictive distribution given the first sample. 
-
-For the time being, we will present a very heuristic description of the collapsed Gibbs sampler for augmented models. Details for JS models will be added in subsequent sections. Let $\bx$ represent observed data, $\bz$ is augmented data that is not directly observed, and $\bt$ are the parameters of the model. The standard Gibbs sampler for the posterior distribution,
-\[
-[\bt,\bz|\bx] \propto [\bx,\bz|\bt][\bt],
-\]
-proceeds by alternate sampling between the sequential conditional distributions: $[\bt|\bz, \bx]$ and $[\bz|\bt,\bx]$. Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. The collapsed Gibbs sampler begins by drawing from the marginal posterior distribution,
-\[
-[\bt|\bx] \propto  [\bx|\bt][\bt].
-\]
-For JS models, this would be a standard Bayesian analysis using the JS likelihood. Then, drawing from the posterior predictive distribution $[\bz|\bt,\bx]$ provides us with a sample from the same joint posterior,
-\[
-[\bt,\bz|\bx] \propto [\bz|\bt,\bx][\bt|\bx],
-\]
-This factorization was used by \cite{Hooten:2023aa} and \cite{hooten2024geostatistical} to develop sequential Bayesian inference for closed capture-recapture models. Now we can define specifics and predictive sampling methods for JS family models. 
-
 \subsection{Notation for a Jolly-Seber family models}
 
 In a JS model the population is described as $N$ individuals that are available for capture in at least one capture occasion during the study period. The occasion specific abundance, $N_t$, is the size of the population available for capture on occasion $t=1,\dots,K$. Traditionally, data for the JS model are composed of capture histories for each individual observed at least once, $\bx_i = (x_{i1},\dots,x_{iK})$ where $x_{it} \in \{0,1\}$ depending on whether or not individual $i=1,\dots,n$ was captured on occasion $t$. However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was captured in $R_t$ sub-occasions during primary occasion $t$ which defines a robust design model. Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured, implying a multistate model \citep{xxx}. Technically all JS models are multistate with states, ``pre-entry" (pre-birth), ``available", and ``post-exit" (post-death). For this paper we expand the set of states so that we may include general multistate models as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the post-exit state. The notation $z_{it} \in \{s_1,\dots,s_J\}$ will represent the true state of individual $i$ on occasion $t$, which may, or may not, be observed accurately upon capture. 
@@ -236,8 +220,30 @@ We prefer the recruitment probability parameterization of the JS model because t
 Now we proceed in describing how an individual enters into the population and transitions between states and exits. When the individual first enters the available population between occasions $t-1$ and $t$ it enters into state $s_l$, $l=2,\dots,J-1$ with probability $\alpha_{t,l}$ ($\sum_{l=2}^{J-1} \alpha_{t,l}=1$). The probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{t,l}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. Finally, $\psi_{t,l,l'}$ ($\sum_{l'=2}^{J-1}\psi_{t,l,l'} = 1$) is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$ . The exit probability $\phi_{t,l}$ can be thought of as a transition probability from state $s_l$ to $s_J$, the absorbing exit state just as $\xi_t$ is the transition probability out of $s_1$. 
 
 
+\subsection{A brief review of data augmentation for Jolly-Seber models}
 
-\subsection{HMM formulations of Jolly-Seber Family Models}
+\subsection{A heuristic view of collapsed Gibbs sampling for Jolly-Seber models}
+
+Collapsed Gibbs samplers offer a method to improve MCMC convergence over standard Gibbs samplers. \cite{Liu1994a} provides a mathematical proof which shows that the rate of convergence for a collapsed Gibbs sampler is at least as good, but often better, than the standard Gibbs sampler for any particular model.  In general a collapsed samplers is constructed by marginalizing over some components of the model, using a standard Gibbs sampler to sample the remaining parameters, then the marginalized parameters are sampled using their posterior predictive distribution given the first sample. 
+
+For the time being, we will present a very heuristic description of the collapsed Gibbs sampler for augmented models. Details for JS models will be added in subsequent sections. Let $\bx$ represent observed data, $\bz$ is augmented data that is not directly observed, and $\bt$ are the parameters of the model. The standard Gibbs sampler for the posterior distribution,
+\[
+[\bt,\bz|\bx] \propto [\bx,\bz|\bt][\bt],
+\]
+proceeds by alternate sampling between the sequential conditional distributions: $[\bt|\bz, \bx]$ and $[\bz|\bt,\bx]$. Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. The collapsed Gibbs sampler begins by drawing from the marginal posterior distribution,
+\[
+[\bt|\bx] \propto  [\bx|\bt][\bt].
+\]
+For JS models, this would be a standard Bayesian analysis using the JS likelihood. Then, drawing from the posterior predictive distribution $[\bz|\bt,\bx]$ provides us with a sample from the same joint posterior,
+\[
+[\bt,\bz|\bx] \propto [\bz|\bt,\bx][\bt|\bx],
+\]
+This factorization was used by \cite{Hooten:2023aa} and \cite{hooten2024geostatistical} to develop sequential Bayesian inference for closed capture-recapture models. Now we can define specifics and predictive sampling methods for JS family models. 
+
+
+
+
+\subsection{Calculating marginal likelihoods of Jolly-Seber models}
 
 \cite{glennie2019open} and \cite{mcclintock2020uncovering} show an individual capture history in a JS models can be formulated as a Hidden Markov Model (HMM). That is, the probability of an individual capture-history can be calculated with the matrix product,
 %
@@ -266,9 +272,9 @@ The observation likelihood matrix in the HMM formulation is
 s_1 & s_2 & \cdots & s_{J-1} & s_J \\
 \begin{block}{[ccccc]l}
 I(x_{it}=0) & 0 & 0 & 0 & 0 & s_1\\
-0 & [x_{it} | s_2] & 0 & 0 & 0 & s_2\\
+0 & [x_{it} | z_{it}=s_2] & 0 & 0 & 0 & s_2\\
 0 &  0 & \ddots & 0 & 0 & \vdots \\
-0 &  & 0 & [x_{it} | s_{J-1}] & 0 & s_{J-1}\\
+0 &  & 0 & [x_{it} | z_{it}=s_{J-1}] & 0 & s_{J-1}\\
 0 & 0 & 0 & 0 & I(x_{it}=0) & s_J\\
 \end{block}
 \end{blockarray},
@@ -276,11 +282,11 @@ I(x_{it}=0) & 0 & 0 & 0 & 0 & s_1\\
 %
 where $[x_{it}|s_l]$ is the likelihood of observing $x_{it}$ given the individual is in state $s_l$. We briefly present a few examples for common models. For a standard Jolly-Seber model with a binary capture history and only 1 available state ($s_2$ = ``alive'') the likelihood would be,
 \[
-[x_{it}|s_2] = \text{Bernoulli}(x_{it}|p_t),
+[x_{it}|z_{it}=s_2] = \text{Bernoulli}(x_{it}|p_t),
 \]
 where $p_t$ is the probability of capture on occasion $t$. If the model being fit is a robust design formulation \citep{xxx} where $x_{it}$, are the number of captures in $R_t$ sub-occasions within each main occasion, the likelihood would be,
 \[
-[x_{it}|s_2] = \text{Binomial}(x_{it}|R_t, p_t). 
+[x_{it}|z_{it}=s_2] = \text{Binomial}(x_{it}|R_t, p_t). 
 \]
 %In a continuous-time version of the robust design where capturing occurs continuously over $\tau_t$ time units one might use the Poisson distribution 
 %\[
@@ -289,7 +295,7 @@ where $p_t$ is the probability of capture on occasion $t$. If the model being fi
 %where $r_t$ is the Poisson process detection rate. 
 For a multistate model where $x_{it}$ is recorded as a categorical state with uncertainty (e.g., \citealt{johnson2016multivariate}) then we use the mixture distribution
 \[
-[x_{it}|s_l] = (1-p_{t,l})I(x_{it}=0) + p_{t,l}\text{Categorical}(x_{it}|\bd_l,x_{it}\ne0)
+[x_{it}|z_{it}=s_l] = (1-p_{t,l})I(x_{it}=0) + p_{t,l}\text{Categorical}(x_{it}|\bd_l,x_{it}\ne0)
 \]
 where $\bd_l$ is the vector of probabilities for the range of categories that can be observed when the individual is captured in state $s_l$. For example, one might accurately observe the state $x_{it} = s_l$ or it is unknown, say $x_{it} = $``u'', then $\delta_l$ would represent the probability of observing the true state. Finally, the probability transition matrix is, for $t=1,\dots,K-1$,
 %
@@ -363,25 +369,18 @@ Now that we have posterior samples of $\bn_t$ and $\bn_{u,t}$ we can predict the
 
 \subsection{The Dipper Data}\label{sec:dipper}
 
-The first examination of the ubiquitous European dipper data was presented by \cite{Cormack1964} who used it for demonstration of the Cormack-Jolly-Seber (CJS) model for survival estimation from capture-recapture data. Many years later \cite{Lebreton:1992gr} used the data to demonstrate a JS analysis for abundance estimation. More recently, \cite{Royle:2008kx} demonstrate a Bayesian version of JS modeling using data augmentation. Here we demonstration the fully marginal Bayes approach using the parameterization of \cite{link2005modeling}, which makes use of {\it per captia} fecundity parameters to model $\beta_t$. The {\it per capita} fecundity parameterization entry probabilities are modeled as,
-\[
-\beta_t \propto \left\{ \begin{array}{ll}
-1  & t=1\\
-d_{t-1} f_{t-1} & t=2,\dots,K
-\end{array} \right.
-\]
-where $d_t \propto E[N_t/N_1|\bt, N_1]$ is the expected relative abundance on occasion $t$, and $f_t$ is the {\it per capita} recruitment parameter. The quantity $d_t$ is calculated with the recursion, $d_{t} = d_{t-1}(\phi_{t-1} + f_{t-1})$ where $d_1 \equiv 1$. The benefit of this form is that it provides a biological driver for defining entry. Similar to recruitment, $\rho_t$ the constant $f_t=f$ model provides are realistic simplification of the full time-specific model. 
+The first examination of the ubiquitous European dipper data was presented by \cite{Cormack1964} who used it for demonstration of the Cormack-Jolly-Seber (CJS) model for survival estimation from capture-recapture data. Many years later \cite{Lebreton:1992gr} used the data to demonstrate a JS analysis for abundance estimation. More recently, \cite{Royle:2008kx} demonstrate a Bayesian version of JS modeling using data augmentation. Here we demonstration the fully marginal Bayes approach using the recruitment probability ($\rho_t$) parameterization. 
 
-In addition to the fecundity parameterization we also use a hierarchical approach for estimation of the  parameters. The hierarchical model is adds the prior and hyperprior components,
+In addition to the recruitment probability parameterization we also use a hierarchical approach for estimation of the  parameters. The hierarchical model adds the random effects components,
 \begin{center}
 $[\text{logit } \phi_t] = N(\mu_\phi,\sigma_\phi^2)$ \\
-$[\text{logit } p_t] = N(\mu_p,\sigma_p^2)$, and $[\text{log } f_t] = N(\mu_f,\sigma_f^2)$
+$[\text{logit } p_t] = N(\mu_p,\sigma_p^2)$, and $[\text{logit } \rho_t] = N(\mu_\rho,\sigma_\rho^2)$
 \end{center}
-To allow shrinkage of the full time model to the temporally constant model we use the complexity prior distribution \citep{xxx} on the variance components, $[\sigma] =\text{Exponential}(1)$. All mean components of the random effect where given the vague $N(0,10)$ prior distribution. 
+To allow shrinkage of the full time model to the temporally constant model we use the complexity prior distribution \citep{xxx} on each of the three the variance components, $[\sigma] =\text{Exponential}(1)$. All mean components of the random effect where given the vague $N(0,10)$ prior distribution. 
 
 To fit this model with MCMC we used the {\tt R} package {\tt nimble} \citep{xxx} and developed several additional functions in the R package {\tt nimbleJSextras} for executing the fully marginal JS model. The {\tt nimbleJSextras} package is available for installation from GitHub\footnote{\url{https://github.com/dsjohnson/nimbleJSextras}}. The {\tt nimbleJSextras} package uses functionality in the {\tt nimble} \citep{xxx} and {\tt nimbleEcology} \citep{xxx} packages to fit general HMMs. Using the functions and distributions in those two packages we included the JS conditional HMM likelihood functions as well as functions for simulating true states for detected and undetected individuals. Code for this example is provided in the package and the dipper data was obtained from the {\tt marked} package \citep{xxx}. In addition, code to fit the fully marginal version of the specification in \cite{Royle:2008kx} is also provided for comparison. 
 
- We omitted the \cite{Royle:2008kx} analysis estimates here because they are virtually the same (outside of Monte Carlo error) as provided in their Table 10.xxx. This was the expected result as we fit the same model with the same prior distributions. Parameter estimates for the \cite{link2005modeling} parameterization are given in Table \ref{tab:dipper}. The super population size estimate is $N = 327$ with SD = 17 and 95\% HPD interval [300--359]. Yearly abundance estimates are illustrated in Figure \ref{}. 
+Parameter estimates  are given in Table \ref{tab:dipper}. The super population size estimate is $N = 312.16$ with SD = 7.35 and 95\% HPD interval [299--336]. Yearly abundance estimates are illustrated in Figure \ref{}. 
 
 
 \subsection{Bottlenose Dolphin Abundance, Demography, and Heterogeneity}
