@@ -209,28 +209,32 @@ Note that there are only $K-1$ free parameters as $\xi_K \equiv 1$. \citet{schwa
 \beta_t \propto \left\{ \begin{array}{ll}
 \rho_1  & t=1\\
 \rho_t \prod_{j=1}^{t-1} (1-\rho_j) & t=2,\dots,K
-\end{array} \right.
+\end{array} \right. .
 \]
-We can obtain the conditional recruitment probabilities using  
-\[
-\xi_t = \frac{\beta_t}{\sum_{j=t}^K\beta_j}, \text{ for } t=1,\dots,K.
-\]
-We prefer the recruitment probability parameterization of the JS model because the constant model, i.e., $\rho_t=\rho$, has biological interpretation about recruitment over time, however the constant model for $\beta_t$ implies changing recruitment probabilities that are not readily apparent. An alternative $\beta_t$ model is presented by \cite{link2005modeling} based on {\it per capita} recruitment parameters. We will not consider that model here, but it can just as easily be incorporated in the collapsed sampler. 
+% We can obtain the conditional recruitment probabilities using  
+% \[
+% \xi_t = \frac{\beta_t}{\sum_{j=t}^K\beta_j}, \text{ for } t=1,\dots,K.
+% \]
+We prefer the recruitment probability parameterization of the JS model because the constant model, i.e., $\rho_t=\rho$, has biological interpretation about recruitment over time, however the constant model for $\beta_t$ implies changing recruitment probabilities that are not readily apparent. 
+% An alternative $\beta_t$ model is presented by \cite{link2005modeling} based on {\it per capita} recruitment parameters. We will not consider that model here, but it can just as easily be incorporated in the collapsed sampler. 
 
 Now we proceed in describing how an individual enters into the population and transitions between states and exits. When the individual first enters the available population between occasions $t-1$ and $t$ it enters into state $s_l$, $l=2,\dots,J-1$ with probability $\alpha_{t,l}$ ($\sum_{l=2}^{J-1} \alpha_{t,l}=1$). The probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{t,l}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. Finally, $\psi_{t,l,l'}$ ($\sum_{l'=2}^{J-1}\psi_{t,l,l'} = 1$) is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$ . The exit probability $\phi_{t,l}$ can be thought of as a transition probability from state $s_l$ to $s_J$, the absorbing exit state just as $\xi_t$ is the transition probability out of $s_1$. 
 
 
 \subsection{A brief review of data augmentation for Jolly-Seber models}
 
+Let $\bx$ represent observed data, $\bz$ is augmented data that is not directly observed, and $\bt$ are the parameters of the model. The standard Gibbs sampler for the posterior distribution,
+\[
+[\bt,\psi,\bw_{aug}, \bz^+|\bx^+] \propto [\bx^+|\bz^+,\bw^+,\bt][\bz^+|\bt][\bw^+|\psi][\bt][\psi],
+\]
+proceeds by alternate sampling between the sequential conditional distributions: $[\bt|\bz, \bx]$ and $[\bz|\bt,\bx]$. Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$.
+
 \subsection{A heuristic view of collapsed Gibbs sampling for Jolly-Seber models}
 
-Collapsed Gibbs samplers offer a method to improve MCMC convergence over standard Gibbs samplers. \cite{Liu1994a} provides a mathematical proof which shows that the rate of convergence for a collapsed Gibbs sampler is at least as good, but often better, than the standard Gibbs sampler for any particular model.  In general a collapsed samplers is constructed by marginalizing over some components of the model, using a standard Gibbs sampler to sample the remaining parameters, then the marginalized parameters are sampled using their posterior predictive distribution given the first sample. 
+Collapsed Gibbs samplers offer a method to improve MCMC convergence over standard Gibbs samplers. \cite{Liu1994a} provides a mathematical proof which shows that the rate of convergence for a collapsed Gibbs sampler is at least as good, but often better, than the standard Gibbs sampler for any particular model. Unfortunately, we cannot use the theoretical results to prove that the collapsed version will always converge at a faster rate because neither the augmented version or the collapsed version presented here use strictly Gibbs updates. That is at least some, if not all, of the parameters are updated using Metropolis-within-Gibbs updates because the full conditional distributions are not standard. However, \cite{VanDykJiao2015a} note that MCMC convergence for collapsed samplers using Metropolis updates can still offer improvement but it may not be as good as strictly Gibbs updates.  
+In general a collapsed samplers is constructed by marginalizing over some components of the model, using a standard Gibbs sampler to sample the remaining parameters, then the marginalized parameters are sampled using their posterior predictive distribution given the first sample. 
 
-For the time being, we will present a very heuristic description of the collapsed Gibbs sampler for augmented models. Details for JS models will be added in subsequent sections. Let $\bx$ represent observed data, $\bz$ is augmented data that is not directly observed, and $\bt$ are the parameters of the model. The standard Gibbs sampler for the posterior distribution,
-\[
-[\bt,\bz|\bx] \propto [\bx,\bz|\bt][\bt],
-\]
-proceeds by alternate sampling between the sequential conditional distributions: $[\bt|\bz, \bx]$ and $[\bz|\bt,\bx]$. Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. The collapsed Gibbs sampler begins by drawing from the marginal posterior distribution,
+For the time being, we will present a very heuristic description of the collapsed Gibbs sampler for augmented models. Details for JS models will be added in subsequent sections.  The collapsed Gibbs sampler begins by drawing from the marginal posterior distribution,
 \[
 [\bt|\bx] \propto  [\bx|\bt][\bt].
 \]
