@@ -56,7 +56,7 @@
 \newcommand{\bh}{\ensuremath{\mathbf{h}}}
 \newcommand{\bw}{\ensuremath{\mathbf{w}}}
 \newcommand{\bD}{\ensuremath{\mathbf{D}}}
-
+\newcommand{\bdp}{\ensuremath{\mathbf{d}^+}}
 
 
 
@@ -66,7 +66,7 @@
 \newcommand{\be}{\ensuremath{\boldsymbol{\epsilon}}}
 \newcommand{\bSig}{\ensuremath{\boldsymbol{\Sigma}}}
 \newcommand{\bmu}{\ensuremath{\boldsymbol{\mu}}}
-\newcommand{\bd}{\ensuremath{\boldsymbol{\delta}}}
+
 \newcommand{\bO}{\ensuremath{\boldsymbol{\Omega}}}
 \newcommand{\bs}{\ensuremath{\boldsymbol{\sigma}}}
 \newcommand{\bo}{\ensuremath{\boldsymbol{\omega}}}
@@ -95,7 +95,7 @@
 \begin{center}
 \noindent\hrulefill
 
-{\Large Bayesian Estimation for Open Capture-Recapture Models Without Data Augmentation} 
+{\Large Bayesian Estimation for Open Population Capture-Recapture Models Without Data Augmentation} 
 
 \noindent\hrulefill
 
@@ -174,6 +174,8 @@ Adoption of Bayesian inference for JS models was initially hindered in regular u
 
 Although data augmentation was instrumental in ushering in a new era a Bayesian JS modeling, the convenience comes at a cost: the approach can be computationally inefficient for large augmentation data sets \citep{Royle:2007kx} and prone to slow mixing \citep{SchofieldBarker2008a}. For example, if the probability of detection is relatively low and the population is large, many augmented individuals need to be added the the data and all states for all individuals must be updated even when their current inclusion indicator does not indicate they are part of the actual population. In addition, \cite{link2013cautionary} notes some questionable properties of PX-DA method relative to the discrete uniform prior induced by the parameter expansion. To alleviate some of these issues and speed computation \cite{yackulic2020need} and \cite{saracco2023fast} proposed the ``marginalized'' capture-recpature models, which formulates capture-recapture models as a Hidden Markov Models (HMM; \citealt{zucchini2016hidden}). The HMM forward algorithm allows one to marginalize over latent states so that they need not be sampled as part of the MCMC. This increases speed and often improves MCMC chain mixing. However, the user still augments data for undetected individuals and uses the MCMC to marginalize over those not included in the population. In this paper, we introduce a fully marginalized Bayesian formulation of the JS model that eliminates the need for any data augmentation. Our approach integrates analytically over both the unobserved individual encounter histories and the latent states of all individuals using a conditional HMM formulation of JS family models. In essence we propose using the exact JS likelihood within a {\it collapsed} Gibbs sampler \citep{Liu1994a} to estimate parameters and derived quantities of JS models. 
 
+Collapsed Gibbs samplers offer a method to improve MCMC convergence over standard Gibbs samplers. \cite{Liu1994a} provides a mathematical proof which shows that the rate of convergence for a collapsed Gibbs sampler is at least as good, but often better, than the standard Gibbs sampler for any particular model. Unfortunately, we cannot directly use the theoretical results to prove that the collapsed version will always converge at a faster rate because neither the augmented version or the collapsed version presented here use strictly Gibbs updates. That is at least some, if not all, of the parameters are updated using Metropolis-within-Gibbs updates because the full conditional distributions are not standard. However, \cite{VanDykJiao2015a} note that MCMC convergence for collapsed samplers using Metropolis updates can still offer improvement but it may not be as good as strictly Gibbs updates.  
+
 The overall goal of this paper is to demonstrate the collapsed approach using the MCMC software in the {\tt R} package {\tt nimble} \citep{Valpine:2017vg} to illustrate that PX-DA methods are not necessary and JS models can be fit without data augmentation. The {\tt nimble} package allows users to create their own functions which can be compiled and included within an MCMC. Using this capability, as well as, the HMM likelihoods within the {\tt R} package {\tt nimbleEcology} \citep{GoldsteinEtAl2024a}, we analyze 3 real data sets with JS models of varying complexity as examples of practical JS fitting that can readily be used by practitioners just as easily as PX-DA methods. 
 
 %Here are some relevant references the paper will need later:
@@ -194,97 +196,30 @@ The overall goal of this paper is to demonstrate the collapsed approach using th
 %\cite{zhang2023flexible}
 %\cite{yackulic2020need}
 
-\section{Methods}
+\section{Jolly-Seber Family Models}
 
-\subsection{Notation for a Jolly-Seber family models}
+Here we describe the class of Jolly-Seber family models as we will use them to develop the collapsed Gibbs sampler methods. All of the variations we consider here have been previously described in the literature, so there are no new model specifications herein, but we are using a general form to include as many different JS aspects for open populations as possible. We begin with the process side of the model and follow up with the observed data portion of JS models.  
 
-In a JS model the population is described as $N$ individuals that are available for capture in at least one capture occasion during the study period. The occasion specific abundance, $N_t$, is the size of the population available for capture on occasion $t=1,\dots,K$. Traditionally, data for the JS model are composed of capture histories for each individual observed at least once, $\bx_i = (x_{i1},\dots,x_{iK})$ where $x_{it} \in \{0,1\}$ depending on whether or not individual $i=1,\dots,n$ was captured on occasion $t$. However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was captured in $R_t$ sub-occasions during primary occasion $t$ which defines a robust design model. Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured, implying a multistate model \citep{xxx}. Technically all JS models are multistate with states, ``pre-entry" (pre-birth), ``available", and ``post-exit" (post-death). For this paper we expand the set of states so that we may include general multistate models as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the post-exit state. The notation $z_{it} \in \{s_1,\dots,s_J\}$ will represent the true state of individual $i$ on occasion $t$, which may, or may not, be observed accurately upon capture. 
+In a JS process the population is described as $N$ individuals that are available for capture in at least one capture occasion during the study period. The occasion specific abundance, $N_t$, is the size of the population available for capture on occasion $t=1,\dots,K$. Individuals become available and unavailable through an entry and exit process. where individuals can be in 1 of 3 states ``pre-entry" (pre-birth), ``available", and ``post-exit" (post-death). For this paper we expand the set of states so that we may include general multistate models as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the post-exit state. The notation $z_{it} \in \{s_1,\dots,s_J\}$ will represent the true state of individual $i$ on occasion $t$. 
 
-Now that we have the population and individual data described we can document the components of the probabilistic process for generating abundance and individual states. The probability that the individual enters an available population between occasions $t-1$ and $t$ given it has not already entered (recruitment) is denoted by $\rho_t$, $t=1,\dots,K$. Without constraints there is a nonzero probability that the individual may not enter the population before $K$, so, we must condition on the fact that entry happens before occasion $K$. This conditional probability is 
+The probability that the individual enters an available population between occasions $t-1$ and $t$ given it has not already entered (recruitment) is denoted by $\rho_t$, $t=1,\dots,K$. Without constraints there is a nonzero probability that the individual may not enter the population before $K$, so, we must condition on the fact that entry happens before occasion $K$. This conditional probability is 
 \[
 \xi_t = \frac{\rho_t}{1-\prod_{j=t}^{K} (1-\rho_j)}
 \]
-Note that there are only $K-1$ free parameters as $\xi_K \equiv 1$. \citet{schwarz1996general} and \cite{crosbie1985parsimonious} parameterized entry in the JS model using marginal multinomial probabilities $\beta_1,\dots,\beta_K$ which are the unconditional probabilities that an individual enters between occasions $t-1$ and $t$. In terms of the recruitment probabilities, we can form the marginal $\beta$ parameters with the relationship,
+\citet{schwarz1996general} and \cite{crosbie1985parsimonious} parameterized entry in the JS model using marginal multinomial probabilities $\beta_1,\dots,\beta_K$ which are the unconditional probabilities that an individual enters between occasions $t-1$ and $t$. In terms of the recruitment probabilities, we can form the marginal $\beta$ parameters with the relationship,
 \[
 \beta_t \propto \left\{ \begin{array}{ll}
 \rho_1  & t=1\\
 \rho_t \prod_{j=1}^{t-1} (1-\rho_j) & t=2,\dots,K
 \end{array} \right. .
 \]
-% We can obtain the conditional recruitment probabilities using  
-% \[
-% \xi_t = \frac{\beta_t}{\sum_{j=t}^K\beta_j}, \text{ for } t=1,\dots,K.
-% \]
-We prefer the recruitment probability parameterization of the JS model because the constant model, i.e., $\rho_t=\rho$, has biological interpretation about recruitment over time, however the constant model for $\beta_t$ implies changing recruitment probabilities that are not readily apparent. 
-% An alternative $\beta_t$ model is presented by \cite{link2005modeling} based on {\it per capita} recruitment parameters. We will not consider that model here, but it can just as easily be incorporated in the collapsed sampler. 
+We prefer the recruitment probability parameterization of the JS model because the constant model, i.e., $\rho_t=\rho$, has biological interpretation about recruitment over time, however the constant model for $\beta_t$ implies changing recruitment probabilities that are not readily apparent. When an individual first enters the available population between occasions $t-1$ and $t$ it enters into state $s_l$, $l=2,\dots,J-1$ with probability $\alpha_{t,l}$ ($\sum_{l=2}^{J-1} \alpha_{t,l}=1$). 
 
-Now we proceed in describing how an individual enters into the population and transitions between states and exits. When the individual first enters the available population between occasions $t-1$ and $t$ it enters into state $s_l$, $l=2,\dots,J-1$ with probability $\alpha_{t,l}$ ($\sum_{l=2}^{J-1} \alpha_{t,l}=1$). The probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{t,l}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. Finally, $\psi_{t,l,l'}$ ($\sum_{l'=2}^{J-1}\psi_{t,l,l'} = 1$) is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$ . The exit probability $\phi_{t,l}$ can be thought of as a transition probability from state $s_l$ to $s_J$, the absorbing exit state just as $\xi_t$ is the transition probability out of $s_1$. 
+The probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{t,l}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. That is, the probability that an individual transitions from $s_l \to s_J$ is $1-\phi_{t,l}$. If we consider $s_J$ to be ``death'' then the $\phi$ parameters are the typical survival probabilities. Finally, $\psi_{t,l,l'}$ ($\sum_{l'=2}^{J-1}\psi_{t,l,l'} = 1$) is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$ . 
 
+Now that we have described how individuals transition in and out of avaialbility and through states we can consider a description of the data models for the observed data. Traditionally, data for the JS model are composed of capture histories for each individual observed at least once, $\bx_i = (x_{i1},\dots,x_{iK})$ where $x_{it} \in \{0,1\}$ depending on whether or not individual $i=1,\dots,n$ was captured on occasion $t$. However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was captured in $R_t$ sub-occasions during primary occasion $t$ which defines a robust design model. Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured, implying a multistate model \citep{xxx}.
 
-\subsection{A brief review of data augmentation for Jolly-Seber models}
-
-Let $\bx$ represent observed data, $\bz$ is augmented data that is not directly observed, and $\bt$ are the parameters of the model. The standard Gibbs sampler for the posterior distribution,
-\[
-[\bt,\psi,\bw_{aug}, \bz^+|\bx^+] \propto [\bx^+|\bz^+,\bw^+,\bt][\bz^+|\bt][\bw^+|\psi][\bt][\psi],
-\]
-proceeds by alternate sampling between the sequential conditional distributions: $[\bt|\bz, \bx]$ and $[\bz|\bt,\bx]$. Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$.
-
-\subsection{A heuristic view of collapsed Gibbs sampling for Jolly-Seber models}
-
-Collapsed Gibbs samplers offer a method to improve MCMC convergence over standard Gibbs samplers. \cite{Liu1994a} provides a mathematical proof which shows that the rate of convergence for a collapsed Gibbs sampler is at least as good, but often better, than the standard Gibbs sampler for any particular model. Unfortunately, we cannot use the theoretical results to prove that the collapsed version will always converge at a faster rate because neither the augmented version or the collapsed version presented here use strictly Gibbs updates. That is at least some, if not all, of the parameters are updated using Metropolis-within-Gibbs updates because the full conditional distributions are not standard. However, \cite{VanDykJiao2015a} note that MCMC convergence for collapsed samplers using Metropolis updates can still offer improvement but it may not be as good as strictly Gibbs updates.  
-In general a collapsed samplers is constructed by marginalizing over some components of the model, using a standard Gibbs sampler to sample the remaining parameters, then the marginalized parameters are sampled using their posterior predictive distribution given the first sample. 
-
-For the time being, we will present a very heuristic description of the collapsed Gibbs sampler for augmented models. Details for JS models will be added in subsequent sections.  The collapsed Gibbs sampler begins by drawing from the marginal posterior distribution,
-\[
-[\bt|\bx] \propto  [\bx|\bt][\bt].
-\]
-For JS models, this would be a standard Bayesian analysis using the JS likelihood. Then, drawing from the posterior predictive distribution $[\bz|\bt,\bx]$ provides us with a sample from the same joint posterior,
-\[
-[\bt,\bz|\bx] \propto [\bz|\bt,\bx][\bt|\bx],
-\]
-This factorization was used by \cite{Hooten:2023aa} and \cite{hooten2024geostatistical} to develop sequential Bayesian inference for closed capture-recapture models. Now we can define specifics and predictive sampling methods for JS family models. 
-
-
-
-
-\subsection{Calculating marginal likelihoods of Jolly-Seber models}
-
-\cite{glennie2019open} and \cite{mcclintock2020uncovering} show an individual capture history in a JS models can be formulated as a Hidden Markov Model (HMM). That is, the probability of an individual capture-history can be calculated with the matrix product,
-%
-\begin{equation}
-\label{eq.uncond.lik}
-[\bx_i|\bvt] = \bpi\bP_1(x_{i1})\bG_1\bP_2(x_{i2}) \cdots \bG_{K-1}\bP_k(x_{iK})\mathbf{1}.
-\end{equation}
-where $\bvt$ represents the collection of parameters in the model, $\bpi$ is the initial state probability vector, $\bP_t(x)$ is a diagonal matrix of observation likelihoods for each state, $\bG_t$ is the probability transition matrix for states, and $\mathbf{1}$ is a vector of ones. 
-
-For the general multistate JS model the the matrices in the unconditional likelihood function (\ref{eq.uncond.lik}) are given as follows. First, he initial state probability vector is 
-%
-\[
-\bpi = \begin{blockarray}{cccccc} 
-s_1 & s_2 & \cdots & s_{J-1} & s_J \\
-\begin{block}{[cccccc]}
-1-\xi_1 & \xi_1\alpha_{1,2} & \cdots & \xi_1\alpha_{1,J-1} & 0 \\
-\end{block}
-\end{blockarray}.
-\]
-% 
-
-The observation likelihood matrix in the HMM formulation is
-%
-\[
-\bP_t(x_{it}) = \begin{blockarray}{cccccc} 
-s_1 & s_2 & \cdots & s_{J-1} & s_J \\
-\begin{block}{[ccccc]l}
-I(x_{it}=0) & 0 & 0 & 0 & 0 & s_1\\
-0 & [x_{it} | z_{it}=s_2] & 0 & 0 & 0 & s_2\\
-0 &  0 & \ddots & 0 & 0 & \vdots \\
-0 &  & 0 & [x_{it} | z_{it}=s_{J-1}] & 0 & s_{J-1}\\
-0 & 0 & 0 & 0 & I(x_{it}=0) & s_J\\
-\end{block}
-\end{blockarray},
-\]
-%
-where $[x_{it}|s_l]$ is the likelihood of observing $x_{it}$ given the individual is in state $s_l$. We briefly present a few examples for common models. For a standard Jolly-Seber model with a binary capture history and only 1 available state ($s_2$ = ``alive'') the likelihood would be,
+where $[x_{it}|s_l]$ is the likelihood of observing $x_{it}$ given the individual is in state $s_l$.  Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. We briefly present a few examples for common models. For a standard Jolly-Seber model with a binary capture history and only 1 available state ($s_2$ = ``alive'') the likelihood would be,
 \[
 [x_{it}|z_{it}=s_2] = \text{Bernoulli}(x_{it}|p_t),
 \]
@@ -299,9 +234,95 @@ where $p_t$ is the probability of capture on occasion $t$. If the model being fi
 %where $r_t$ is the Poisson process detection rate. 
 For a multistate model where $x_{it}$ is recorded as a categorical state with uncertainty (e.g., \citealt{johnson2016multivariate}) then we use the mixture distribution
 \[
-[x_{it}|z_{it}=s_l] = (1-p_{t,l})I(x_{it}=0) + p_{t,l}\text{Categorical}(x_{it}|\bd_l,x_{it}\ne0)
+[x_{it}|z_{it}=s_l] = (1-p_{t,l})I(x_{it}=0) + p_{t,l}\text{Categorical}(x_{it}|\boldsymbol{\delta}_l,x_{it}\ne0)
 \]
-where $\bd_l$ is the vector of probabilities for the range of categories that can be observed when the individual is captured in state $s_l$. For example, one might accurately observe the state $x_{it} = s_l$ or it is unknown, say $x_{it} = $``u'', then $\delta_l$ would represent the probability of observing the true state. Finally, the probability transition matrix is, for $t=1,\dots,K-1$,
+where $\boldsymbol{\delta}_l$ is the vector of probabilities for the range of categories that can be observed when the individual is captured in state $s_l$. For example, one might accurately observe the state $x_{it} = s_l$ or it is unknown, say $x_{it} = $``u'', then $\delta_l$ would represent the probability of observing the true state.
+
+
+\subsection{A brief review of data augmentation for Jolly-Seber models}
+
+To provide a framework for developing the collapsed Gibbs sampler that does not require data augmentation, we provide a brief review of the PX-DA approach for Bayesian JS inference. Let $\bx$ represent the $n\times K$ matrix of observed data, $\bz$ is the associated matrix of true state values. $\bx_{aug} = \mathbf{0}$ and $\bz_{aug}$ are the $M-n \times K$ matrices for the $M-n$ augmented individuals. For the PX-DA approach we combine them, $\bx^+ = (\bx',\bx_{aug}')'$ and $\bz^+ = (\bz',\bz_{aug}')'$, and treat them as single units. The indicator of population inclusion is $\bw^+ = (\mathbf{1}',\bw_{aug}')'$. The first $n$ compoents are known to be 1 because those individuals are observed (hence in the superpopulation). 
+
+The posterior distribution for inference is
+\begin{equation}
+\label{eq:pxda.post}
+[\bt,\psi,\bw_{aug}, \bz^+|\bx^+] \propto [\bx^+|\bz^+,\bw^+,\bt][\bz^+|\bt][\bw^+|\psi][\bt][\psi],
+\end{equation}
+where $\bt$ are the parameters of the JS model described in the previous section as well as the parameters for the observation models such as capture probabilities which we will discuss in the next section and $\psi$ is the probability that an individual is a member of the superpopulation. The main benefits of the PX-DA approach is that all the distributions on the right-hand side of (\ref{eq:pxda.post}) are all standard distributions, so they can readily be described in the model statements for MCMC software such as {\tt JAGS} and {\tt nimble} and the dimension of the products remain fixed at $M$ individuals so trans-dimensional methods are not needed. Gibbs sampling for the PX-DA proceeds by sequentially sampling from the conditional distributions: $[\bz^+|\bt,\bw^+,\bx^+]$, $[\bw_{aug}|\bt,\psi,\bz^+,\bx^+]$,
+$[\psi|\bw^+]$, and $[\bt|\bz^+,\bw^+,\bx^+]$. Of course theses may be broken up further into scalar parameter updates. During updates, the raw quantities $\bz^+$ and $\bw^+$, as well as, $\psi$ are not usually useful on their 
+own and abundance metric summaries, say $\bvt=f(\bz^+,\bw^+)$, are usually stored such as $N=\bw'\mathbf{1}$ or $N_t=\sum_{i=1}^M z_{it}w_i$. So, the resulting posterior desired is usually, $[\bt,\bvt|\bx^+]$.
+
+\section{Collapsed Gibbs sampling for Jolly-Seber models}
+
+In general a collapsed samplers are constructed by marginalizing over some components of the model, using a standard Gibbs sampler to sample the remaining parameters, then the marginalized parameters are sampled using their posterior predictive distribution given the first sample. For strictly Gibbs samplers faster convergence is achieved because the first sample is not conditioned on the second sample components, reducing the covariance between them and speeding convergence \citep{Liu1994a}. To develop the collapsed JS sampler we will marginalize over all the augmentation components so that we only sample from the conditional distribution,
+\[
+[\bt,\lambda|\bx] \propto  [\bx|\bt,\lambda][\bt][\lambda],
+\]
+where $\lambda$ is a parameter that controls the overall superpopulation size. The origin of $\lambda$ will described later, but in essence it takes the place of $\psi$ when not using augmentation.
+
+After drawing a sample from $[\bt,\lambda|\bx]$ we proceed by next drawing a sample from the posterior predictive distribution,
+\[
+ [\bz, \bz_u, n_u|\bt,\lambda,\bx]
+\]
+where $n_u$ is the predicted number of unobserved individuals and $\bz_u$ is the associated $n_u \times K$ state matrix. One important aspect to note is that the dimension of $\bz_u$ is not constant over MCMC iterations. Therefore one usually saves the same fixed-dimensional abundance metrics as in the PX-DA scenario, $\bvt = f(\bz,\bz_u,n_u)$. Note the function, $f$ is slightly different than before. For example, $N = n+n_u$ and $N_t = \sum_{i=1}^n z_{it} +  \sum_{j=1}^{n_u} z_{u,jt}$. The resulting posterior of this sampler is
+\[
+[\bt, \bvt, \lambda|\bx] \propto [\bvt|\bt,\lambda,\bx][\bt,\lambda|\bx]
+\]
+Notice that if we ignore $\lambda$ as with $\psi$ we obtain a posterior, $[\bt,\bvt|\bx]$, that does not depend on augmented data. 
+
+Now that we have outlined the collapsed Gibbs sampler for JS models we need to examine the details and illustrate that it can be accomplished within the {\tt nimble} framework in way that makes it similar in ease-of-use for practitioners relative to the PX-DA approach. The first step is to determine the first sample marginal distribution. 
+
+\subsection{Evaluating marginal posterior of Jolly-Seber models}
+
+In the first step we need to draw a sample from the marginal posterior distribution, $[\bt,\lambda|\bx]$, so let us start with the PX-DA posterior and marginalize over the augmented components. To accomplish this we follow \cite{king2015capture} and \cite{Hooten:2023aa} in partitioning the PX-DA posterior by conditioning on capturing $n$ individuals with capture-histories, $\bx$,
+\[
+\begin{aligned}
+[\bt,\psi,\bw_{aug}, \bz^+|\bx] &\propto [\bx|\bz,\bt,n] [\bz|\bt,n]\\ 
+&\qquad \times [\bz_{aug}|\bt,n] [\bw_{aug}|\psi,n] \\
+&\qquad \times [n|\bt,\psi][\bt][\psi] \\
+\end{aligned}
+\]
+where the probability of observing $n$ individuals during the study is $[n|\bt,\psi] = \text{Binomial}(M, \psi p^*)$ and $p^*$ is the probability of being captured at least once. Thus if we integrate over the remaining augmentation components we obtain
+\[
+\begin{aligned}
+[\bt,\psi, \bz|\bx] &\propto \sum_{\bw_{aug}} \sum_{\bz_{aug}} [\bt,\psi,\bw_{aug}, \bz^+|\bx^+] \\
+&=  [\bx|\bz,\bt,n][\bz|\bt,n][n|\bt,\psi][\bt][\psi]
+\end{aligned}
+\]
+Before we continue with marginalizing over $\bz$ let us take a closer look at  $[n|\bt,\psi]$. We do not have any augmented data in the marginal posterior, but we still have the remnants of that process, $M$ and $\psi$. One way to remove their effect is to envision a hypothetical infinite amount of augmented data, that is $M\to \infty$. If we follow this limit while simultaneously allowing $\psi \to 0$ such that $M\psi \to \lambda$, then  $[n|\bt,\psi] \to [n|\bt,\lambda] = \text{Poisson}(\lambda p^*)$. So, fully marginalizing over the components of an infinitely large augmented data set, yields the posterior,
+\[
+[\bt,\lambda, \bz|\bx] \propto  [\bx,\bz|\bt,n][n|\bt, \lambda][\bt][\lambda]
+\]
+
+Now the final step in evaluating the fully marginal posterior distribution, 
+\[
+[\bt,\lambda|\bx] \propto [\bx|\bt,n][n|\bt,\lambda][\bt][\lambda]
+\]
+is to marginalize over the partially latent states, $\bz$. \cite{glennie2019open} and \cite{mcclintock2020uncovering} show an individual capture history in a JS models can be formulated as a Hidden Markov Model (HMM). That is, the (unconditional) probability of an individual capture-history can be calculated with the matrix product,
+%
+\begin{equation}
+\label{eq.uncond.lik}
+[\bx_i|\bt] = \bpi\bP_1(x_{i1})\bG_1\bP_2(x_{i2}) \cdots \bG_{K-1}\bP_K(x_{iK})\mathbf{1}.
+\end{equation}
+where $\bpi$ is the initial state probability vector, $\bP_t(x)$ is a diagonal matrix of observation likelihoods for each state, $\bG_t$ is the probability transition matrix for states, and $\mathbf{1}$ is a vector of ones. Therefore, to evaluate the probability of capture-history, $\bx_i$ conditional on being captured at least once we can use the HMM structure and evaluate,
+\begin{equation}
+\label{eq:chmm}
+ [\bx_i|\bt,n]  = \frac{[\bx_i|\bt]}{1-[\bx_i=\mathbf{0}|\bt]}
+\end{equation}
+where the denominator, $p^*=1-[\bx_i=\mathbf{0}|\bt]$, is the probability of being captured at least once. We can use efficient HMM algorithms to evaluate both the numerator and denominator because the denominator is calculated by simply replacing the observed capture-history with all 0s and evaluating it with (\ref{eq.uncond.lik}).
+
+For the general JS family model the the matrices in the unconditional likelihood function (\ref{eq.uncond.lik}) are given as follows. First, he initial state probability vector is 
+%
+\[
+\bpi = \begin{blockarray}{cccccc} 
+s_1 & s_2 & \cdots & s_{J-1} & s_J \\
+\begin{block}{[cccccc]}
+1-\xi_1 & \xi_1\alpha_{1,2} & \cdots & \xi_1\alpha_{1,J-1} & 0 \\
+\end{block}
+\end{blockarray}.
+\]
+% 
+The observation likelihood matrix, $\mathbf{P}_t(x_{it})$ is simply a $J\times J$ diagonal matrix with entries, $[x_{it} | s_l]$, $l=1,\dots J$.  Finally, the probability transition matrix is, for $t=1,\dots,K-1$,
 %
 \begin{equation}
 \label{eq.gamma.mat}
@@ -318,18 +339,13 @@ s_1 & s_2 & \cdots & s_{J-1} & s_J \\
 \end{equation}
 %
 
-Now that we have a probabilistic model for generating capture-recapture data we can formulate the likelihood for a set of observed data. First recall that only the individuals that are captured at least once (i.e., $\bx_i \ne \mathbf{0}$) are represented in the capture histories. Therefore, to model the full process that produces the observed data the probability of capture has to be included. Thus the likelihood for $n$ observed individuals is,
-\begin{equation}
-\label{eq.lik}
-\begin{aligned}
-[\bx|\bvt,N] &= \prod_{i=1}^n [\bx_i|\bvt, \bx_i\ne\mathbf{0}][\bx_i\ne\mathbf{0}|\bvt, N] \\
-&\propto \text{Binomial}(n|N,p_*) \times \prod_{i=1}^n \frac{[\bx_i|\bvt]}{p_*},
-\end{aligned}
-\end{equation}
-where $p_* = 1- [\bx=\mathbf{0}|\bvt]$ is the probability of being captured at least once. \cite{king2015capture} note that the interpretation that the likelihood is the product of the likelihood of capturing $n$ of $N$ individuals at least once multiplied by the likelihood of capture histories conditioned on at least one capture. Readers should note that we have left the portion of the original JS models dealing with loss upon capture. We find this part is often omitted in practice. If needed, it can be included in the model using a either second absorbing state in the transition matrices or a nontrivial observation likelihood, $[x_{it}|s_J]$, to allow, respectively, (1) death upon capture to be modeled as a separate process from natural mortality or (2) acknowledge that the exit (death) state can be explicitly observed with some probability. 
+Readers should note that we have left the portion of the original JS models dealing with loss upon capture. We find this part is often omitted in practice. If needed, it can be included in the model using a either second absorbing state in the transition matrices or a nontrivial observation likelihood, $[x_{it}|s_J]$, to allow, respectively, (1) death upon capture to be modeled as a separate process from natural mortality or (2) acknowledge that the exit (death) state can be explicitly observed with some probability. 
+
+ We denote the distribution function in (\ref{eq:chmm}) as the conditional HMM, $[\bx_i|\bt,n]=\text{cHMM}(\bx_i|\bt)$. The Posterior is ...
+
  
 
-\subsection{A collapsed Gibbs Sampler for Jolly-Seber models}
+\subsection{Using {\tt nimble} to perform collapsed Gibbs sampling}
 
 The default general form of the collapsed Gibbs sampler for JS models is:
 \begin{enumerate}
@@ -409,6 +425,8 @@ Extension to multistate JS models
 
 
 \section{Discussion}
+
+Under this distribution $[n_u|\bt,\lambda] =  \text{Poisson}(\lambda (1-p^*))$, which implies $[N=n+n_u|\lambda] =  \text{Poisson}(\lambda)$. If we assign the prior $[\lambda]=\lambda^{-1}$ we obtain the objective scale prior for $N$ \citep{link2013cautionary,schofield2023estimating}.
 
 why go to the trouble to marginalize to undo it with abundance sampling
 
