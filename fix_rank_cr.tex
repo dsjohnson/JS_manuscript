@@ -341,11 +341,25 @@ s_1 & s_2 & \cdots & s_{J-1} & s_J \\
 
 Readers should note that we have left the portion of the original JS models dealing with loss upon capture. We find this part is often omitted in practice. If needed, it can be included in the model using a either second absorbing state in the transition matrices or a nontrivial observation likelihood, $[x_{it}|s_J]$, to allow, respectively, (1) death upon capture to be modeled as a separate process from natural mortality or (2) acknowledge that the exit (death) state can be explicitly observed with some probability. 
 
- We denote the distribution function in (\ref{eq:chmm}) as the conditional HMM, $[\bx_i|\bt,n]=\text{cHMM}(\bx_i|\bt)$. The Posterior is ...
+To begin moving towards performing this approach in {\tt nimble} we need to start forming distributions for a model description. So, we denote the distribution function in (\ref{eq:chmm}) as the conditional HMM, $[\bx_i|\bt,n]=\text{cHMM}(\bx_i|\bt)$. Then the hierarchical model components that need to be specified are
+\[
+[\bx|\bt,n] = \prod_{i=1}^n \text{cHMM}(\bx_i|\bt),
+\]
+\[
+[n|\bt, \lambda] = \text{Poisson}(n|\lambda p*)
+\]
+
 
  
 
 \subsection{Using {\tt nimble} to perform collapsed Gibbs sampling}
+To begin moving towards performing this approach in {\tt nimble} we need to start forming distributions for a model description. So, we denote the distribution function in (\ref{eq:chmm}) as the conditional HMM, $[\bx_i|\bt,n]=\text{cHMM}(\bx_i|\bt)$. Then the hierarchical model components that need to be specified are
+\[
+[\bx|\bt,n] = \prod_{i=1}^n \text{cHMM}(\bx_i|\bt),
+\]
+\[
+[n|\bt, \lambda] = \text{Poisson}(n|\lambda p*)
+\]
 
 The default general form of the collapsed Gibbs sampler for JS models is:
 \begin{enumerate}
