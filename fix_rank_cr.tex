@@ -306,7 +306,7 @@ is to marginalize over the partially latent states, $\bz$. \cite{glennie2019open
 \end{equation}
 where $\bpi$ is the initial state probability vector, $\bP_t(x)$ is a diagonal matrix of observation likelihoods for each state, $\bG_t$ is the probability transition matrix for states, and $\mathbf{1}$ is a vector of ones. Therefore, to evaluate the probability of capture-history, $\bx_i$ conditional on being captured at least once we can use the HMM structure and evaluate,
 \begin{equation}
-\label{eq:chmm}
+\label{eq:dJS}
  [\bx_i|\bt,n]  = \frac{[\bx_i|\bt]}{1-[\bx_i=\mathbf{0}|\bt]}
 \end{equation}
 where the denominator, $p^*=1-[\bx_i=\mathbf{0}|\bt]$, is the probability of being captured at least once. We can use efficient HMM algorithms to evaluate both the numerator and denominator because the denominator is calculated by simply replacing the observed capture-history with all 0s and evaluating it with (\ref{eq.uncond.lik}).
@@ -339,26 +339,32 @@ s_1 & s_2 & \cdots & s_{J-1} & s_J \\
 \end{equation}
 %
 
-Readers should note that we have left the portion of the original JS models dealing with loss upon capture. We find this part is often omitted in practice. If needed, it can be included in the model using a either second absorbing state in the transition matrices or a nontrivial observation likelihood, $[x_{it}|s_J]$, to allow, respectively, (1) death upon capture to be modeled as a separate process from natural mortality or (2) acknowledge that the exit (death) state can be explicitly observed with some probability. 
-
-To begin moving towards performing this approach in {\tt nimble} we need to start forming distributions for a model description. So, we denote the distribution function in (\ref{eq:chmm}) as the conditional HMM, $[\bx_i|\bt,n]=\text{cHMM}(\bx_i|\bt)$. Then the hierarchical model components that need to be specified are
-\[
-[\bx|\bt,n] = \prod_{i=1}^n \text{cHMM}(\bx_i|\bt),
-\]
-\[
-[n|\bt, \lambda] = \text{Poisson}(n|\lambda p*)
-\]
-
-
- 
+Readers should note that we have left the portion of the original JS models dealing with loss upon capture. We find this part is often omitted in practice. If needed, it can be included in the model using a either second absorbing state in the transition matrices or a nontrivial observation likelihood, $[x_{it}|s_J]$, to allow, respectively, (1) death upon capture to be modeled as a separate process from natural mortality or (2) acknowledge that the exit (death) state can be explicitly observed with some probability.  
 
 \subsection{Using {\tt nimble} to perform collapsed Gibbs sampling}
-To begin moving towards performing this approach in {\tt nimble} we need to start forming distributions for a model description. So, we denote the distribution function in (\ref{eq:chmm}) as the conditional HMM, $[\bx_i|\bt,n]=\text{cHMM}(\bx_i|\bt)$. Then the hierarchical model components that need to be specified are
+
+To begin moving towards performing this approach in {\tt nimble} we need to start forming distributions for a model description. We can use {\tt nimble}'s capability to define new distributions follow the template presented in the {\tt nimbleEcology} package to include the necessary distributions and functions to perform Gibbs sampling for JS models without data augmentation. 
+
+The {\tt nimbleEcology} package has HMM distributions coded such that users can fit standard HMM models using the likelihood in (\ref{eq.uncond.lik}) (see the {\tt dHMMo()} function for the most general HMM). Using this package we can create another {\tt nimbleFunction()} to define the JS likehood in (\ref{eq:dJS}), via 
+\begin{equation}
+    \text{\tt dJS}(\bx_i,\bpi{\tt [1:K]}, \bP{\tt [1:J,1:J,1:K]},p^*) \text{\tt \ <- dHMMo}(\bx_i, )/ p^*
+    %(1- \text{\tt dHMMo}(\mathbf{0},\bt))
+\end{equation}
+We have included this new custom distribution in the {\tt nimbleJSextras} package. Once this distribution is defined, we can create a heuristic model statement for Bayesian analysis using {\tt nimble},
+
+%{\tt for(i in 1:nobs)\{} {\tt x[i,1:K]} $\sim \text{\tt dJS}(\bt)$ {\tt \} \\
+%{\tt n} $\sim \text{\tt dpois}(\lambda p^*)$ \\
+%$p^*$ {\tt <- dHMMo(zeros[1:K],}$\bt${\tt )}
+
+
+
+
+So, we denote the distribution function in (\ref{eq:dJS}) as the conditional HMM, $[\bx_i|\bt,n]=\text{cHMM}(\bx_i|\bt)$. Then the hierarchical model components that need to be specified are
 \[
 [\bx|\bt,n] = \prod_{i=1}^n \text{cHMM}(\bx_i|\bt),
 \]
 \[
-[n|\bt, \lambda] = \text{Poisson}(n|\lambda p*)
+[n|\bt, \lambda] = \text{Poisson}(n|\lambda p^*)
 \]
 
 The default general form of the collapsed Gibbs sampler for JS models is:
