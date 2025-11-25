@@ -5,4 +5,4 @@
 *.gz
 .DS_Store
 fix_rank_cr.pdf
-fix_rank_cr.out
+*.out
