@@ -43,6 +43,9 @@
 \newcommand{\bt}{\ensuremath{\boldsymbol{\theta}}}
 \newcommand{\bvt}{\ensuremath{\boldsymbol{\vartheta}}}
 
+\newcommand{\jags}{{\tt JAGS }}
+\newcommand{\nimble}{{\tt nimble }}
+
 %%%%%%%%%%%%%
 
 
@@ -61,12 +64,10 @@
 
 
 \newcommand{\bb}{\ensuremath{\boldsymbol{\beta}}}
-
 \newcommand{\ba}{\ensuremath{\boldsymbol{\alpha}}}
 \newcommand{\be}{\ensuremath{\boldsymbol{\epsilon}}}
 \newcommand{\bSig}{\ensuremath{\boldsymbol{\Sigma}}}
 \newcommand{\bmu}{\ensuremath{\boldsymbol{\mu}}}
-
 \newcommand{\bO}{\ensuremath{\boldsymbol{\Omega}}}
 \newcommand{\bs}{\ensuremath{\boldsymbol{\sigma}}}
 \newcommand{\bo}{\ensuremath{\boldsymbol{\omega}}}
@@ -176,7 +177,7 @@ Although data augmentation was instrumental in ushering in a new era a Bayesian 
 
 Collapsed Gibbs samplers offer a method to improve MCMC convergence over standard Gibbs samplers. \cite{Liu1994a} provides a mathematical proof which shows that the rate of convergence for a collapsed Gibbs sampler is at least as good, but often better, than the standard Gibbs sampler for any particular model. Unfortunately, we cannot directly use the theoretical results to prove that the collapsed version will always converge at a faster rate because neither the augmented version or the collapsed version presented here use strictly Gibbs updates. That is at least some, if not all, of the parameters are updated using Metropolis-within-Gibbs updates because the full conditional distributions are not standard. However, \cite{VanDykJiao2015a} note that MCMC convergence for collapsed samplers using Metropolis updates can still offer improvement but it may not be as good as strictly Gibbs updates.  
 
-The overall goal of this paper is to demonstrate the collapsed approach using the MCMC software in the {\tt R} package {\tt nimble} \citep{Valpine:2017vg} to illustrate that PX-DA methods are not necessary and JS models can be fit without data augmentation. The {\tt nimble} package allows users to create their own functions which can be compiled and included within an MCMC. Using this capability, as well as, the HMM likelihoods within the {\tt R} package {\tt nimbleEcology} \citep{GoldsteinEtAl2024a}, we analyze 3 real data sets with JS models of varying complexity as examples of practical JS fitting that can readily be used by practitioners just as easily as PX-DA methods. 
+The overall goal of this paper is to demonstrate the collapsed approach using the MCMC software in the {\tt R} package \nimble \citep{Valpine:2017vg} to illustrate that PX-DA methods are not necessary and JS models can be fit without data augmentation. The \nimble package allows users to create their own functions which can be compiled and included within an MCMC. Using this capability, as well as, the HMM likelihoods within the {\tt R} package {\tt nimbleEcology} \citep{GoldsteinEtAl2024a}, we analyze 3 real data sets with JS models of varying complexity as examples of practical JS fitting that can readily be used by practitioners just as easily as PX-DA methods. 
 
 %Here are some relevant references the paper will need later:
 %
@@ -248,7 +249,7 @@ The posterior distribution for inference is
 \label{eq:pxda.post}
 [\bt,\psi,\bw_{aug}, \bz^+|\bx^+] \propto [\bx^+|\bz^+,\bw^+,\bt][\bz^+|\bt][\bw^+|\psi][\bt][\psi],
 \end{equation}
-where $\bt$ are the parameters of the JS model described in the previous section as well as the parameters for the observation models such as capture probabilities which we will discuss in the next section and $\psi$ is the probability that an individual is a member of the superpopulation. The main benefits of the PX-DA approach is that all the distributions on the right-hand side of (\ref{eq:pxda.post}) are all standard distributions, so they can readily be described in the model statements for MCMC software such as {\tt JAGS} and {\tt nimble} and the dimension of the products remain fixed at $M$ individuals so trans-dimensional methods are not needed. Gibbs sampling for the PX-DA proceeds by sequentially sampling from the conditional distributions: $[\bz^+|\bt,\bw^+,\bx^+]$, $[\bw_{aug}|\bt,\psi,\bz^+,\bx^+]$,
+where $\bt$ are the parameters of the JS model described in the previous section as well as the parameters for the observation models such as capture probabilities which we will discuss in the next section and $\psi$ is the probability that an individual is a member of the superpopulation. The main benefits of the PX-DA approach is that all the distributions on the right-hand side of (\ref{eq:pxda.post}) are all standard distributions, so they can readily be described in the model statements for MCMC software such as {\tt JAGS} and \nimble and the dimension of the products remain fixed at $M$ individuals so trans-dimensional methods are not needed. Gibbs sampling for the PX-DA proceeds by sequentially sampling from the conditional distributions: $[\bz^+|\bt,\bw^+,\bx^+]$, $[\bw_{aug}|\bt,\psi,\bz^+,\bx^+]$,
 $[\psi|\bw^+]$, and $[\bt|\bz^+,\bw^+,\bx^+]$. Of course theses may be broken up further into scalar parameter updates. During updates, the raw quantities $\bz^+$ and $\bw^+$, as well as, $\psi$ are not usually useful on their 
 own and abundance metric summaries, say $\bvt=f(\bz^+,\bw^+)$, are usually stored such as $N=\bw'\mathbf{1}$ or $N_t=\sum_{i=1}^M z_{it}w_i$. So, the resulting posterior desired is usually, $[\bt,\bvt|\bx^+]$.
 
@@ -270,7 +271,7 @@ where $n_u$ is the predicted number of unobserved individuals and $\bz_u$ is the
 \]
 Notice that if we ignore $\lambda$ as with $\psi$ we obtain a posterior, $[\bt,\bvt|\bx]$, that does not depend on augmented data. 
 
-Now that we have outlined the collapsed Gibbs sampler for JS models we need to examine the details and illustrate that it can be accomplished within the {\tt nimble} framework in way that makes it similar in ease-of-use for practitioners relative to the PX-DA approach. The first step is to determine the first sample marginal distribution. 
+Now that we have outlined the collapsed Gibbs sampler for JS models we need to examine the details and illustrate that it can be accomplished within the \nimble framework in way that makes it similar in ease-of-use for practitioners relative to the PX-DA approach. The first step is to determine the first sample marginal distribution. 
 
 \subsection{Evaluating marginal posterior of Jolly-Seber models}
 
@@ -341,31 +342,22 @@ s_1 & s_2 & \cdots & s_{J-1} & s_J \\
 
 Readers should note that we have left the portion of the original JS models dealing with loss upon capture. We find this part is often omitted in practice. If needed, it can be included in the model using a either second absorbing state in the transition matrices or a nontrivial observation likelihood, $[x_{it}|s_J]$, to allow, respectively, (1) death upon capture to be modeled as a separate process from natural mortality or (2) acknowledge that the exit (death) state can be explicitly observed with some probability.  
 
-\subsection{Using {\tt nimble} to perform collapsed Gibbs sampling}
+\subsection{Using \nimble to perform collapsed Gibbs sampling}
 
-To begin moving towards performing this approach in {\tt nimble} we need to start forming distributions for a model description. We can use {\tt nimble}'s capability to define new distributions follow the template presented in the {\tt nimbleEcology} package to include the necessary distributions and functions to perform Gibbs sampling for JS models without data augmentation. 
+To begin moving towards performing this approach in \nimble we start by forming distributions for a model description. Unlike \jags, the \nimble software possesses the ability to define new distributions and other functions that can be directly incorporated in model statements for MCMC analysis. This capability is accessed through the {\tt nimbleFunction()} function. For categorical data, the {\tt nimbleEcology} package has already defined an unconditional HMM distribution (\ref{eq.uncond.lik}). These are accessed via the family of {\tt *HMM*()} class of distributions. In the {\tt nimbleJSextras} package we used the most general version, {\tt dHMMo()} to create a bespoke distribution function,
+\begin{verbatim}
+dJS(x[i,1:K],pstar,...) <- dHMMo(x[i,1:K],...) / pstar
+\end{verbatim}
+where {\tt pstar <- 1 - dHMMo(zeros[1:K],...)} and {\tt zeros} is a fixed vector of zeros. The arguments in ``{\tt ...}'' are the $\bpi$, $\bP_t(x_{it})$ and $\bG_t$ matrices as specified by the {\tt dHMMo()} function. The the overall probability of capture, {\tt pstar}, has been made a separate argument because it is the same for all individuals and it is unnecessary to recalculate the same quantity for each observed individual. The {\tt nimbleJSextras} package also has a {\tt pstar\_js()} function to calculate this so the user does not have to create the {\tt zeros} vector. 
 
-The {\tt nimbleEcology} package has HMM distributions coded such that users can fit standard HMM models using the likelihood in (\ref{eq.uncond.lik}) (see the {\tt dHMMo()} function for the most general HMM). Using this package we can create another {\tt nimbleFunction()} to define the JS likehood in (\ref{eq:dJS}), via 
-\begin{equation}
-    \text{\tt dJS}(\bx_i,\bpi{\tt [1:K]}, \bP{\tt [1:J,1:J,1:K]},p^*) \text{\tt \ <- dHMMo}(\bx_i, )/ p^*
-    %(1- \text{\tt dHMMo}(\mathbf{0},\bt))
-\end{equation}
-We have included this new custom distribution in the {\tt nimbleJSextras} package. Once this distribution is defined, we can create a heuristic model statement for Bayesian analysis using {\tt nimble},
-
-%{\tt for(i in 1:nobs)\{} {\tt x[i,1:K]} $\sim \text{\tt dJS}(\bt)$ {\tt \} \\
-%{\tt n} $\sim \text{\tt dpois}(\lambda p^*)$ \\
-%$p^*$ {\tt <- dHMMo(zeros[1:K],}$\bt${\tt )}
-
-
-
-
-So, we denote the distribution function in (\ref{eq:dJS}) as the conditional HMM, $[\bx_i|\bt,n]=\text{cHMM}(\bx_i|\bt)$. Then the hierarchical model components that need to be specified are
-\[
-[\bx|\bt,n] = \prod_{i=1}^n \text{cHMM}(\bx_i|\bt),
-\]
-\[
-[n|\bt, \lambda] = \text{Poisson}(n|\lambda p^*)
-\]
+Once the {\tt dJS()} distribution is defined, we can create a set of distributions that can be used in a \nimble model statement, 
+\begin{verbatim}
+for(i in 1:nobs) {
+  x[i,1:K] ~ dJS(pstar,...)
+}
+pstar <- pstar_JS(...)
+n ~ dpois(lambda * pstar)
+\end{verbatim}
 
 The default general form of the collapsed Gibbs sampler for JS models is:
 \begin{enumerate}
@@ -403,7 +395,7 @@ The first step for whatever type of inference we want is to sample the $z_{it}$ 
 
 Now that we have the state and time-specific abundances for the observed individuals, we shift to the individuals that are never captured. We begin by drawing the uncaptured superpopulation size $n_u \sim \text{Poisson}(\lambda(1-p_*))$.  We could use the same FFBS algorithm to individually sample the states of all $n_u$ individuals all with the capture-history $\bx_i=\mathbf{0}$. However, Because all uncaptured individuals have the same capture-history, we can use a multinomial version of the FFBS, to sample the state and time-specific abundance in one forward and backward pass (Appendix A, algorithm 2) without simulating individual state histories.  
 
-Now that we have posterior samples of $\bn_t$ and $\bn_{u,t}$ we can predict the state and time-specific abundances $\bN_t =  \bn_t + \bn_{u,t}$ and $N_t =  n_t + n_{u,t}$ and any function, $f(\bN_1,\dots,\bN_K)$, such as population growth or {\it per capita} recruitment \citep{schwarz2001jolly,link2005modeling}. We have included these algorithms as {\tt nimble} functions in the {\tt nimbleJSextras} package so they can be used within {\tt nimble} model code for MCMC sampling. 
+Now that we have posterior samples of $\bn_t$ and $\bn_{u,t}$ we can predict the state and time-specific abundances $\bN_t =  \bn_t + \bn_{u,t}$ and $N_t =  n_t + n_{u,t}$ and any function, $f(\bN_1,\dots,\bN_K)$, such as population growth or {\it per capita} recruitment \citep{schwarz2001jolly,link2005modeling}. We have included these algorithms as \nimble functions in the {\tt nimbleJSextras} package so they can be used within \nimble model code for MCMC sampling. 
 
 \section{Examples and Extensions}
 
@@ -418,7 +410,7 @@ $[\text{logit } p_t] = N(\mu_p,\sigma_p^2)$, and $[\text{logit } \rho_t] = N(\mu
 \end{center}
 To allow shrinkage of the full time model to the temporally constant model we use the complexity prior distribution \citep{xxx} on each of the three the variance components, $[\sigma] =\text{Exponential}(1)$. All mean components of the random effect where given the vague $N(0,10)$ prior distribution. 
 
-To fit this model with MCMC we used the {\tt R} package {\tt nimble} \citep{xxx} and developed several additional functions in the R package {\tt nimbleJSextras} for executing the fully marginal JS model. The {\tt nimbleJSextras} package is available for installation from GitHub\footnote{\url{https://github.com/dsjohnson/nimbleJSextras}}. The {\tt nimbleJSextras} package uses functionality in the {\tt nimble} \citep{xxx} and {\tt nimbleEcology} \citep{xxx} packages to fit general HMMs. Using the functions and distributions in those two packages we included the JS conditional HMM likelihood functions as well as functions for simulating true states for detected and undetected individuals. Code for this example is provided in the package and the dipper data was obtained from the {\tt marked} package \citep{xxx}. In addition, code to fit the fully marginal version of the specification in \cite{Royle:2008kx} is also provided for comparison. 
+To fit this model with MCMC we used the {\tt R} package \nimble \citep{xxx} and developed several additional functions in the R package {\tt nimbleJSextras} for executing the fully marginal JS model. The {\tt nimbleJSextras} package is available for installation from GitHub\footnote{\url{https://github.com/dsjohnson/nimbleJSextras}}. The {\tt nimbleJSextras} package uses functionality in the \nimble \citep{xxx} and {\tt nimbleEcology} \citep{xxx} packages to fit general HMMs. Using the functions and distributions in those two packages we included the JS conditional HMM likelihood functions as well as functions for simulating true states for detected and undetected individuals. Code for this example is provided in the package and the dipper data was obtained from the {\tt marked} package \citep{xxx}. In addition, code to fit the fully marginal version of the specification in \cite{Royle:2008kx} is also provided for comparison. 
 
 Parameter estimates  are given in Table \ref{tab:dipper}. The super population size estimate is $N = 312.16$ with SD = 7.35 and 95\% HPD interval [299--336]. Yearly abundance estimates are illustrated in Figure \ref{}. 
 
@@ -574,7 +566,7 @@ The findings and conclusions in the paper are those of the authors and do not ne
 
 \section{Forward-Backward Posterior Abundance Sampling Algorithms}
 
-Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS) algorithm for sampling the conditional posterior distribution of the true state of an individual(s). These algorithms are used within each round of MCMC updates to draw from the state distributions conditional on the observed data and the parameters, $\bt$ at the current iteration. The first version is for updating the true state, $\bz_i=(z_{i,1},\dots,z_{i,K})$ of an observed individual with capture history $\bx_i\ne\mathbf{0}$. The second version is for updating the state and time-specific abundance of all unobserved individuals given the observed data, $\bx=\{\bx_1,\dots,\bx_n\}$, the superpopulation of unobserved individuals, $n_u$, and the current parameters, $\bt$. Both of these algorithms are coded as {\tt nimble} functions ({\tt \verb|sample_det_**|} and {\tt \verb|sample_undet_**|}) in the {\tt nimbleJSextras} package available at \href{https://github.com/dsjohnson/nimbleJSextras}{https://github.com/dsjohnson/nimbleJSextras} and their use is illustrated in the code for each of the example analyses/ 
+Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS) algorithm for sampling the conditional posterior distribution of the true state of an individual(s). These algorithms are used within each round of MCMC updates to draw from the state distributions conditional on the observed data and the parameters, $\bt$ at the current iteration. The first version is for updating the true state, $\bz_i=(z_{i,1},\dots,z_{i,K})$ of an observed individual with capture history $\bx_i\ne\mathbf{0}$. The second version is for updating the state and time-specific abundance of all unobserved individuals given the observed data, $\bx=\{\bx_1,\dots,\bx_n\}$, the superpopulation of unobserved individuals, $n_u$, and the current parameters, $\bt$. Both of these algorithms are coded as \nimble functions ({\tt \verb|sample_det_**|} and {\tt \verb|sample_undet_**|}) in the {\tt nimbleJSextras} package available at \href{https://github.com/dsjohnson/nimbleJSextras}{https://github.com/dsjohnson/nimbleJSextras} and their use is illustrated in the code for each of the example analyses/ 
 
 \begin{algorithm}[H]
 \caption{FFBS for Observed Individuals}
