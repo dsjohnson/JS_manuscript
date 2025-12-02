@@ -214,7 +214,7 @@ The probability that the individual enters an available population between occas
 \rho_t \prod_{j=1}^{t-1} (1-\rho_j) & t=2,\dots,K
 \end{array} \right. .
 \]
-We prefer the recruitment probability parameterization of the JS model because the constant model, i.e., $\rho_t=\rho$, has biological interpretation about recruitment over time, however the constant model for $\beta_t$ implies changing recruitment probabilities that are not readily apparent. When an individual first enters the available population between occasions $t-1$ and $t$ it enters into state $s_l$, $l=2,\dots,J-1$ with probability $\alpha_{t,l}$ ($\sum_{l=2}^{J-1} \alpha_{t,l}=1$). 
+We prefer the recruitment probability parameterization of the JS model because the constant model, i.e., $\rho_t=\rho$, has biological interpretation about recruitment over time, whereas the constant model for $\beta_t$ implies changing recruitment probabilities that are not readily apparent. When an individual first enters the available population between occasions $t-1$ and $t$ it enters into state $s_l$, $l=2,\dots,J-1$ with probability $\alpha_{t,l}$ ($\sum_{l=2}^{J-1} \alpha_{t,l}=1$). 
 
 The probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{t,l}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. That is, the probability that an individual transitions from $s_l \to s_J$ is $1-\phi_{t,l}$. If we consider $s_J$ to be ``death'' then the $\phi$ parameters are the typical survival probabilities. Finally, $\psi_{t,l,l'}$ ($\sum_{l'=2}^{J-1}\psi_{t,l,l'} = 1$) is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$ . 
 
@@ -290,10 +290,11 @@ where the probability of observing $n$ individuals during the study is $[n|\bt,\
 &=  [\bx|\bz,\bt,n][\bz|\bt,n][n|\bt,\psi][\bt][\psi]
 \end{aligned}
 \]
-Before we continue with marginalizing over $\bz$ let us take a closer look at  $[n|\bt,\psi]$. We do not have any augmented data in the marginal posterior, but we still have the remnants of that process, $M$ and $\psi$. One way to remove their effect is to envision a hypothetical infinite amount of augmented data, that is $M\to \infty$. If we follow this limit while simultaneously allowing $\psi \to 0$ such that $M\psi \to \lambda$, then  $[n|\bt,\psi] \to [n|\bt,\lambda] = \text{Poisson}(\lambda p^*)$. So, fully marginalizing over the components of an infinitely large augmented data set, yields the posterior,
+Before we continue with marginalizing over $\bz$ let us take a closer look at  $[n|\bt,\psi]$. We do not have any augmented data in the marginal posterior, but we still have the remnants of that process, $M$ and $\psi$. One way to remove their effect is to envision a hypothetical infinite amount of augmented data, that is $M\to \infty$. If we follow this limit while simultaneously allowing $\psi \to 0$ such that $M\psi \to \lambda$, then  $[n|\bt,\psi] \to [n|\bt,\lambda] = \text{Poisson}(\lambda p^*)$.  So, fully marginalizing over the components of an infinitely large augmented data set, yields the posterior,
 \[
-[\bt,\lambda, \bz|\bx] \propto  [\bx,\bz|\bt,n][n|\bt, \lambda][\bt][\lambda]
+[\bt,\lambda, \bz|\bx] \propto  [\bx,\bz|\bt,n][n|\bt, \lambda][\bt][\lambda].
 \]
+This is equivalent in form to the likelihood derived by \cite{glennie2019open} for spatial capture-recapture models when individuals are distributed as a spatial Poisson process.
 
 Now the final step in evaluating the fully marginal posterior distribution, 
 \[
@@ -305,14 +306,14 @@ is to marginalize over the partially latent states, $\bz$. \cite{glennie2019open
 \label{eq.uncond.lik}
 [\bx_i|\bt] = \bpi\bP_1(x_{i1})\bG_1\bP_2(x_{i2}) \cdots \bG_{K-1}\bP_K(x_{iK})\mathbf{1}.
 \end{equation}
-where $\bpi$ is the initial state probability vector, $\bP_t(x)$ is a diagonal matrix of observation likelihoods for each state, $\bG_t$ is the probability transition matrix for states, and $\mathbf{1}$ is a vector of ones. Therefore, to evaluate the probability of capture-history, $\bx_i$ conditional on being captured at least once we can use the HMM structure and evaluate,
+where $\bpi$ is the initial state probability vector, $\bP_t(x)$ is a diagonal matrix of observation likelihoods for each state, $\bG_t$ is the probability transition matrix for states, and $\mathbf{1}$ is a vector of ones. Therefore, to evaluate the probability of a single capture-history, $\bx_i$, conditional on being captured at least once, we can use the HMM structure and evaluate,
 \begin{equation}
 \label{eq:dJS}
  [\bx_i|\bt,n]  = \frac{[\bx_i|\bt]}{1-[\bx_i=\mathbf{0}|\bt]}
 \end{equation}
-where the denominator, $p^*=1-[\bx_i=\mathbf{0}|\bt]$, is the probability of being captured at least once. We can use efficient HMM algorithms to evaluate both the numerator and denominator because the denominator is calculated by simply replacing the observed capture-history with all 0s and evaluating it with (\ref{eq.uncond.lik}).
+where the denominator, $p^*=1-[\bx_i=\mathbf{0}|\bt]$, is the probability of being captured at least once. We can use efficient HMM algorithms to evaluate both the numerator and denominator because the denominator is calculated by simply replacing the observed capture-history with all 0s and evaluating it with (\ref{eq.uncond.lik}) as well.
 
-For the general JS family model the the matrices in the unconditional likelihood function (\ref{eq.uncond.lik}) are given as follows. First, he initial state probability vector is 
+For the general JS family model the the matrices in the likelihood function (\ref{eq:dJS}) are given as follows. First, he initial state probability vector is 
 %
 \[
 \bpi = \begin{blockarray}{cccccc} 
@@ -323,7 +324,7 @@ s_1 & s_2 & \cdots & s_{J-1} & s_J \\
 \end{blockarray}.
 \]
 % 
-The observation likelihood matrix, $\mathbf{P}_t(x_{it})$ is simply a $J\times J$ diagonal matrix with entries, $[x_{it} | s_l]$, $l=1,\dots J$.  Finally, the probability transition matrix is, for $t=1,\dots,K-1$,
+The observation likelihood matrix, $\mathbf{P}_t(x_{it})$ is a $J\times J$ diagonal matrix with entries, $[x_{it} | s_l]$, $l=1,\dots J$.  Finally, the probability transition matrix is, for $t=1,\dots,K-1$,
 %
 \begin{equation}
 \label{eq.gamma.mat}
@@ -340,62 +341,63 @@ s_1 & s_2 & \cdots & s_{J-1} & s_J \\
 \end{equation}
 %
 
-Readers should note that we have left the portion of the original JS models dealing with loss upon capture. We find this part is often omitted in practice. If needed, it can be included in the model using a either second absorbing state in the transition matrices or a nontrivial observation likelihood, $[x_{it}|s_J]$, to allow, respectively, (1) death upon capture to be modeled as a separate process from natural mortality or (2) acknowledge that the exit (death) state can be explicitly observed with some probability.  
+Readers should note that we have left the portion of the original JS models dealing with loss upon capture. We find this part is often omitted in practice. If needed, it can be included in the model using a either second exit state in the transition matrix that explicitly feeds to $s_J$ with probability 1 at the next occasion.  
 
 \subsection{Using \nimble to perform collapsed Gibbs sampling}
 
-To begin moving towards performing this approach in \nimble we start by forming distributions for a model description. Unlike \jags, the \nimble software possesses the ability to define new distributions and other functions that can be directly incorporated in model statements for MCMC analysis. This capability is accessed through the {\tt nimbleFunction()} function. For categorical data, the {\tt nimbleEcology} package has already defined an unconditional HMM distribution (\ref{eq.uncond.lik}). These are accessed via the family of {\tt *HMM*()} class of distributions. In the {\tt nimbleJSextras} package we used the most general version, {\tt dHMMo()} to create a bespoke distribution function,
+To perform this approach in \nimble we start by forming distributions for a model description. Unlike \jags the \nimble software possesses the ability to define new distributions and other functions that can be directly incorporated in model statements for MCMC analysis. This capability is accessed through the {\tt nimbleFunction()} function. For categorical data (e.g., multistate capture-histories), the {\tt nimbleEcology} package has already defined an unconditional HMM distribution (\ref{eq.uncond.lik}). This are accessed via the {\tt DHMMo()} HMM distribution. In the {\tt nimbleJSextras} package we used this general HMM distribution to create the bespoke distribution function,
 \begin{verbatim}
-dJS(x[i,1:K],pstar,...) <- dHMMo(x[i,1:K],...) / pstar
+dJS_cat(x[i,1:K],...,pstar,) <- dHMMo(x[i,1:K],...) / pstar
 \end{verbatim}
-where {\tt pstar <- 1 - dHMMo(zeros[1:K],...)} and {\tt zeros} is a fixed vector of zeros. The arguments in ``{\tt ...}'' are the $\bpi$, $\bP_t(x_{it})$ and $\bG_t$ matrices as specified by the {\tt dHMMo()} function. The the overall probability of capture, {\tt pstar}, has been made a separate argument because it is the same for all individuals and it is unnecessary to recalculate the same quantity for each observed individual. The {\tt nimbleJSextras} package also has a {\tt pstar\_js()} function to calculate this so the user does not have to create the {\tt zeros} vector. 
+where {\tt pstar <- 1 - dHMMo(zeros[1:K],...)} and {\tt zeros} is a fixed vector of zeros. The arguments in ``{\tt ...}'' are the $\bpi$, $\bP_t(x_{it})$ and $\bG_t$ matrices as specified by the {\tt dHMMo()} function. The the overall probability of capture, {\tt pstar}, has been made a separate argument because it is the same for all individuals and it is unnecessary to recalculate the same quantity for each observed individual. The {\tt nimbleJSextras} package also has a \verb|pstar_ms()| function to calculate this so the user does not have to create the {\tt zeros} vector. 
 
-Once the {\tt dJS()} distribution is defined, we can create a set of distributions that can be used in a \nimble model statement, 
+Now that the \verb|dJS_ms()| distribution and the \verb|pstar_ms()| function are defined, we can it can be used in a \nimble model statement along with the Poisson distribution to model the number of captured individuals, for example,
 \begin{verbatim}
 for(i in 1:nobs) {
-  x[i,1:K] ~ dJS(pstar,...)
+  x[i,1:K] ~ dJS_ms(...,pstar)
 }
-pstar <- pstar_JS(...)
+pstar <- pstar_ms(...)
 n ~ dpois(lambda * pstar)
 \end{verbatim}
+Here, {\tt nobs} = $n$, but we can not pass $n$ as both a constant and a random variable, so we just use a different name for the $i$ index limit. Outside of specifying the HMM matrices for particular JS models, this code is all that is necessary to estimate the model parameters with MCMC. 
 
-The default general form of the collapsed Gibbs sampler for JS models is:
-\begin{enumerate}
-\item Sample from the marginal posterior of the parameters, $[\bvt, N|\bx] \propto [\bx|\bvt,N] [\bvt] [N]$, where $[\bvt]$, $[N]$ are the parameter prior distributions.
-\item Sample from the posterior predictive distribution state summaries, $[f(\bz) |\bvt, N, \bx]$ \
-\end{enumerate}
-Note, that because the dimension of the state matrix, $\bz$, changes with $N$ the actual state matrix is not meaningful for inference on its own, fixed dimensional summaries such as, say, abundance of individuals in a particular state are the meaningful inferential targets. 
-
-Let us begin with step 1 and make a modification that will allow us to move sampling of $N$ to the second predictive stage as well. Under the PX-DA model, the marginal prior for the superpopulation abundance is $[N] = \text{discrete Uniform}(0,M)$ where $M$ is the number of augmented individuals. However, we do not need to add any individuals, so choosing a prior with a fixed upper bound would defeat the purpose of this exercise. Therefore we follow the advice of \cite{link2013cautionary} and \cite{schofield2023estimating} and use the objective objective scale prior $[N] = N^{-1}$ which can be approximated within an MCMC using the hierarchical specification,
-\[
-[N|\lambda][\lambda] = \text{Poisson}(N|\lambda)\times  \text{Gamma}(\lambda|\epsilon, \epsilon),
-\]
-where $\epsilon$ is a chosen value near zero. Because we assume a conditional Poisson prior distribution for $N$ one can easily marginalize over it as well to further collapse the sampler,
+Now we turn our focus to sampling the abundance functions $\bvt = f(\bz,\bz_u,n_u)$ in the second stage of the collapsed Gibbs sampler by drawing from 
 \begin{equation}
-\begin{aligned}
-[\bvt, \lambda|\bx] &\propto \sum_N[\bx|\bvt, N] \times \text{Poisson}(N|\lambda) \times [\bvt] [\lambda]\\
-&\propto \text{Poisson}(n|\lambda p_*) \prod_{i=1}^n \frac{[\bx_i|\bvt]}{p_*}\ [\bvt] [\lambda]
-\end{aligned}
-\end{equation}
-This is equivalent in form to the likelihood derived by \cite{glennie2019open} for spatial capture-recapture models when individuals are distributed as a spatial Poisson process. It might seem rather trivial to exchange a Binomial distribution for a Poisson one, however, after this marginalization, the number of undetected animals in the population, $n_u=N-n$, has the straightforward posterior predictive distribution,
+[\bz, \bz_u, n_u|\bt,\lambda,\bx] = [n_u|\bt,\lambda,\bx][\bz_u|n_u,\bt,\bx][\bz|\bt,\bx].
+\end{equation} 
+To begin, because $[N|\lambda] = \text{Poisson}(\lambda)$ under the same infinite augmentation scheme and $[n,n_u|N,\bt] = \text{Multinomial}(N, p^*, 1-p^*)$ implies 
 \[
-[n_u|\bvt, \lambda] = \text{Poisson}(\lambda(1-p_*)),
+[n_u|\bt, \lambda, \bx] = \text{Poisson}(\lambda (1-p^*))
 \]
-conditionally independent of the data, $\bx$. So, for each iteration of an MCMC algorithm it can be directly updated with a draw from a standard Poisson distribution as a posterior predictive variable. Then the prediction for the overall abundance, $N$, results directly from $N = n_u + n$. \cite{schofield2023estimating} and \cite{johnson2010model} both describe abundance estimation in the Poisson approach as {\it predicting} the number of undetected individuals. Therefore, the collapsed sampler now has the form:
-\begin{enumerate}
-\item Sample from $[\bvt, \lambda|\bx]$
-\item Sample from $[n_u|\bvt, \lambda]$, calculate $N = n_u + n$
-\item If needed sample from  $[f(\bz) |\bvt, N, \bx]$
-\end{enumerate}
-If one is only interested in the demographic rate parameters, $\bvt$, $N$, or derived quantities of these parameters, then one only needs steps 1 and 2. However if one is interested in other time-specific abundance quantities step 3 is necessary. 
+conditionally independent of the data, $\bx$. So, for each iteration of an MCMC algorithm it can be directly updated with a draw from a standard Poisson distribution as a posterior predictive variable. Then the prediction for the overall abundance, $N$, results directly from $N = n_u + n$. \cite{schofield2023estimating} and \cite{johnson2010model} both describe abundance estimation in the Poisson approach as {\it predicting} the number of undetected individuals. If one is only interested in the demographic rate parameters, $\bt$, $N$, or derived quantities of these parameters, then one only needs to add 
+\begin{verbatim}
+nu ~ dpois(lambda*(1-pstar))
+N <- nobs + nu
+\end{verbatim}
+to the previous \nimble model statement. If quantities such as $N_t$ or population growth are desired, we must sample $\bz$ and $\bz_u$ to derive these within the sampler. 
 
-Now we shift our focus to other predictive abundance quantities. While $N$ can be easily sampled at each iteration of an MCMC routine, the $K$ different $N_t$ and, possibly, functions of the series, e.g., population growth, are more likely the desired object of interest. Because we have marginalized over the true states, $\bz$ with the HMM-based likelihood calculations it is not as readily apparent how this can be accomplished, however, we can use standard HMM algorithms to efficiently draw from those posterior distributions as well. 
+The final step in the collapsed sampler is to sample the unobserved and partially observed state matrices, $\bz_u$ and $\bz$. Because we have marginalized over the true states, $\bz$ with the HMM-based likelihood calculations it is not as readily apparent how this can be accomplished, however, we can use standard HMM algorithms to efficiently draw from those posterior distributions as well. Then we can extend the method to $\bz_u$.
 
-The first step for whatever type of inference we want is to sample the $z_{it}$ for the observed individuals from the predictive distribution, $[\bz_{i}| \bx_i,\bvt]$. This can be accomplished efficiently with the Forward--Filtering Backward--Sampling (FFBS) algorithm for conditional state sampling of HMMs \citep{scott2002bayesian}. The details of the of the FFBS algorithm can be found in Appendix A (algorithm 1). Heuristically, the algorithm works by first using the HMM forward algorithm \citep{zucchini2016hidden} followed by a backward pass through the capture history to sample from $[z_{i,t}|z_{i,t+1},\dots,z_{i,K},\bx_i,\bvt]$ at each occasion. Once we perform the the backward-sampling algorithm for each captured individual we can calculate the derived quantity, $n_{t,l} = \sum_{i=1}^n I(z_{i,t}=s_l)$, the abundance of individuals in state $s_l$ at time $t$. For simplicity, we use the bold notation, $\bn_t = (n_{t,1},\dots,n_{t,J})$, to represent the vector of state-specific abundances and $n_t = \sum_{l=2}^{J-1} n_{t,l}$ to represent the total abundance of available individuals that were observed during the study.    
+To begin the final step, we must sample the true states for the observed individuals from the predictive distribution, $[\bz_{i}| \bt, \bx_i]$. This can be accomplished efficiently with the Forward--Filtering Backward--Sampling (FFBS) algorithm for conditional state sampling of HMMs \citep{scott2002bayesian}. The details of the of the FFBS algorithm can be found in Appendix A (algorithm 1). Heuristically, the algorithm works by first using the HMM forward algorithm \citep{zucchini2016hidden} followed by a backward pass through the capture history to sample from $[z_{i,t}|z_{i,t+1},\dots,z_{i,K},\bt, \bx_i]$ at each occasion. To facilitate this sampling algorithm we have coded the FFBS algorithm into the {\tt nimbleJSextras} package and it can be implemented via adding the line,
+\begin{verbatim}
+for(i in 1:nobs){
+  z[i,1:K] <- sample_det_ms(x=x[i,1:K], ...),
+  }
+\end{verbatim}
+this will draw a sample from $[\bz_{i}| \bt, \bx_i]$. Here we have proceeded against convention by specifying a random quantity with a deterministic \nimble function, however, one would not ever use this distribution as a likelihood, so the coding overhead to specify it as a distribution seems unnecessary and it functions in the same manner as a bespoke distribution.  Once we perform the the backward-sampling algorithm for each captured individual we can calculate the derived quantity, $n_{t,l} = \sum_{i=1}^n I(z_{i,t}=s_l)$, the abundance of observed individuals in state $s_l$ at time $t$. For simplicity, we use the bold notation, $\bn_t = (n_{t,1},\dots,n_{t,J})$, to represent the vector of state-specific abundances and $n_t = \sum_{l=2}^{J-1} n_{t,l}$ to represent the total abundance of available individuals that were observed during the study. For a standard JS model ($J=3$) this is accomplished with the code,
+\begin{verbatim}
+ available[1:nobs,1:K] <- z[1:nobs,1:K]==2
+ for(t in 1:K){
+    nd[t] <- sum(available[1:nobs, t])
+    }
+\end{verbatim}   
+We used {\tt nd} to distinguish it from $n$ in the code. 
 
-Now that we have the state and time-specific abundances for the observed individuals, we shift to the individuals that are never captured. We begin by drawing the uncaptured superpopulation size $n_u \sim \text{Poisson}(\lambda(1-p_*))$.  We could use the same FFBS algorithm to individually sample the states of all $n_u$ individuals all with the capture-history $\bx_i=\mathbf{0}$. However, Because all uncaptured individuals have the same capture-history, we can use a multinomial version of the FFBS, to sample the state and time-specific abundance in one forward and backward pass (Appendix A, algorithm 2) without simulating individual state histories.  
-
-Now that we have posterior samples of $\bn_t$ and $\bn_{u,t}$ we can predict the state and time-specific abundances $\bN_t =  \bn_t + \bn_{u,t}$ and $N_t =  n_t + n_{u,t}$ and any function, $f(\bN_1,\dots,\bN_K)$, such as population growth or {\it per capita} recruitment \citep{schwarz2001jolly,link2005modeling}. We have included these algorithms as \nimble functions in the {\tt nimbleJSextras} package so they can be used within \nimble model code for MCMC sampling. 
+Now that we have the state and time-specific abundances for the observed individuals, we shift to the individuals that are never captured. We begin by drawing the uncaptured superpopulation size $n_u \sim \text{Poisson}(\lambda(1-p_*))$.  We could use the same FFBS algorithm to individually sample the states of all $n_u$ individuals all with the capture-history $\bx_i=\mathbf{0}$. However, Because all uncaptured individuals have the same capture-history, we can use a multinomial version of the FFBS, to sample the state and time-specific abundance in one forward and backward pass (Appendix A, algorithm 2) without simulating individual state histories. This can be accomplished in a \nimble model statement with
+\begin{verbatim}
+nu_t[1:3, 1:K] <- sample_undet_ms(nu,...)
+\end{verbatim}
+Again, we acknowledge the unorthodox use of a deterministic function for a random variable. Now that we have posterior samples of $\bn_t$ and $\bn_{u,t}$ we can predict the state and time-specific abundances $\bN_t =  \bn_t + \bn_{u,t}$ and $N_t =  n_t + n_{u,t}$ and any function, $f(\bN_1,\dots,\bN_K)$, such as population growth. Appendix B provides a \nimble code template for fitting JS models via the collapsed sampler. Notably, the sample code illustrates the structure for the data input and HMM matrices contained in the ``{\tt ...}'' arguments of the previous code snippets. 
 
 \section{Examples and Extensions}
 
@@ -412,7 +414,7 @@ To allow shrinkage of the full time model to the temporally constant model we us
 
 To fit this model with MCMC we used the {\tt R} package \nimble \citep{xxx} and developed several additional functions in the R package {\tt nimbleJSextras} for executing the fully marginal JS model. The {\tt nimbleJSextras} package is available for installation from GitHub\footnote{\url{https://github.com/dsjohnson/nimbleJSextras}}. The {\tt nimbleJSextras} package uses functionality in the \nimble \citep{xxx} and {\tt nimbleEcology} \citep{xxx} packages to fit general HMMs. Using the functions and distributions in those two packages we included the JS conditional HMM likelihood functions as well as functions for simulating true states for detected and undetected individuals. Code for this example is provided in the package and the dipper data was obtained from the {\tt marked} package \citep{xxx}. In addition, code to fit the fully marginal version of the specification in \cite{Royle:2008kx} is also provided for comparison. 
 
-Parameter estimates  are given in Table \ref{tab:dipper}. The super population size estimate is $N = 312.16$ with SD = 7.35 and 95\% HPD interval [299--336]. Yearly abundance estimates are illustrated in Figure \ref{}. 
+Parameter estimates  are given in Table \ref{tab:dipper}. The super population size estimate is $N = 312.16$ with SD = 7.35 and 95\% HPD interval [299--336]. Yearly abundance estimates are illustrated in Figure \ref{fig:dipper.Nt}. 
 
 
 \subsection{Bottlenose Dolphin Abundance, Demography, and Heterogeneity}
@@ -626,7 +628,156 @@ Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS)
 \end{algorithmic}
 \end{algorithm}
 
+\clearpage
 
+\section{{\tt nimble} Code Template for Fitting JS Models}
+
+\subsection{Model definition}
+
+See {\tt ?nimbleEcology::dDHMMo} in {\tt R} for a more detailed explanation of the HMM arguments, {\tt inits} (contains $\bpi$), {\tt probObs} (contains $\bP_t(x_{it})$ values), and {\tt probTrans} (contains $\bG_t$ values). The following code would be contained in a file, say, \verb|js_model_code.R|:
+
+\small 
+\begin{verbatim}
+require(nimble)
+require(nimbleEcology)
+require(nimbleJSextras)
+
+js_model_def <- nimbleCode({
+
+  ######################################################
+  ### Model parameter and HMM argument specification ###
+  ######################################################
+  #---------------------------------------------------------------------------
+  # Capture probabilities
+  # ---------------------------------------------------------------------------
+  for(t in 1:K){
+    p[t] ~ dunif(0,1)
+  }
+  #---------------------------------------------------------------------------
+  # Detection matrix values, P_t(x), J x O x K (O = number of observable states)
+  #---------------------------------------------------------------------------
+  for(t in 1:K){
+    Pmats[1,1,t] <- 1
+    Pmats[1,2,t] <- 0
+    Pmats[2,1,t] <- 1-p[t]
+    Pmats[2,2,t] <- p[t]
+    Pmats[3,1,t] <- 1
+    Pmats[3,2,t] <- 0
+  }
+  #-----------------------------------------------------------------------------
+  # Individual recruitment probabilities
+  #-----------------------------------------------------------------------------
+  for(t in 1:K){
+    rho[t] ~ dunif(0,1)
+  }
+  # Conditional entry (at or before K)
+  xi[1] <- rho[1]
+  for(t in 2:(K-1)){ xi[t] <- rho[t]/(1-prod(1-rho[t:K])) }
+  xi[K] <- 1
+  #---------------------------------------------------------------------------
+  # Initial entry probability
+  #---------------------------------------------------------------------------
+  pi[1] <- 1-xi[1]
+  pi[2] <- xi[1]
+  pi[3] <- 0
+  #---------------------------------------------------------------------------
+  # Transition probability matrix (J x J x K)
+  #---------------------------------------------------------------------------
+  for(t in 1:(K-1)){
+    Gamma[1,1,t] <- 1-xi[t]
+    Gamma[1,2,t] <- xi[t]
+    Gamma[1,3,t] <- 0
+    Gamma[2,1,t] <- 0
+    Gamma[2,2,t] <- phi[t]
+    Gamma[2,3,t] <- 1 - phi[t]
+    Gamma[3,1,t] <- 0
+    Gamma[3,2,t] <- 0
+    Gamma[3,3,t] <- 1
+    # exit probability
+    phi[t] ~ dunif(0,1)
+  }
+  ####################################
+  ### Jolly-Seber model components ###
+  ####################################
+  #---------------------------------------------------------------------------
+  # Unconditional detection probability
+  #---------------------------------------------------------------------------
+  pstar <- pstar_ms(
+    init = pi[1:3], probObs = Pmats[1:3, 1:2, 1:K], 
+    probTrans = Gamma[1:3, 1:3, 1:(K-1)],
+    len=K)
+  #---------------------------------------------------------------------------
+  # JS likelihood for observed individuals
+  #---------------------------------------------------------------------------
+  for(i in 1:nobs){
+    x[i, 1:K] ~ dJS_ms(
+      init = pi[1:3], probObs = pmat[1:3, 1:2, 1:K], 
+      probTrans = Gamma[1:3, 1:3, 1:(K-1)],
+      pstar = pstar, len = K
+    )
+  }
+  n ~ dpois(lambda*pstar)
+
+  # lambda prior distribution approximates objective scale prior for N
+  lambda ~ dgamma(1.0e-6, 1.0e-6)
+  ##############################################################
+  ### Posterior predictive sampling for abundance quantities ### 
+  ##############################################################
+  nu ~ dpois(lambda*(1-pstar))
+  Nsuper <- n+nu
+
+  nu_t[1:3, 1:K] <- sample_undet_ms(n=nu, init=pi[1:3], probObs=pmat[1:3,1:2,1:K],
+                                     probTrans=Gamma[1:3, 1:3, 1:(K-1)], len=K)
+  for(i in 1:nobs){
+    z[i,1:K] <- sample_det_ms(x=x[i,1:K], init=pi[1:3],
+                                    probObs=pmat[1:3, 1:2, 1:K],
+                                    probTrans=Gamma[1:3, 1:3, 1:(K-1)])
+  }
+  available[1:nobs, 1:K] <- z[1:nobs,1:K]==2
+  for(t in 1:K){
+    Nd[t] <- sum(available[1:nobs, t])
+    N[t] <- Nd[t] + nu_t[2,t]
+  }
+})
+\end{verbatim}
+\normalsize
+
+\subsection{Analysis Code}
+
+Here the matrix {\tt x} are the capture histories coded as 1 = not captured and 2 = captured, instead of 0/1.
+\small
+\begin{verbatim}
+#-----------------------------------------------------------------------------
+# Load and compile model code
+# -----------------------------------------------------------------------------
+source("js_model_code.R")
+
+js_model <- nimbleModel(
+  code = js_model_def,
+  constants = list(K=ncol(x), nobs=nrow(x)),
+  data = list(x = x, n = nrow(x)),
+  inits = list(
+    p = rep(0.5, K),
+    phi = rep(0.7, K-1),
+    rho = rep(0.1, K),
+    lambda = 2*nrow(x)
+    )
+)
+c_js_model <- compileNimble(js_model)
+js_mcmc <- buildMCMC(
+  js_model, 
+  monitors=c("p","rho", "phi","lambda","Nsuper", "N") 
+  )
+c_js_mcmc <- compileNimble(js_mcmc)
+#-----------------------------------------------------------------------------
+# Run MCMC
+#-----------------------------------------------------------------------------
+set.seed(8675309)
+samples <- runMCMC(c_js_mcmc, niter = 25000, nburnin = 5000, nchains = 1,
+                   thin = 1, samplesAsCodaMCMC = TRUE, progress = TRUE)
+
+\end{verbatim}
+\normalsize
 % \section{Transition matrices for unequal capture occasions}
 
 % Here we develop analytical solutions for accounting for unequal capture intervals for standard JS models or models where groups membership is unknown, such as in the dolphin example. If we have other states then solutions become quite cumbersome and we suggest the best approach is to augment occasions where $p_{t,l}=0$ for all states. If the occasions times are not integer based for some time unit, we suggest a continuous-time model (see \citealt{xxx}) for multistate situations. However, if a group-based JS model is desired, there are analytic solutions as illustrated below.  
