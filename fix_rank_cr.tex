@@ -96,7 +96,7 @@
 \begin{center}
 \noindent\hrulefill
 
-{\Large Bayesian Estimation for Open Population Capture-Recapture Models Without Data Augmentation} 
+{\Large Efficient Bayesian Estimation for Open Population Capture-Recapture Models Without Data Augmentation} 
 
 \noindent\hrulefill
 
@@ -347,7 +347,7 @@ Readers should note that we have left the portion of the original JS models deal
 
 To perform this approach in \nimble we start by forming distributions for a model description. Unlike \jags the \nimble software possesses the ability to define new distributions and other functions that can be directly incorporated in model statements for MCMC analysis. This capability is accessed through the {\tt nimbleFunction()} function. For categorical data (e.g., multistate capture-histories), the {\tt nimbleEcology} package has already defined an unconditional HMM distribution (\ref{eq.uncond.lik}). This are accessed via the {\tt DHMMo()} HMM distribution. In the {\tt nimbleJSextras} package we used this general HMM distribution to create the bespoke distribution function,
 \begin{verbatim}
-dJS_cat(x[i,1:K],...,pstar,) <- dHMMo(x[i,1:K],...) / pstar
+dJS_ms(x[i,1:K],...,pstar,) <- dHMMo(x[i,1:K],...) / pstar
 \end{verbatim}
 where {\tt pstar <- 1 - dHMMo(zeros[1:K],...)} and {\tt zeros} is a fixed vector of zeros. The arguments in ``{\tt ...}'' are the $\bpi$, $\bP_t(x_{it})$ and $\bG_t$ matrices as specified by the {\tt dHMMo()} function. The the overall probability of capture, {\tt pstar}, has been made a separate argument because it is the same for all individuals and it is unnecessary to recalculate the same quantity for each observed individual. The {\tt nimbleJSextras} package also has a \verb|pstar_ms()| function to calculate this so the user does not have to create the {\tt zeros} vector. 
 
@@ -372,7 +372,7 @@ To begin, because $[N|\lambda] = \text{Poisson}(\lambda)$ under the same infinit
 conditionally independent of the data, $\bx$. So, for each iteration of an MCMC algorithm it can be directly updated with a draw from a standard Poisson distribution as a posterior predictive variable. Then the prediction for the overall abundance, $N$, results directly from $N = n_u + n$. \cite{schofield2023estimating} and \cite{johnson2010model} both describe abundance estimation in the Poisson approach as {\it predicting} the number of undetected individuals. If one is only interested in the demographic rate parameters, $\bt$, $N$, or derived quantities of these parameters, then one only needs to add 
 \begin{verbatim}
 nu ~ dpois(lambda*(1-pstar))
-N <- nobs + nu
+Nsuper <- nobs + nu
 \end{verbatim}
 to the previous \nimble model statement. If quantities such as $N_t$ or population growth are desired, we must sample $\bz$ and $\bz_u$ to derive these within the sampler. 
 
@@ -417,6 +417,9 @@ To fit this model with MCMC we used the {\tt R} package \nimble \citep{xxx} and 
 Parameter estimates  are given in Table \ref{tab:dipper}. The super population size estimate is $N = 312.16$ with SD = 7.35 and 95\% HPD interval [299--336]. Yearly abundance estimates are illustrated in Figure \ref{fig:dipper.Nt}. 
 
 
+\subsection{Multistate Jolly-Seber Abundance of nesting marine turtles}
+
+
 \subsection{Bottlenose Dolphin Abundance, Demography, and Heterogeneity}
 
 Using the results of Section 2 we demonstrate the fully marginal analysis of a population with several issues which complicate Jolly-Seber modeling, namely heterogeneity in entry, capture, and survival probabilities. \cite{caruso2024finite} present an analysis of common bottlenose dolphin ({\it Tursiops truncatus}) abundnace in the Tiber River estuary of the Mediterranean Sea using the data augmentation approach. This population has one main aspect which makes abundance analysis using a standard JS model not feasible. There are three populations of individuals: resident, part-time resident, and transient and it is unknown to which population each individual belongs. These three groups have differences in capture probability because part-time and transient animals have times which they are not in the study area, hence, there is a reduced detection probability within capture occasions compared to resident individuals. Moreover, transient animals enter briefly and leave permanently, thus, $\phi$ will be reduced for these individuals compared to resident and part-time resident individuals. Also, recruitment of each population might be different, that is, $\rho_t$ is unequal between latent groups. 
@@ -426,16 +429,6 @@ In addition to latent population structure another issue complicates this partic
 $n = 195$
 
 $K = 65$ 
-
-
-
-
-
-
-
-\subsection{Multistate Jolly-Seber Abundance of nesting marine turtles}
-
-Extension to multistate JS models
 
 
 \section{Discussion}
