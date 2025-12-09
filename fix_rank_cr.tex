@@ -201,26 +201,25 @@ The overall goal of this paper is to demonstrate the collapsed approach using th
 
 Here we describe the class of Jolly-Seber family models as we will use them to develop the collapsed Gibbs sampler methods. All of the variations we consider here have been previously described in the literature, so there are no new model specifications herein, but we are using a general form to include as many different JS aspects for open populations as possible. We begin with the process side of the model and follow up with the observed data portion of JS models.  
 
-In a JS process the population is described as $N$ individuals that are available for capture in at least one capture occasion during the study period. The occasion specific abundance, $N_t$, is the size of the population available for capture on occasion $t=1,\dots,K$. Individuals become available and unavailable through an entry and exit process. where individuals can be in 1 of 3 states ``pre-entry" (pre-birth), ``available", and ``post-exit" (post-death). For this paper we expand the set of states so that we may include general multistate models as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the post-exit state. The notation $z_{it} \in \{s_1,\dots,s_J\}$ will represent the true state of individual $i$ on occasion $t$. 
+In a JS process the population is described as $N$ individuals that are available for capture in at least one capture occasion during the study period. If the study is relatively long-term, this may not be very useful, so, the occasion specific abundance, $N_t$, is often desired instead, where $N_t$ is the size of the population available for capture on occasion $t=1,\dots,K$. Individuals become available and unavailable through an entry and exit process. where individuals can be in 1 of 3 states ``pre-entry" (pre-birth), ``available", and ``post-exit" (post-death). For this paper we expand the set of states so that we may include general multistate models as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the post-exit state. The notation $z_{it} \in \{s_1,\dots,s_J\}$ will represent the true state of individual $i$ on occasion $t$, thus $N_t = \sum_{i=1}^N I(z_{i,t}\ne 1\text{ or } J)$, where $I(\dots)$ is and indicator function. 
 
-The probability that the individual enters an available population between occasions $t-1$ and $t$ given it has not already entered (recruitment) is denoted by $\rho_t$, $t=1,\dots,K$. Without constraints there is a nonzero probability that the individual may not enter the population before $K$, so, we must condition on the fact that entry happens before occasion $K$. This conditional probability is 
+
+One of the major distinguishing features of JS family models relative to other capture-recapture models, such as Cormack-Jolly-Seber (CJS) models, is the entry probability. \citet{schwarz1996general} and \cite{crosbie1985parsimonious} parameterized entry in the JS model using marginal multinomial probabilities $\beta_1,\dots,\beta_K$ which are the unconditional probabilities that an individual enters between occasions $t-1$ and $t$ and is available for capture on occasion $t$. There are many ways to think about entry probabilities but we will base our discussion from this point. The main thing to consider when forming an entry model is that all individuals must enter before occasion $K$, so the probabilities must reflect this constraint. Using the $\beta_t$ entry probabilities we can form the {\it conditional} entry probabilities that are actually used in the JS model computations,
 \[
-\xi_t = \frac{\rho_t}{1-\prod_{j=t}^{K} (1-\rho_j)}
-\]
-\citet{schwarz1996general} and \cite{crosbie1985parsimonious} parameterized entry in the JS model using marginal multinomial probabilities $\beta_1,\dots,\beta_K$ which are the unconditional probabilities that an individual enters between occasions $t-1$ and $t$. In terms of the recruitment probabilities, we can form the marginal $\beta$ parameters with the relationship,
+\xi_t = \frac{\beta_t}{\sum_{j=t}^K \beta_j},
+\] 
+which is the probability that an individual enters between $t-1$ and $t$ given it has not entered prior to $t-1$ but will enter before $K$. Note that we only need to model the $\beta$ up to a normalizing constant to calculate $\xi$. Also, not that the $\sum_j \beta_j = 1$ constraint is reflected in the fact that $\xi_K = 1$. Given a set of $\xi$ conditional probabilities we can obtain the $\beta$ parameters with the relationship,
 \[
-\beta_t \propto \left\{ \begin{array}{ll}
-\rho_1  & t=1\\
-\rho_t \prod_{j=1}^{t-1} (1-\rho_j) & t=2,\dots,K
+\beta_t = \left\{ \begin{array}{ll}
+\xi_1  & t=1\\
+\xi_t \prod_{j=1}^{t-1} (1-\xi_j) & t=2,\dots,K
 \end{array} \right. .
 \]
-We prefer the recruitment probability parameterization of the JS model because the constant model, i.e., $\rho_t=\rho$, has biological interpretation about recruitment over time, whereas the constant model for $\beta_t$ implies changing recruitment probabilities that are not readily apparent. When an individual first enters the available population between occasions $t-1$ and $t$ it enters into state $s_l$, $l=2,\dots,J-1$ with probability $\alpha_{t,l}$ ($\sum_{l=2}^{J-1} \alpha_{t,l}=1$). 
+Because we are considering multistate models as well, when an individual first enters the available population between $t-1$ and $t$ we must also model which state it enters into. These are denoted,  $\alpha_{t,l}$, where $\sum_{l=2}^{J-1} \alpha_{t,l}=1$. 
 
-The probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{t,l}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. That is, the probability that an individual transitions from $s_l \to s_J$ is $1-\phi_{t,l}$. If we consider $s_J$ to be ``death'' then the $\phi$ parameters are the typical survival probabilities. Finally, $\psi_{t,l,l'}$ ($\sum_{l'=2}^{J-1}\psi_{t,l,l'} = 1$) is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$ . 
+We turn our attention to transitions between states (including exit) after entry. Given that and individual has entered prior to occasion $t$, the probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{t,l}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. That is, the probability that an individual transitions from $s_l \to s_J$ is $1-\phi_{t,l}$. If we consider $s_J$ to be ``death'' then the $\phi$ parameters are the typical survival probabilities. Finally, $\psi_{t,l,l'}$ ($\sum_{l'=2}^{J-1}\psi_{t,l,l'} = 1$) is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$ . 
 
-Now that we have described how individuals transition in and out of avaialbility and through states we can consider a description of the data models for the observed data. Traditionally, data for the JS model are composed of capture histories for each individual observed at least once, $\bx_i = (x_{i1},\dots,x_{iK})$ where $x_{it} \in \{0,1\}$ depending on whether or not individual $i=1,\dots,n$ was captured on occasion $t$. However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was captured in $R_t$ sub-occasions during primary occasion $t$ which defines a robust design model. Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured, implying a multistate model \citep{xxx}.
-
-where $[x_{it}|s_l]$ is the likelihood of observing $x_{it}$ given the individual is in state $s_l$.  Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. We briefly present a few examples for common models. For a standard Jolly-Seber model with a binary capture history and only 1 available state ($s_2$ = ``alive'') the likelihood would be,
+Now that we have described how individuals transition in and out of availability and through states we can consider a description of the data models for the observed data. Traditionally, data for the JS model are composed of capture histories for each individual observed at least once, $\bx_i = (x_{i1},\dots,x_{iK})$ where $x_{it} \in \{0,1\}$ depending on whether or not individual $i=1,\dots,n$ was captured on occasion $t$. However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was captured in $R_t$ sub-occasions during primary occasion $t$ which defines a robust design model. Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured, implying a multistate model \citep{xxx}. We denote the likelihood of observing $x_{i,t}$ given the individual is in state $s_l$ as $[x_{i,t}|z_{i,t}=s_l]$.  Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. We briefly present a few examples for common models. For a standard Jolly-Seber model with a binary capture history and only 1 available state ($s_2$ = ``alive'') the likelihood would be,
 \[
 [x_{it}|z_{it}=s_2] = \text{Bernoulli}(x_{it}|p_t),
 \]
@@ -228,11 +227,6 @@ where $p_t$ is the probability of capture on occasion $t$. If the model being fi
 \[
 [x_{it}|z_{it}=s_2] = \text{Binomial}(x_{it}|R_t, p_t). 
 \]
-%In a continuous-time version of the robust design where capturing occurs continuously over $\tau_t$ time units one might use the Poisson distribution 
-%\[
-%[x_{it}|s_2] = \text{Poisson}(x_{it}|r_t\tau_t),
-%\]
-%where $r_t$ is the Poisson process detection rate. 
 For a multistate model where $x_{it}$ is recorded as a categorical state with uncertainty (e.g., \citealt{johnson2016multivariate}) then we use the mixture distribution
 \[
 [x_{it}|z_{it}=s_l] = (1-p_{t,l})I(x_{it}=0) + p_{t,l}\text{Categorical}(x_{it}|\boldsymbol{\delta}_l,x_{it}\ne0)
@@ -242,7 +236,7 @@ where $\boldsymbol{\delta}_l$ is the vector of probabilities for the range of ca
 
 \subsection{A brief review of data augmentation for Jolly-Seber models}
 
-To provide a framework for developing the collapsed Gibbs sampler that does not require data augmentation, we provide a brief review of the PX-DA approach for Bayesian JS inference. Let $\bx$ represent the $n\times K$ matrix of observed data, $\bz$ is the associated matrix of true state values. $\bx_{aug} = \mathbf{0}$ and $\bz_{aug}$ are the $M-n \times K$ matrices for the $M-n$ augmented individuals. For the PX-DA approach we combine them, $\bx^+ = (\bx',\bx_{aug}')'$ and $\bz^+ = (\bz',\bz_{aug}')'$, and treat them as single units. The indicator of population inclusion is $\bw^+ = (\mathbf{1}',\bw_{aug}')'$. The first $n$ compoents are known to be 1 because those individuals are observed (hence in the superpopulation). 
+To provide a framework for developing the collapsed Gibbs sampler that does not require data augmentation, we provide a brief review of the PX-DA approach for Bayesian JS inference. Let $\bx$ represent the $n\times K$ matrix of observed data, $\bz$ is the associated matrix of true state values. $\bx_{aug} = \mathbf{0}$ and $\bz_{aug}$ are the $M-n \times K$ matrices for the $M-n$ augmented individuals. For the PX-DA approach we combine them, $\bx^+ = (\bx',\bx_{aug}')'$ and $\bz^+ = (\bz',\bz_{aug}')'$, and treat them as single units. The indicator of population inclusion is $\bw^+ = (\mathbf{1}',\bw_{aug}')'$. The first $n$ components are known to be 1 because those individuals are observed (hence available for some occasions). 
 
 The posterior distribution for inference is
 \begin{equation}
@@ -279,11 +273,11 @@ In the first step we need to draw a sample from the marginal posterior distribut
 \[
 \begin{aligned}
 [\bt,\psi,\bw_{aug}, \bz^+|\bx] &\propto [\bx|\bz,\bt,n] [\bz|\bt,n]\\ 
-&\qquad \times [\bz_{aug}|\bt,n] [\bw_{aug}|\psi,n] \\
+&\qquad \times [\bz_{aug},\bw_{aug}|\bt,\psi,n] \\
 &\qquad \times [n|\bt,\psi][\bt][\psi] \\
 \end{aligned}
 \]
-where the probability of observing $n$ individuals during the study is $[n|\bt,\psi] = \text{Binomial}(M, \psi p^*)$ and $p^*$ is the probability of being captured at least once. Thus if we integrate over the remaining augmentation components we obtain
+where the probability of observing $n$ individuals during the study is $[n|\bt,\psi] = \text{Binomial}(M, \psi p^*)$ and $p^*$ is the probability of being captured at least once. Thus if we integrate over the augmentation components we obtain
 \[
 \begin{aligned}
 [\bt,\psi, \bz|\bx] &\propto \sum_{\bw_{aug}} \sum_{\bz_{aug}} [\bt,\psi,\bw_{aug}, \bz^+|\bx^+] \\
@@ -349,7 +343,7 @@ To perform this approach in \nimble we start by forming distributions for a mode
 \begin{verbatim}
 dJS_ms(x[i,1:K],...,pstar,) <- dHMMo(x[i,1:K],...) / pstar
 \end{verbatim}
-where {\tt pstar <- 1 - dHMMo(zeros[1:K],...)} and {\tt zeros} is a fixed vector of zeros. The arguments in ``{\tt ...}'' are the $\bpi$, $\bP_t(x_{it})$ and $\bG_t$ matrices as specified by the {\tt dHMMo()} function. The the overall probability of capture, {\tt pstar}, has been made a separate argument because it is the same for all individuals and it is unnecessary to recalculate the same quantity for each observed individual. The {\tt nimbleJSextras} package also has a \verb|pstar_ms()| function to calculate this so the user does not have to create the {\tt zeros} vector. 
+where {\tt pstar <- 1 - dHMMo(zeros[1:K],...)} and {\tt zeros} is a fixed vector of zeros. The arguments in ``{\tt ...}'' are the $\bpi$, $\bP_t(x_{it})$ and $\bG_t$ matrices as specified by the {\tt nimbleEcology::dHMMo()} function. The the overall probability of capture, {\tt pstar}, has been made a separate argument because it is the same for all individuals and it is unnecessary to recalculate the same quantity for each observed individual. The {\tt nimbleJSextras} package also has a \verb|pstar_ms()| function to calculate this so the user does not have to create the {\tt zeros} vector. 
 
 Now that the \verb|dJS_ms()| distribution and the \verb|pstar_ms()| function are defined, we can it can be used in a \nimble model statement along with the Poisson distribution to model the number of captured individuals, for example,
 \begin{verbatim}
@@ -367,9 +361,9 @@ Now we turn our focus to sampling the abundance functions $\bvt = f(\bz,\bz_u,n_
 \end{equation} 
 To begin, because $[N|\lambda] = \text{Poisson}(\lambda)$ under the same infinite augmentation scheme and $[n,n_u|N,\bt] = \text{Multinomial}(N, p^*, 1-p^*)$ implies 
 \[
-[n_u|\bt, \lambda, \bx] = \text{Poisson}(\lambda (1-p^*))
+[n_u|\bt, \lambda] = \text{Poisson}(\lambda (1-p^*))
 \]
-conditionally independent of the data, $\bx$. So, for each iteration of an MCMC algorithm it can be directly updated with a draw from a standard Poisson distribution as a posterior predictive variable. Then the prediction for the overall abundance, $N$, results directly from $N = n_u + n$. \cite{schofield2023estimating} and \cite{johnson2010model} both describe abundance estimation in the Poisson approach as {\it predicting} the number of undetected individuals. If one is only interested in the demographic rate parameters, $\bt$, $N$, or derived quantities of these parameters, then one only needs to add 
+conditionally independent of the data, $\bx$. So, for each iteration of an MCMC algorithm it can be updated with a draw from a standard Poisson distribution as a posterior predictive variable. Then the prediction for the overall abundance, $N$, results directly from $N = n_u + n$. \cite{schofield2023estimating} and \cite{johnson2010model} both describe abundance estimation in the Poisson approach as {\it predicting} the number of undetected individuals. If one is only interested in the demographic rate parameters, $\bt$, $N$, or derived quantities of these parameters, then one only needs to add 
 \begin{verbatim}
 nu ~ dpois(lambda*(1-pstar))
 Nsuper <- nobs + nu
@@ -384,14 +378,11 @@ for(i in 1:nobs){
   z[i,1:K] <- sample_det_ms(x=x[i,1:K], ...),
   }
 \end{verbatim}
-this will draw a sample from $[\bz_{i}| \bt, \bx_i]$. Here we have proceeded against convention by specifying a random quantity with a deterministic \nimble function, however, one would not ever use this distribution as a likelihood, so the coding overhead to specify it as a distribution seems unnecessary and it functions in the same manner as a bespoke distribution.  Once we perform the the backward-sampling algorithm for each captured individual we can calculate the derived quantity, $n_{t,l} = \sum_{i=1}^n I(z_{i,t}=s_l)$, the abundance of observed individuals in state $s_l$ at time $t$. For simplicity, we use the bold notation, $\bn_t = (n_{t,1},\dots,n_{t,J})$, to represent the vector of state-specific abundances and $n_t = \sum_{l=2}^{J-1} n_{t,l}$ to represent the total abundance of available individuals that were observed during the study. For a standard JS model ($J=3$) this is accomplished with the code,
+this will draw a sample from $[\bz_{i}| \bt, \bx_i]$. Here we have proceeded against convention by specifying a random quantity with a deterministic \nimble function, however, one would never use this distribution as a likelihood, so the coding overhead to specify it as a distribution seems unnecessary and it functions in the same manner as a bespoke distribution.  Once we perform the the FFBS algorithm for each captured individual we can calculate the derived quantity, $n_{t,l} = \sum_{i=1}^n I(z_{i,t}=s_l)$, the abundance of observed individuals in state $s_l$ at time $t$. For simplicity, we use the bold notation, $\bn_t = (n_{t,1},\dots,n_{t,J})$, to represent the vector of state-specific abundances and $n_t = \sum_{l=2}^{J-1} n_{t,l}$ to represent the total abundance of captured individuals available at time $t$. For a standard JS model ($J=3$) this is accomplished with the following code.
 \begin{verbatim}
  available[1:nobs,1:K] <- z[1:nobs,1:K]==2
- for(t in 1:K){
-    nd[t] <- sum(available[1:nobs, t])
-    }
-\end{verbatim}   
-We used {\tt nd} to distinguish it from $n$ in the code. 
+ for(t in 1:K){ n_t[t] <- sum(available[1:nobs, t]) }
+\end{verbatim} 
 
 Now that we have the state and time-specific abundances for the observed individuals, we shift to the individuals that are never captured. We begin by drawing the uncaptured superpopulation size $n_u \sim \text{Poisson}(\lambda(1-p_*))$.  We could use the same FFBS algorithm to individually sample the states of all $n_u$ individuals all with the capture-history $\bx_i=\mathbf{0}$. However, Because all uncaptured individuals have the same capture-history, we can use a multinomial version of the FFBS, to sample the state and time-specific abundance in one forward and backward pass (Appendix A, algorithm 2) without simulating individual state histories. This can be accomplished in a \nimble model statement with
 \begin{verbatim}
@@ -403,16 +394,25 @@ Again, we acknowledge the unorthodox use of a deterministic function for a rando
 
 \subsection{The Dipper Data}\label{sec:dipper}
 
-The first examination of the ubiquitous European dipper data was presented by \cite{Cormack1964} who used it for demonstration of the Cormack-Jolly-Seber (CJS) model for survival estimation from capture-recapture data. Many years later \cite{Lebreton:1992gr} used the data to demonstrate a JS analysis for abundance estimation. More recently, \cite{Royle:2008kx} demonstrate a Bayesian version of JS modeling using data augmentation. Here we demonstration the fully marginal Bayes approach using the recruitment probability ($\rho_t$) parameterization. 
+The first examination of the ubiquitous European dipper data was presented by \cite{Cormack1964} who used it for demonstration of the Cormack-Jolly-Seber (CJS) model for survival estimation from capture-recapture data. Many years later \cite{Lebreton:1992gr} used the data to demonstrate a JS analysis for abundance estimation. More recently, \cite{Royle:2008kx} demonstrate a Bayesian version of JS modeling using PX-DA. Here we demonstrate analysis of the data using the {\it per capita} recruitment parameterization of \cite{link2005modeling} and \cite{link2005modeling} for modeling entry probability. 
 
-In addition to the recruitment probability parameterization we also use a hierarchical approach for estimation of the  parameters. The hierarchical model adds the random effects components,
+The entry probabilities of the {\it per capita} recruitment model are given by 
+\[
+\beta_t \propto \left\{ \begin{array}{ll}
+1  & t=1\\
+d_{t-1} f_{t-1} & t=2,\dots,K
+\end{array} \right.
+\]
+$d_t \propto E[N_t/N|\bt, N]$, the expected relative abundance, and $f_t$ is the {\it per capita} recruitment. The quantity $d_t$ is calculated with the recursion, $d_{t} = d_{t-1}(\phi_{t-1} + f_{t-1})$ where $d_1 \equiv 1$. 
+
+In addition to the {\it per capita} recruitment parameterization of the entry model, we also use a hierarchical approach for estimation of the  parameters. The hierarchical model adds the random effects components,
 \begin{center}
-$[\text{logit } \phi_t] = N(\mu_\phi,\sigma_\phi^2)$ \\
-$[\text{logit } p_t] = N(\mu_p,\sigma_p^2)$, and $[\text{logit } \rho_t] = N(\mu_\rho,\sigma_\rho^2)$
+$\text{logit } \phi_t \sim N(\mu_\phi,\sigma_\phi^2)$ \\
+$\text{logit } p_t \sim N(\mu_p,\sigma_p^2)$, and $\text{log } f_t \sim N(\mu_f,\sigma_f^2)$
 \end{center}
-To allow shrinkage of the full time model to the temporally constant model we use the complexity prior distribution \citep{xxx} on each of the three the variance components, $[\sigma] =\text{Exponential}(1)$. All mean components of the random effect where given the vague $N(0,10)$ prior distribution. 
+This allows shrinkage of the full time model to the temporally constant model we use the complexity prior distribution \citep{xxx} on each of the three the variance components, $\sigma \sim \text{Exponential}(1)$. All mean components of the random effect where given the vaguely informative $N(0,1.5^2)$ prior distribution. 
 
-To fit this model with MCMC we used the {\tt R} package \nimble \citep{xxx} and developed several additional functions in the R package {\tt nimbleJSextras} for executing the fully marginal JS model. The {\tt nimbleJSextras} package is available for installation from GitHub\footnote{\url{https://github.com/dsjohnson/nimbleJSextras}}. The {\tt nimbleJSextras} package uses functionality in the \nimble \citep{xxx} and {\tt nimbleEcology} \citep{xxx} packages to fit general HMMs. Using the functions and distributions in those two packages we included the JS conditional HMM likelihood functions as well as functions for simulating true states for detected and undetected individuals. Code for this example is provided in the package and the dipper data was obtained from the {\tt marked} package \citep{xxx}. In addition, code to fit the fully marginal version of the specification in \cite{Royle:2008kx} is also provided for comparison. 
+Code for this example is provided in the package and the dipper data was obtained from the {\tt marked} package \citep{xxx}. In addition, code to fit the fully marginal version of the specification in \cite{Royle:2008kx} is also provided for comparison. 
 
 Parameter estimates  are given in Table \ref{tab:dipper}. The super population size estimate is $N = 312.16$ with SD = 7.35 and 95\% HPD interval [299--336]. Yearly abundance estimates are illustrated in Figure \ref{fig:dipper.Nt}. 
 
@@ -664,9 +664,10 @@ js_model_def <- nimbleCode({
     rho[t] ~ dunif(0,1)
   }
   # Conditional entry (at or before K)
-  xi[1] <- rho[1]
-  for(t in 2:(K-1)){ xi[t] <- rho[t]/(1-prod(1-rho[t:K])) }
-  xi[K] <- 1
+  for(t in 1:(K-1)){
+    xi[t] <- rho[t]/(1-prod(1-rho[t:K]))
+  }
+  xi[K] <- 1 # for exactness
   #---------------------------------------------------------------------------
   # Initial entry probability
   #---------------------------------------------------------------------------

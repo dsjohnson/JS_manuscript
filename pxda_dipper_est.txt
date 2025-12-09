@@ -1,4 +1,4 @@
-summary(mcmc(samples_list$Nsuper))
+> summary(samples)
 
 Iterations = 1:50000
 Thinning interval = 1 
@@ -8,250 +8,80 @@ Sample size per chain = 50000
 1. Empirical mean and standard deviation for each variable,
    plus standard error of the mean:
 
-          Mean             SD       Naive SE Time-series SE 
-     311.86384        6.96797        0.03116        0.25533 
-
-2. Quantiles for each variable:
-
- 2.5%   25%   50%   75% 97.5% 
-  300   307   311   316   328 
-
-
-summary(mcmc(samples_list$N))
-
-Iterations = 1:50000
-Thinning interval = 1 
-Number of chains = 1 
-Sample size per chain = 50000 
-
-1. Empirical mean and standard deviation for each variable,
-   plus standard error of the mean:
-
-       Mean    SD Naive SE Time-series SE
-[1,]  24.48 2.132 0.009533        0.06049
-[2,]  69.90 4.567 0.020422        0.14340
-[3,]  86.77 4.216 0.018854        0.12087
-[4,]  89.61 4.091 0.018297        0.10900
-[5,]  98.53 3.842 0.017181        0.10779
-[6,] 106.79 3.671 0.016418        0.09863
-[7,] 103.01 5.383 0.024073        0.17039
-
-2. Quantiles for each variable:
-
-     2.5% 25% 50% 75% 97.5%
-var1   22  23  24  25    30
-var2   63  67  69  72    81
-var3   80  84  86  89    97
-var4   83  87  89  92    99
-var5   93  96  98 101   107
-var6  101 104 106 109   115
-var7   95  99 102 106   116
-
-
-summary(mcmc(samples_list$rho))
-
-Iterations = 1:50000
-Thinning interval = 1 
-Number of chains = 1 
-Sample size per chain = 50000 
-
-1. Empirical mean and standard deviation for each variable,
-   plus standard error of the mean:
-
-        Mean      SD  Naive SE Time-series SE
-[1,] 0.07510 0.01431 6.400e-05       0.001091
-[2,] 0.07356 0.01528 6.833e-05       0.001327
-[3,] 0.07521 0.01661 7.430e-05       0.001488
-[4,] 0.07420 0.01657 7.412e-05       0.001411
-[5,] 0.07394 0.01703 7.617e-05       0.001464
-[6,] 0.07737 0.01940 8.675e-05       0.001608
-[7,] 0.07615 0.01944 8.694e-05       0.001633
-
-2. Quantiles for each variable:
-
-        2.5%     25%     50%     75%  97.5%
-var1 0.04952 0.06510 0.07440 0.08423 0.1046
-var2 0.04564 0.06300 0.07272 0.08289 0.1053
-var3 0.04645 0.06406 0.07397 0.08472 0.1118
-var4 0.04523 0.06321 0.07298 0.08382 0.1092
-var5 0.04382 0.06245 0.07277 0.08402 0.1103
-var6 0.04650 0.06505 0.07546 0.08687 0.1206
-var7 0.04505 0.06388 0.07431 0.08593 0.1191
-
-
-summary(mcmc(samples_list$phi))
-
-Iterations = 1:50000
-Thinning interval = 1 
-Number of chains = 1 
-Sample size per chain = 50000 
-
-1. Empirical mean and standard deviation for each variable,
-   plus standard error of the mean:
-
-       Mean      SD  Naive SE Time-series SE
-[1,] 0.5754 0.06254 0.0002797       0.001299
-[2,] 0.5192 0.05389 0.0002410       0.001556
-[3,] 0.5258 0.04823 0.0002157       0.001274
-[4,] 0.5871 0.04630 0.0002071       0.001269
-[5,] 0.5810 0.04288 0.0001918       0.001126
-[6,] 0.5728 0.04594 0.0002055       0.001110
-
-2. Quantiles for each variable:
-
-       2.5%    25%    50%    75%  97.5%
-var1 0.4600 0.5364 0.5710 0.6078 0.7163
-var2 0.3991 0.4866 0.5253 0.5579 0.6055
-var3 0.4211 0.4952 0.5302 0.5598 0.6066
-var4 0.5025 0.5556 0.5849 0.6152 0.6877
-var5 0.5016 0.5514 0.5791 0.6068 0.6727
-var6 0.4907 0.5423 0.5704 0.5987 0.6741
-
-
-summary(mcmc(samples_list$p))
-
-Iterations = 1:50000
-Thinning interval = 1 
-Number of chains = 1 
-Sample size per chain = 50000 
-
-1. Empirical mean and standard deviation for each variable,
-   plus standard error of the mean:
-
-       Mean      SD  Naive SE Time-series SE
-[1,] 0.8948 0.04797 0.0002145       0.001652
-[2,] 0.8790 0.05118 0.0002289       0.002015
-[3,] 0.8975 0.03862 0.0001727       0.001420
-[4,] 0.8952 0.03809 0.0001703       0.001348
-[5,] 0.8955 0.03506 0.0001568       0.001312
-[6,] 0.9072 0.03242 0.0001450       0.001230
-[7,] 0.9008 0.03943 0.0001763       0.001470
-
-2. Quantiles for each variable:
-
-       2.5%    25%    50%    75%  97.5%
-var1 0.7770 0.8746 0.9031 0.9237 0.9664
-var2 0.7462 0.8566 0.8907 0.9117 0.9521
-var3 0.8059 0.8772 0.9030 0.9225 0.9595
-var4 0.8048 0.8751 0.9007 0.9197 0.9560
-var5 0.8131 0.8755 0.9002 0.9185 0.9542
-var6 0.8364 0.8886 0.9095 0.9288 0.9646
-var7 0.8076 0.8794 0.9055 0.9259 0.9684
-
-
-summary(mcmc(samples_list$mu_rho))
-
-Iterations = 1:50000
-Thinning interval = 1 
-Number of chains = 1 
-Sample size per chain = 50000 
-
-1. Empirical mean and standard deviation for each variable,
-   plus standard error of the mean:
-
-          Mean             SD       Naive SE Time-series SE 
-     -2.536031       0.228761       0.001023       0.022303 
-
-2. Quantiles for each variable:
-
-  2.5%    25%    50%    75%  97.5% 
--3.011 -2.680 -2.531 -2.385 -2.106 
-
-
-summary(mcmc(samples_list$sig_rho))
-
-Iterations = 1:50000
-Thinning interval = 1 
-Number of chains = 1 
-Sample size per chain = 50000 
-
-1. Empirical mean and standard deviation for each variable,
-   plus standard error of the mean:
-
-          Mean             SD       Naive SE Time-series SE 
-     0.0926356      0.0806130      0.0003605      0.0036623 
-
-2. Quantiles for each variable:
-
-    2.5%      25%      50%      75%    97.5% 
-0.007418 0.034021 0.070772 0.125569 0.301172 
-
-
-
-summary(mcmc(samples_list$mu_phi))
-
-Iterations = 1:50000
-Thinning interval = 1 
-Number of chains = 1 
-Sample size per chain = 50000 
-
-1. Empirical mean and standard deviation for each variable,
-   plus standard error of the mean:
-
-          Mean             SD       Naive SE Time-series SE 
-     0.2434972      0.1687124      0.0007545      0.0035316 
-
-2. Quantiles for each variable:
-
-    2.5%      25%      50%      75%    97.5% 
--0.08155  0.14425  0.24108  0.34504  0.58479 
-
-
-
-summary(mcmc(samples_list$sig_phi))
-
-Iterations = 1:50000
-Thinning interval = 1 
-Number of chains = 1 
-Sample size per chain = 50000 
-
-1. Empirical mean and standard deviation for each variable,
-   plus standard error of the mean:
-
-          Mean             SD       Naive SE Time-series SE 
-     0.2490649      0.1978654      0.0008849      0.0071963 
-
-2. Quantiles for each variable:
-
-   2.5%     25%     50%     75%   97.5% 
-0.01128 0.10695 0.20578 0.33809 0.76688 
-
-
-
-summary(mcmc(samples_list$mu_p))
-
-Iterations = 1:50000
-Thinning interval = 1 
-Number of chains = 1 
-Sample size per chain = 50000 
-
-1. Empirical mean and standard deviation for each variable,
-   plus standard error of the mean:
-
-          Mean             SD       Naive SE Time-series SE 
-      2.203506       0.354425       0.001585       0.016042 
-
-2. Quantiles for each variable:
-
- 2.5%   25%   50%   75% 97.5% 
-1.519 1.976 2.206 2.402 3.015 
-
-
-
-summary(mcmc(samples_list$sig_p))
-
-Iterations = 1:50000
-Thinning interval = 1 
-Number of chains = 1 
-Sample size per chain = 50000 
-
-1. Empirical mean and standard deviation for each variable,
-   plus standard error of the mean:
-
-          Mean             SD       Naive SE Time-series SE 
-      0.320914       0.281860       0.001261       0.012230 
-
-2. Quantiles for each variable:
-
-   2.5%     25%     50%     75%   97.5% 
-0.01397 0.11278 0.24648 0.44777 1.04087 
+              Mean      SD  Naive SE Time-series SE
+N[1]     31.040360 8.52832 3.814e-02      0.5090442
+N[2]     71.246780 5.80847 2.598e-02      0.2020797
+N[3]     86.815700 4.65055 2.080e-02      0.1055314
+N[4]     89.665380 4.32846 1.936e-02      0.0978274
+N[5]     98.617920 4.04540 1.809e-02      0.0862605
+N[6]    107.118660 4.07144 1.821e-02      0.0970016
+N[7]    104.661580 7.24982 3.242e-02      0.2576603
+Nsuper  315.819440 8.95725 4.006e-02      0.3578068
+mu_p      2.020870 0.43871 1.962e-03      0.0164543
+mu_phi    0.253477 0.17165 7.677e-04      0.0033409
+mu_rho   -6.131282 1.63337 7.305e-03      0.7498178
+p[1]      0.786363 0.15601 6.977e-04      0.0092190
+p[2]      0.856261 0.06700 2.996e-04      0.0025228
+p[3]      0.894906 0.04537 2.029e-04      0.0011884
+p[4]      0.890998 0.04296 1.921e-04      0.0011121
+p[5]      0.890167 0.03942 1.763e-04      0.0010582
+p[6]      0.905743 0.03717 1.662e-04      0.0010223
+p[7]      0.889189 0.05429 2.428e-04      0.0020037
+phi[1]    0.582677 0.06395 2.860e-04      0.0014877
+phi[2]    0.518919 0.05506 2.462e-04      0.0014751
+phi[3]    0.523905 0.04910 2.196e-04      0.0012250
+phi[4]    0.590306 0.04683 2.094e-04      0.0011917
+phi[5]    0.583452 0.04352 1.946e-04      0.0010082
+phi[6]    0.577514 0.04986 2.230e-04      0.0014036
+psi       0.531162 0.02520 1.127e-04      0.0005774
+rho[1]    0.006156 0.01052 4.705e-05      0.0022781
+rho[2]    0.008455 0.01465 6.553e-05      0.0037283
+rho[3]    0.008751 0.01544 6.906e-05      0.0040631
+rho[4]    0.008332 0.01486 6.644e-05      0.0034967
+rho[5]    0.008008 0.01437 6.426e-05      0.0033176
+rho[6]    0.008746 0.01611 7.205e-05      0.0034900
+rho[7]    0.008185 0.01517 6.785e-05      0.0031412
+sig_p     0.560175 0.48270 2.159e-03      0.0269793
+sig_phi   0.261301 0.20323 9.089e-04      0.0079399
+sig_rho   0.198101 0.14947 6.684e-04      0.0064946
+
+
+> HPDinterval(samples)
+                lower        upper
+N[1]     2.200000e+01  49.00000000
+N[2]     6.300000e+01  83.00000000
+N[3]     7.900000e+01  95.00000000
+N[4]     8.300000e+01  98.00000000
+N[5]     9.100000e+01 106.00000000
+N[6]     1.010000e+02 115.00000000
+N[7]     9.300000e+01 118.00000000
+Nsuper   3.000000e+02 333.00000000
+mu_p     1.125406e+00   2.87253077
+mu_phi  -8.810107e-02   0.59989605
+mu_rho  -8.584376e+00  -2.96659874
+p[1]     4.508226e-01   0.97085163
+p[2]     7.105994e-01   0.95839765
+p[3]     8.057674e-01   0.98115446
+p[4]     8.076871e-01   0.97353800
+p[5]     8.109400e-01   0.96115967
+p[6]     8.339235e-01   0.97443679
+p[7]     7.884851e-01   0.99883684
+phi[1]   4.640185e-01   0.72474021
+phi[2]   4.043861e-01   0.61736773
+phi[3]   4.233443e-01   0.61309456
+phi[4]   5.098442e-01   0.69295295
+phi[5]   5.029481e-01   0.67411784
+phi[6]   4.838924e-01   0.68090438
+psi      4.835169e-01   0.58237601
+rho[1]   5.130179e-05   0.03130923
+rho[2]   5.337734e-05   0.04353031
+rho[3]   7.020225e-05   0.04566559
+rho[4]   7.193480e-05   0.04349833
+rho[5]   6.655876e-05   0.04227125
+rho[6]   6.724675e-05   0.04544838
+rho[7]   6.479424e-05   0.04311204
+sig_p    8.177201e-03   1.46000943
+sig_phi  2.385481e-03   0.63861255
+sig_rho  1.642178e-03   0.46833416
+attr(,"Probability")
+[1] 0.95
