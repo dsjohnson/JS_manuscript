@@ -201,7 +201,7 @@ The overall goal of this paper is to demonstrate the collapsed approach using th
 
 Here we describe the class of Jolly-Seber family models as we will use them to develop the collapsed Gibbs sampler methods. All of the variations we consider here have been previously described in the literature, so there are no new model specifications herein, but we are using a general form to include as many different JS aspects for open populations as possible. We begin with the process side of the model and follow up with the observed data portion of JS models.  
 
-In a JS process the population is described as $N$ individuals that are available for capture in at least one capture occasion during the study period. If the study is relatively long-term, this may not be very useful, so, the occasion specific abundance, $N_t$, is often desired instead, where $N_t$ is the size of the population available for capture on occasion $t=1,\dots,K$. Individuals become available and unavailable through an entry and exit process. where individuals can be in 1 of 3 states ``pre-entry" (pre-birth), ``available", and ``post-exit" (post-death). For this paper we expand the set of states so that we may include general multistate models as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the post-exit state. The notation $z_{it} \in \{s_1,\dots,s_J\}$ will represent the true state of individual $i$ on occasion $t$, thus $N_t = \sum_{i=1}^N I(z_{i,t}\ne 1\text{ or } J)$, where $I(\dots)$ is and indicator function. 
+In a JS process the population is described as $N$ individuals that are available for capture in at least one capture occasion during the study period. If the study is relatively long-term, this may not be very useful, so, the occasion specific abundance, $N_t$, is often desired instead, where $N_t$ is the size of the population available for capture on occasion $t=1,\dots,K$. Individuals become available and unavailable through an entry and exit process. where individuals can be in 1 of 3 states ``pre-entry" (pre-birth), ``available", and ``post-exit" (post-death). For this paper we expand the set of states so that we may include general multistate models as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the post-exit state. The notation $z_{i,t} \in \{s_1,\dots,s_J\}$ will represent the true state of individual $i$ on occasion $t$, thus $N_t = \sum_{i=1}^N I(z_{i,t}\ne 1\text{ or } J)$, where $I(\dots)$ is and indicator function. 
 
 
 One of the major distinguishing features of JS family models relative to other capture-recapture models, such as Cormack-Jolly-Seber (CJS) models, is the entry probability. \citet{schwarz1996general} and \cite{crosbie1985parsimonious} parameterized entry in the JS model using marginal multinomial probabilities $\beta_1,\dots,\beta_K$ which are the unconditional probabilities that an individual enters between occasions $t-1$ and $t$ and is available for capture on occasion $t$. There are many ways to think about entry probabilities but we will base our discussion from this point. The main thing to consider when forming an entry model is that all individuals must enter before occasion $K$, so the probabilities must reflect this constraint. Using the $\beta_t$ entry probabilities we can form the {\it conditional} entry probabilities that are actually used in the JS model computations,
@@ -418,6 +418,30 @@ Parameter estimates  are given in Table \ref{tab:dipper}. The super population s
 
 
 \subsection{Multistate Jolly-Seber Abundance of nesting marine turtles}
+
+Here we present an example analysis with a multistate component, abundance of female nesting Hawaiian green sea turtles ({\it Chelonia mydas}) or honu. The data presented here are from the 2023 nesting season survey on Tern Island in Kānemiloha‘i (French Frigate Shoals), Northwest Hawaiian Islands. During the season, honu arrive at Tern I. starting in xxx till approximately xxx. Females with then alternate between ``nesting'' and ``internesting'' phases. Surveys are conducted at night to record and mark honu as they climb on to the beach to lay a clutch of eggs. This is repeated several times over the season. The goals of the surveys are to estimate how many nesting females are at the island in a given year as well as the distribution of nesting over the season. 
+
+Females are only captured when they are nesting which is essentially the same process as temporary emigration. So, we can use a 2-state model to account for the fact that when animals are in the internesting phase, they are not detectable. Here we use $s_2$ = ``nesting'' and $s_3$ = ``internesting''. Because these animals are long lived with high survival, we consider the entry and exit process to be the start of nesting and leaving Tern I. for migration after breeding respectively. So, a honu cannot enter into $s_3$. We consider entry to be the start of nesting. 
+
+The HMM matrices are as follows.
+\[
+\bpi = \left[1-\xi_1\ \xi_1\ 0\ 0\right]
+\] 
+
+\[
+\text{diag}\left\{\bP_t(x_{it})\right\} = \left[I(x_{it}=0)\ \ p_t^{x_{it}}(1-p_t)^{1-x_{it}} \ \ I(x_{it}=0)\ \ I(x_{it}=0)\right]
+\]
+
+\[
+\bG_t = \left[\begin{array}{ccccc}
+1-\xi_{t+1} & \xi_{t+1} & 0 & 0 \\
+0 & \phi_t(1-\psi_{t,2,3}) &  \phi_t\psi_{t,2,3} & 1-\phi_t \\
+0 & \phi_t\psi_{t,3,2} &  \phi_t(1-\psi_{t,3,2}) & 1-\phi_t \\
+0 & 0 & 0 & 1
+\end{array}
+\right]
+\] 
+
 
 
 \subsection{Bottlenose Dolphin Abundance, Demography, and Heterogeneity}
