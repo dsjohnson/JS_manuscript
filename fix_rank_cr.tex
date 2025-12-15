@@ -111,21 +111,20 @@
  National Marine Fisheries Service, NOAA, \\
  Honolulu, Hawai`i, USA \\
  email: {\tt devin.johnson@noaa.gov} \\ \bigskip
+ 
+ {\bf Shelbie Ishimaru} \\
+Hawai`i Institute of Marine Biology, \\
+University of Hawai`i at Mānoa, \\
+Honolulu, Hawai`i, USA\\ 
+and \\
+Pacific Islands Fisheries Science Center,\\
+National Marine Fisheries Service, NOAA, \\
+Honolulu, Hawai`i, USA \\  \bigskip
 
 {\bf Janelle J. Badger} \\
  Pacific Islands Fisheries Science Center,\\
  National Marine Fisheries Service, NOAA, \\
  Honolulu, Hawai`i, USA \\ \bigskip
-
-{\bf Shelbie Ishimaru} \\
-Hawai`i Institute of Marine Biology, \\
-University of Hawai`i at Mānoa, \\
-Honolulu, Hawai`i, USA\\ 
-and \\
- Pacific Islands Fisheries Science Center,\\
- National Marine Fisheries Service, NOAA, \\
- Honolulu, Hawai`i, USA \\ \bigskip
-
 
 \bigskip
 
@@ -219,17 +218,17 @@ Because we are considering multistate models as well, when an individual first e
 
 We turn our attention to transitions between states (including exit) after entry. Given that and individual has entered prior to occasion $t$, the probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{t,l}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. That is, the probability that an individual transitions from $s_l \to s_J$ is $1-\phi_{t,l}$. If we consider $s_J$ to be ``death'' then the $\phi$ parameters are the typical survival probabilities. Finally, $\psi_{t,l,l'}$ ($\sum_{l'=2}^{J-1}\psi_{t,l,l'} = 1$) is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$ . 
 
-Now that we have described how individuals transition in and out of availability and through states we can consider a description of the data models for the observed data. Traditionally, data for the JS model are composed of capture histories for each individual observed at least once, $\bx_i = (x_{i1},\dots,x_{iK})$ where $x_{it} \in \{0,1\}$ depending on whether or not individual $i=1,\dots,n$ was captured on occasion $t$. However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was captured in $R_t$ sub-occasions during primary occasion $t$ which defines a robust design model. Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured, implying a multistate model \citep{xxx}. We denote the likelihood of observing $x_{i,t}$ given the individual is in state $s_l$ as $[x_{i,t}|z_{i,t}=s_l]$.  Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. We briefly present a few examples for common models. For a standard Jolly-Seber model with a binary capture history and only 1 available state ($s_2$ = ``alive'') the likelihood would be,
+Now that we have described how individuals transition in and out of availability and through states we can consider a description of the data models for the observed data. Traditionally, data for the JS model are composed of capture histories for each individual observed at least once, $\bx_i = (x_{i1},\dots,x_{iK})$ where $x_{it} \in \{0,1\}$ depending on whether or not individual $i=1,\dots,n$ was captured on occasion $t$. However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was captured in $R_t$ sub-occasions during primary occasion $t$ which defines a robust design model. Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured, implying a multistate model \citep{xxx}. We denote the likelihood of observing $x_{i,t}$ given the individual is in state $z_{it}=s_l$ as $[x_{it}|s_l]$.  Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. We briefly present a few examples for common models. For a standard Jolly-Seber model with a binary capture history and only 1 available state ($s_2$ = ``alive'') the likelihood would be,
 \[
-[x_{it}|z_{it}=s_2] = \text{Bernoulli}(x_{it}|p_t),
+[x_{it}|s_2] = \text{Bernoulli}(x_{it}|p_t),
 \]
 where $p_t$ is the probability of capture on occasion $t$. If the model being fit is a robust design formulation \citep{xxx} where $x_{it}$, are the number of captures in $R_t$ sub-occasions within each main occasion, the likelihood would be,
 \[
-[x_{it}|z_{it}=s_2] = \text{Binomial}(x_{it}|R_t, p_t). 
+[x_{it}|s_2] = \text{Binomial}(x_{it}|R_t, p_t). 
 \]
 For a multistate model where $x_{it}$ is recorded as a categorical state with uncertainty (e.g., \citealt{johnson2016multivariate}) then we use the mixture distribution
 \[
-[x_{it}|z_{it}=s_l] = (1-p_{t,l})I(x_{it}=0) + p_{t,l}\text{Categorical}(x_{it}|\boldsymbol{\delta}_l,x_{it}\ne0)
+[x_{it}|s_l] = (1-p_{t,l})I(x_{it}=0) + p_{t,l}\text{Categorical}(x_{it}|\boldsymbol{\delta}_l,x_{it}\ne0)
 \]
 where $\boldsymbol{\delta}_l$ is the vector of probabilities for the range of categories that can be observed when the individual is captured in state $s_l$. For example, one might accurately observe the state $x_{it} = s_l$ or it is unknown, say $x_{it} = $``u'', then $\delta_l$ would represent the probability of observing the true state.
 
@@ -400,7 +399,7 @@ The entry probabilities of the {\it per capita} recruitment model are given by
 \[
 \beta_t \propto \left\{ \begin{array}{ll}
 1  & t=1\\
-d_{t-1} f_{t-1} & t=2,\dots,K
+d_t f_{t-1} & t=2,\dots,K
 \end{array} \right.
 \]
 $d_t \propto E[N_t/N|\bt, N]$, the expected relative abundance, and $f_t$ is the {\it per capita} recruitment. The quantity $d_t$ is calculated with the recursion, $d_{t} = d_{t-1}(\phi_{t-1} + f_{t-1})$ where $d_1 \equiv 1$. 
@@ -410,14 +409,14 @@ In addition to the {\it per capita} recruitment parameterization of the entry mo
 $\text{logit } \phi_t \sim N(\mu_\phi,\sigma_\phi^2)$ \\
 $\text{logit } p_t \sim N(\mu_p,\sigma_p^2)$, and $\text{log } f_t \sim N(\mu_f,\sigma_f^2)$
 \end{center}
-This allows shrinkage of the full time model to the temporally constant model we use the complexity prior distribution \citep{xxx} on each of the three the variance components, $\sigma \sim \text{Exponential}(1)$. All mean components of the random effect where given the vaguely informative $N(0,1.5^2)$ prior distribution. 
+This allows shrinkage of the full time model to the temporally constant model we use the complexity prior distribution \citep{xxx} on each of the three the variance components, $\sigma \sim \text{Exponential}(1)$. All mean components of the random effect where given the vaguely informative $N(0,1.5^2)$ prior distribution. Code for this example is provided in the package and the dipper data was obtained from the {\tt marked} package \citep{xxx}. 
 
-Code for this example is provided in the package and the dipper data was obtained from the {\tt marked} package \citep{xxx}. In addition, code to fit the fully marginal version of the specification in \cite{Royle:2008kx} is also provided for comparison. 
+In addition to the collapsed fully marginal specification we fitted the model using the PX-DA approach, mostly for comparison purposes to make sure our new marginal model code was free from bugs. The code and results are available in the online supplement. We augmented the data with both 300 and 1,000 extra individuals. We compared the first 5,000 iterations to assess progress toward convergence using the scale reduction diagnostic \citep{GelmanRubin1992a} as well as the multivariate version \citep{BrooksGelman1998a}. The parameter and abundance estimates aligned outside of Monte Carlo error as expected as it is the same model. The multivariate scale reduction for the first 5,000 iterations of the collapsed approach was 1.11, while the scale reduction for the PX-DA approach with 300 and 1,000 augmented individuals was 1.22 and 1.33 respectively. For this diagnostic a value $\approx 1$ implies convergence. Anecdotally, the extra 700 augmented individuals also increased run time by approximately 3.5$\times$ for the PX-DA approach. The runtime of the collapsed sampler is only about $1.8\times$ the 300 augmented individual run, however, it is mathematically the same as an infinite augmented population analysis. 
 
-Parameter estimates  are given in Table \ref{tab:dipper}. The super population size estimate is $N = 312.16$ with SD = 7.35 and 95\% HPD interval [299--336]. Yearly abundance estimates are illustrated in Figure \ref{fig:dipper.Nt}. 
+For full estimation we used 50,000 MCMC iterations following a 10,000 iteration burnin. Parameter estimates  are given in Table \ref{tab:dipper}. The super population size estimate is $N = 312.16$ with SD = 7.35 and 95\% HPD interval [299--336]. Yearly abundance estimates are illustrated in Figure \ref{fig:dipper.Nt}. 
 
 
-\subsection{Multistate Jolly-Seber Abundance of nesting marine turtles}
+\subsection{Multistate abundance of nesting marine turtles}
 
 Here we present an example analysis with a multistate component, abundance of female nesting Hawaiian green sea turtles ({\it Chelonia mydas}) or honu. The data presented here are from the 2023 nesting season survey on Tern Island in Kānemiloha‘i (French Frigate Shoals), Northwest Hawaiian Islands. During the season, honu arrive at Tern I. starting in xxx till approximately xxx. Females with then alternate between ``nesting'' and ``internesting'' phases. Surveys are conducted at night to record and mark honu as they climb on to the beach to lay a clutch of eggs. This is repeated several times over the season. The goals of the surveys are to estimate how many nesting females are at the island in a given year as well as the distribution of nesting over the season. 
 
@@ -487,38 +486,37 @@ The findings and conclusions in the paper are those of the authors and do not ne
         \hline\hline
         Parameter & Estimate &  SD & 95\% HPI \\
         \hline
-        $\lambda$ & 312.37 & 19.22 & [274.67--349.99]  \\
-        $N$ & 312.36 & 7.35 & [299--326]  \\
+        $\lambda$ & 324.67 & 24.21 & [279.80 -- 373.47]  \\
+        $N$ & 324.61 & 16.25 & [300 -- 356]  \\
         \hline
-        $\rho_1$ & 0.08 & 0.01 & [0.05 -- 0.10]  \\
-         $\rho_2$ & 0.07  & 0.02 &  [0.05 -- 0.11]  \\
-         $\rho_3$ & 0.08  & 0.02 &  [0.05 -- 0.11]  \\
-         $\rho_4$ & 0.08  & 0.02 &  [0.04 -- 0.11]  \\
-         $\rho_5$ & 0.08  & 0.02 &  [0.04 -- 0.11]  \\
-         $\rho_6$ & 0.08  & 0.02 &  [0.04 -- 0.11]  \\
-         $\rho_7$ & 0.08  & 0.02 &  [0.04 -- 0.11]  \\
+        $f_1$ & 1.27 & 0.76 & [0.30 -- 2.66]  \\
+         $f_2$ & 0.70  & 0.19 &  [0.39 -- 1.08]  \\
+         $f_3$ & 0.53  & 0.10 &  [0.35 -- 0.74]  \\
+         $f_4$ & 0.48  & 0.09 &  [0.31 -- 0.65]  \\
+         $f_5$ & 0.49  & 0.08 &  [0.34 -- 0.66]  \\
+         $f_6$ & 0.43  & 0.08 &  [0.27 -- 0.59]  \\
          \hline
-         $\phi_1$ & 0.57 & 0.06 &  [0.46 -- 0.72]  \\
-         $\phi_2$ & 0.52  & 0.05 &  [0.41 -- 0.62]  \\
-         $\phi_3$ & 0.52  & 0.05 &  [0.42 -- 0.61]  \\
-         $\phi_4$ & 0.59  & 0.05 &  [0.51 -- 0.68]  \\
-         $\phi_5$ & 0.58  & 0.04 &  [0.50 -- 0.67]  \\
-         $\phi_6$ &  0.57  & 0.05&  [0.49 -- 0.67]  \\
+         $\phi_1$ & 0.59 & 0.07 &  [0.46 -- 0.75]  \\
+         $\phi_2$ & 0.51 & 0.06 &  [0.40 -- 0.62]  \\
+         $\phi_3$ & 0.52 & 0.05 &  [0.42 -- 0.61]  \\
+         $\phi_4$ & 0.59 & 0.05 &  [0.50 -- 0.69]  \\
+         $\phi_5$ & 0.58 & 0.05 &  [0.50 -- 0.67]  \\
+         $\phi_6$ &  0.58 & 0.06 &  [0.48 -- 0.70]  \\
          \hline
-         $p_1$ & 0.89 & 0.05 &  [0.80 -- 0.98]  \\
-         $p_2$ & 0.88  & 0.05 &  [0.78 -- 0.96]  \\
-         $p_3$ &  0.90 & 0.04 &  [0.82 -- 0.97]  \\
-         $p_4$ & 0.89  & 0.04 &  [0.82 -- 0.96]  \\
-         $p_5$ & 0.89  & 0.04 &  [0.82 -- 0.96]  \\
-         $p_6$ & 0.90  & 0.03 & [0.84 -- 0.97]   \\
-         $p_7$ &  0.90 & 0.04 &  [0.82 -- 0.97]  \\
+         $p_1$ & 0.64 & 0.27 &  [0.22 -- 0.96]  \\
+         $p_2$ & 0.82 & 0.10 &  [0.60 -- 0.96]  \\
+         $p_3$ & 0.89 & 0.05 &  [0.79 -- 0.99]  \\
+         $p_4$ & 0.89 & 0.05 &  [0.79 -- 0.98]  \\
+         $p_5$ & 0.89 & 0.04 &  [0.81 -- 0.97]  \\
+         $p_6$ & 0.91 & 0.04 & [0.83 -- 0.98]   \\
+         $p_7$ & 0.88 & 0.07 &  [0.75 -- 1.00]  \\
          \hline
-         $\mu_\rho$ & -2.51   & 0.23  &  [-2.97 -- -2.09]  \\
-         $\sigma_\rho $ & 0.09 & 0.08 &  [0.00 -- 0.25]  \\
-         $\mu_\phi$     &  0.24 & 0.17 &  [-0.09 -- 0.58]  \\
-         $\sigma_\phi $ & 0.25 & 0.20 &  [0.00 -- 0.63]  \\
-         $\mu_p$        &  2.17  & 0.37 &  [1.51 -- 2.94]  \\
-         $\sigma_p $    & 0.30 & 0.27 &  [0.00 -- 0.81]  \\
+         $\mu_f$        & -0.55 & 0.28 &  [-1.04 -- 0.03]  \\
+         $\sigma_f $    & 0.48 & 0.34 &  [0.00 -- 1.09]  \\
+         $\mu_\phi$     &  0.25 & 0.19 &  [-0.10 -- 0.63]  \\
+         $\sigma_\phi $ & 0.28 & 0.22 &  [0.00 -- 0.68]  \\
+         $\mu_p$        &  1.85 & 0.55 &  [0.71 -- 2.87]  \\
+         $\sigma_p $    & 0.84 & 0.66 &  [0.02 -- 2.03]  \\
          \hline
     \end{tabular}
 \end{table}
