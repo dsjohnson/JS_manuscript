@@ -203,15 +203,15 @@ Here we describe the class of Jolly-Seber family models as we will use them to d
 In a JS process the population is described as $N$ individuals that are available for capture in at least one capture occasion during the study period. If the study is relatively long-term, this may not be very useful, so, the occasion specific abundance, $N_t$, is often desired instead, where $N_t$ is the size of the population available for capture on occasion $t=1,\dots,K$. Individuals become available and unavailable through an entry and exit process. where individuals can be in 1 of 3 states ``pre-entry" (pre-birth), ``available", and ``post-exit" (post-death). For this paper we expand the set of states so that we may include general multistate models as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the post-exit state. The notation $z_{i,t} \in \{s_1,\dots,s_J\}$ will represent the true state of individual $i$ on occasion $t$, thus $N_t = \sum_{i=1}^N I(z_{i,t}\ne 1\text{ or } J)$, where $I(\dots)$ is and indicator function. 
 
 
-One of the major distinguishing features of JS family models relative to other capture-recapture models, such as Cormack-Jolly-Seber (CJS) models, is the entry probability. \citet{schwarz1996general} and \cite{crosbie1985parsimonious} parameterized entry in the JS model using marginal multinomial probabilities $\beta_1,\dots,\beta_K$ which are the unconditional probabilities that an individual enters between occasions $t-1$ and $t$ and is available for capture on occasion $t$. There are many ways to think about entry probabilities but we will base our discussion from this point. The main thing to consider when forming an entry model is that all individuals must enter before occasion $K$, so the probabilities must reflect this constraint. Using the $\beta_t$ entry probabilities we can form the {\it conditional} entry probabilities that are actually used in the JS model computations,
+One of the major distinguishing features of JS family models relative to other capture-recapture models, such as Cormack-Jolly-Seber (CJS) models, is the entry probability. \citet{schwarz1996general} and \cite{crosbie1985parsimonious} parameterized entry in the JS model using marginal multinomial probabilities, $\xi_t$, $t=1,\dots,K$,  which are the unconditional probabilities that an individual enters between occasions $t-1$ and $t$ and is available for capture on occasion $t$. The first probability, $\xi_1$ is the probability that an individual is available at the first occasion. There are many ways to think about entry probabilities but we will base our discussion from this point. The main thing to consider when forming an conditional entry model is that all individuals must enter before occasion $K$, so the probabilities must reflect this constraint. Using the $\xi_t$ entry probabilities we can form the {\it conditional} entry probabilities that will used in the JS model computations herein,
 \[
-\xi_t = \frac{\beta_t}{\sum_{j=t}^K \beta_j},
+\tilde{\xi}_t = \frac{\xi_t}{\sum_{j=t}^K \xi_j},
 \] 
-which is the probability that an individual enters between $t-1$ and $t$ given it has not entered prior to $t-1$ but will enter before $K$. Note that we only need to model the $\beta$ up to a normalizing constant to calculate $\xi$. Also, not that the $\sum_j \beta_j = 1$ constraint is reflected in the fact that $\xi_K = 1$. Given a set of $\xi$ conditional probabilities we can obtain the $\beta$ parameters with the relationship,
+which is the probability that an individual enters between $t-1$ and $t$ given it has not entered prior to $t-1$ but will enter before $K$. Note that we only need to model the $\epsilon$ up to a normalizing constant to calculate $\xi$. Also, note that the $\sum_j \xi_j = 1$ constraint is reflected in the fact that $\tilde{\xi}_K \equiv 1$. Given a set of $\tilde{\xi}$ conditional probabilities we can obtain the unconditional $\xi$ parameters with the relationship,
 \[
-\beta_t = \left\{ \begin{array}{ll}
-\xi_1  & t=1\\
-\xi_t \prod_{j=1}^{t-1} (1-\xi_j) & t=2,\dots,K
+\xi_t = \left\{ \begin{array}{ll}
+\tilde{\xi}_1  & t=1\\
+\tilde{\xi}_t \prod_{j=1}^{t-1} (1-\tilde{\xi}_j) & t=2,\dots,K
 \end{array} \right. .
 \]
 Because we are considering multistate models as well, when an individual first enters the available population between $t-1$ and $t$ we must also model which state it enters into. These are denoted,  $\alpha_{t,l}$, where $\sum_{l=2}^{J-1} \alpha_{t,l}=1$. 
@@ -312,7 +312,7 @@ For the general JS family model the the matrices in the likelihood function (\re
 \bpi = \begin{blockarray}{cccccc} 
 s_1 & s_2 & \cdots & s_{J-1} & s_J \\
 \begin{block}{[cccccc]}
-1-\xi_1 & \xi_1\alpha_{1,2} & \cdots & \xi_1\alpha_{1,J-1} & 0 \\
+1-\tilde{\xi}_1 & \tilde{\xi}_1\alpha_{1,2} & \cdots & \tilde{\xi}_1\alpha_{1,J-1} & 0 \\
 \end{block}
 \end{blockarray}.
 \]
@@ -324,7 +324,7 @@ The observation likelihood matrix, $\mathbf{P}_t(x_{it})$ is a $J\times J$ diago
 \bG_t = \begin{blockarray}{cccccc} 
 s_1 & s_2 & \cdots & s_{J-1} & s_J \\
 \begin{block}{[ccccc]l}
-1-\xi_{t+1} & \xi_{t+1}\alpha_{t+1,2} & \cdots & \xi_{t+1}\alpha_{t+1,J-1} & 0 & s_1\\
+1-\tilde{\xi}_{t+1} & \tilde{\xi}_{t+1}\alpha_{t+1,2} & \cdots & \tilde{\xi}_{t+1}\alpha_{t+1,J-1} & 0 & s_1\\
 0 & \phi_{t,2} \psi_{t,2,2} & \cdots & \phi_{t,2} \psi_{t,2,J-1} & 1-\phi_{t,2} & s_2\\
 \vdots &  \vdots & \vdots &\vdots & \vdots & \vdots \\
 0 & \phi_{t,J-1} \psi_{t,J-1,2} & \cdots & \phi_{t,J-1} \psi_{t,J-1,J-1} & 1-\phi_{t,J-1} & s_{J-1}\\
@@ -397,7 +397,7 @@ The first examination of the ubiquitous European dipper data was presented by \c
 
 The entry probabilities of the {\it per capita} recruitment model are given by 
 \[
-\beta_t \propto \left\{ \begin{array}{ll}
+\epsilon_t \propto \left\{ \begin{array}{ll}
 1  & t=1\\
 d_t f_{t-1} & t=2,\dots,K
 \end{array} \right.
@@ -418,29 +418,41 @@ For full estimation we used 50,000 MCMC iterations following a 10,000 iteration 
 
 \subsection{Multistate abundance of nesting marine turtles}
 
-Here we present an example analysis with a multistate component, abundance of female nesting Hawaiian green sea turtles ({\it Chelonia mydas}) or honu. The data presented here are from the 2023 nesting season survey on Tern Island in Lalo (French Frigate Shoals), Northwestern Hawaiian Islands. During the season, female honu arrive to nest at Tern Island starting in late April until early August. Females will then alternate between ``nesting'' and ``internesting'' phases. The ``nesting'' phase is defined as the period where honu conduct nesting activities (ie. crawling, digging an egg chamber, or laying eggs). While the ``internesting'' phase is defined as the period between each successive nesting event when honu are not seen completing any nesting activities. Surveys are conducted at night to record and mark honu as they climb on to the beach to lay a clutch of eggs. This is repeated several times over the season. The goals of the surveys are to estimate how many nesting females are at the island in a given year as well as the distribution of nesting over the season. 
+Here we present an example analysis with a multistate component, abundance of female nesting Hawaiian green sea turtles ({\it Chelonia mydas}) or {\it honu}. The data presented here are from the 2023 nesting season survey on Tern Island in Lalo (French Frigate Shoals), Northwestern Hawaiian Islands. During the season, female honu arrive to nest at Tern Island starting in late April until early August. Females will then alternate between ``nesting'' and ``internesting'' phases. The ``nesting'' phase is defined as the period where honu conduct nesting activities (ie. crawling, digging an egg chamber, or laying eggs). While the ``internesting'' phase is defined as the period between each successive nesting event when honu are not seen completing any nesting activities. Surveys are conducted at night to record and mark honu as they climb on to the beach to lay a clutch of eggs. This is repeated several times over the season. The goals of the surveys are to estimate how many nesting females are at the island in a given year as well as the distribution of nesting over the season. 
 
-Females are only captured when they are nesting which is essentially the same process as temporary emigration. So, we can use a 2-state model to account for the fact that when animals are in the internesting phase, they are not detectable. Here we use $s_2$ = ``nesting'' and $s_3$ = ``internesting''. Because these animals are long lived with high survival, we consider the entry and exit process to be the start of nesting and leaving Tern I. for migration after breeding respectively. So, a honu cannot enter into $s_3$. We consider entry to be the start of nesting. 
+Females are only captured when they are nesting which is essentially the same process as temporary emigration. So, we can use a 2-state model to account for the fact that when animals are in the internesting phase, they are not detectable. Here we use $s_2$ = ``nesting'' and $s_3$ = ``internesting''. Because these animals are long lived with high survival, we consider the entry and exit process to be the start and completion of nesting after which individuals leave Tern Island on migration to foraging areas. Although individuals may be present in the general area of Tern I. we do not consider an individual have entered the population of nesters until the first nest is attempted and it can be captured in nighttime surveys. This implies that the conditional state entry probabilities are $\alpha_{t,2}=1$ for all $t$. Similarly, once an individual has completed their last nest, even though it might remain in the area before migration, reproduction is complete and the individual is in state $s_4$, i.e., no longer available. These considerations imply an individual cannot exit from state $s_3$.
 
-The HMM matrices are as follows.
+In addition to not being able to exit from the internesting state we add an additional constraint on the exit process. The survey continues until the researchers are generally confidant that all individuals have completed reproduction and have migrated from Tern I. Therefore, add the constraint that all individuals will be in $s_4$ (post-exit) by a hypothetical occasion $K+1$. This easily accomplished my mimicking the entry process with a direct exit process, as opposed to a survival-like process. So, $\delta_t$, $t=1,\dots,K$ is the unconditional probability that an individual exits to $s_4$ between occasions $t$ and $t+1$ and $\sum \delta_t = 1$. As in the entry process, in order to place it in the HMM formulation we also need the conditional version,
 \[
-\bpi = \left[1-\xi_1\ \xi_1\ 0\ 0\right]
+\tilde{\delta}_t = \delta_t \bigg/ \sum_{j=t}^K \delta_j
+\]
+which is the probability of reproduction completion given it has not happened before occasion $t+1$, but will happen before $K+1$.
+
+Given the specified aspects of the model, the HMM matrices are as follows,
+\[
+\bpi = \left[\begin{array}{cccc}
+1-\tilde{\xi}_1 & \tilde{\xi}_1 & 0 & 0
+\end{array}\right],
 \] 
 
 \[
-\text{diag}\left\{\bP_t(x_{it})\right\} = \left[I(x_{it}=0)\ \ p_t^{x_{it}}(1-p_t)^{1-x_{it}} \ \ I(x_{it}=0)\ \ I(x_{it}=0)\right]
+\text{diag}\left\{\bP_t(x_{it})\right\} = \left[\begin{array}{cccc}
+I(x_{it}=0) & p_t^{x_{it}}(1-p_t)^{1-x_{it}} & I(x_{it}=0) & I(x_{it}=0)
+\end{array}\right],
 \]
 
+\centerline{and}
+
 \[
-\bG_t = \left[\begin{array}{ccccc}
-1-\xi_{t+1} & \xi_{t+1} & 0 & 0 \\
-0 & \phi_t(1-\psi_{t,2,3}) &  \phi_t\psi_{t,2,3} & 1-\phi_t \\
-0 & \phi_t\psi_{t,3,2} &  \phi_t(1-\psi_{t,3,2}) & 1-\phi_t \\
+\bG_t = \left[\begin{array}{cccc}
+1-\tilde{\xi}_{t+1} & \tilde{\xi}_{t+1} & 0 & 0 \\
+0 & (1-\tilde{\delta}_t)(1-\psi_{t,2,3}) &  (1-\tilde{\delta}_t)\psi_{t,2,3} & \tilde{\delta}_t \\
+0 & \psi_{t,3,2} &  1-\psi_{t,3,2} & 0 \\
 0 & 0 & 0 & 1
 \end{array}
-\right]
+\right],
 \] 
-
+where $p_t$ is the probability of a nesting female being captured in week $t$ given it was nesting that week. 
 
 
 \subsection{Bottlenose Dolphin Abundance, Demography, and Heterogeneity}
@@ -682,26 +694,30 @@ js_model_def <- nimbleCode({
   #-----------------------------------------------------------------------------
   # Individual recruitment probabilities
   #-----------------------------------------------------------------------------
-  for(t in 1:K){
-    rho[t] ~ dunif(0,1)
+  # Unconditional entry probabilities
+  mlogit_xi[1] <- 0
+  for(t in 2:K){
+    mlogit_xi[t] ~ dnorm(mean=0, sd=1)
   }
+  xi[1:K] <- exp(mlogit_xi[1:K]) # normalizing constant not necessary
+  
   # Conditional entry (at or before K)
   for(t in 1:(K-1)){
-    xi[t] <- rho[t]/(1-prod(1-rho[t:K]))
+    xi_tilde[t] <- xi[t]/sum(xi[t:K])
   }
-  xi[K] <- 1 # for exactness
+  xi_tilde[K] <- 1 # for exactness
   #---------------------------------------------------------------------------
   # Initial entry probability
   #---------------------------------------------------------------------------
-  pi[1] <- 1-xi[1]
-  pi[2] <- xi[1]
+  pi[1] <- 1-xi_tilde[1]
+  pi[2] <- xi_tilde[1]
   pi[3] <- 0
   #---------------------------------------------------------------------------
   # Transition probability matrix (J x J x K)
   #---------------------------------------------------------------------------
   for(t in 1:(K-1)){
-    Gamma[1,1,t] <- 1-xi[t]
-    Gamma[1,2,t] <- xi[t]
+    Gamma[1,1,t] <- 1-xi_tilde[t]
+    Gamma[1,2,t] <- xi_tilde[t]
     Gamma[1,3,t] <- 0
     Gamma[2,1,t] <- 0
     Gamma[2,2,t] <- phi[t]
@@ -709,7 +725,7 @@ js_model_def <- nimbleCode({
     Gamma[3,1,t] <- 0
     Gamma[3,2,t] <- 0
     Gamma[3,3,t] <- 1
-    # exit probability
+    # exit/survival probability
     phi[t] ~ dunif(0,1)
   }
   ####################################
