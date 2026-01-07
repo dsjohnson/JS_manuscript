@@ -1,0 +1,356 @@
+\documentclass[12pt]{article}
+
+\usepackage[margin=1in]{geometry}
+
+\usepackage{amsmath,amssymb,amsthm,epsfig,rotfloat,psfrag,natbib,url,graphicx,lineno,hyperref}
+\usepackage{authblk}
+
+\usepackage[symbol]{footmisc}
+
+\usepackage{blkarray}
+
+\usepackage{booktabs} 
+\usepackage{makecell}
+
+\usepackage{algorithm, algorithmic}
+
+
+
+\bibliographystyle{apalike}
+
+%%%%
+% Some shortcut notation
+%%%%
+
+\newcommand{\bu}{\ensuremath{\mathbf{u}}}
+\newcommand{\bx}{\ensuremath{\mathbf{x}}}
+\newcommand{\by}{\ensuremath{\mathbf{y}}}
+\newcommand{\bB}{\ensuremath{\mathbf{B}}}
+\newcommand{\bp}{\ensuremath{\mathbf{p}}}
+\newcommand{\bc}{\ensuremath{\mathbf{c}}}
+\newcommand{\bfr}{\ensuremath{\mathbf{f}}}
+\newcommand{\bn}{\ensuremath{\mathbf{n}}}
+\newcommand{\bP}{\ensuremath{\mathbf{P}}}
+\newcommand{\bz}{\ensuremath{\mathbf{z}}}
+\newcommand{\bN}{\ensuremath{\mathbf{N}}}
+\newcommand{\bT}{\ensuremath{\mathbf{T}}}
+
+\newcommand{\bxi}{\ensuremath{\boldsymbol{\xi}}}
+\newcommand{\bPsi}{\ensuremath{\boldsymbol{\Psi}}}
+\newcommand{\bphi}{\ensuremath{\boldsymbol{\phi}}}
+\newcommand{\bpi}{\ensuremath{\boldsymbol{\pi}}}
+\newcommand{\bG}{\ensuremath{\boldsymbol{\Gamma}}}
+\newcommand{\bt}{\ensuremath{\boldsymbol{\theta}}}
+\newcommand{\bvt}{\ensuremath{\boldsymbol{\vartheta}}}
+
+\newcommand{\jags}{{\tt JAGS }}
+\newcommand{\nimble}{{\tt nimble }}
+
+%%%%%%%%%%%%%
+
+
+\newcommand{\bX}{\ensuremath{\mathbf{X}}}
+\newcommand{\bC}{\ensuremath{\mathbf{C}}}
+\newcommand{\bW}{\ensuremath{\mathbf{W}}}
+\newcommand{\bK}{\ensuremath{\mathbf{K}}}
+\newcommand{\bk}{\ensuremath{\mathbf{k}}}
+\newcommand{\bI}{\ensuremath{\mathbf{I}}}
+\newcommand{\bH}{\ensuremath{\mathbf{H}}}
+\newcommand{\bh}{\ensuremath{\mathbf{h}}}
+\newcommand{\bw}{\ensuremath{\mathbf{w}}}
+\newcommand{\bD}{\ensuremath{\mathbf{D}}}
+\newcommand{\bdp}{\ensuremath{\mathbf{d}^+}}
+
+
+
+\newcommand{\bb}{\ensuremath{\boldsymbol{\beta}}}
+\newcommand{\ba}{\ensuremath{\boldsymbol{\alpha}}}
+\newcommand{\be}{\ensuremath{\boldsymbol{\epsilon}}}
+\newcommand{\bSig}{\ensuremath{\boldsymbol{\Sigma}}}
+\newcommand{\bmu}{\ensuremath{\boldsymbol{\mu}}}
+\newcommand{\bO}{\ensuremath{\boldsymbol{\Omega}}}
+\newcommand{\bs}{\ensuremath{\boldsymbol{\sigma}}}
+\newcommand{\bo}{\ensuremath{\boldsymbol{\omega}}}
+\newcommand{\bg}{\ensuremath{\boldsymbol{\gamma}}}
+
+
+
+%mathcal
+\newcommand{\fN}{\ensuremath{\mathcal{N}}}
+\newcommand{\fG}{\ensuremath{\mathcal{G}}}
+\newcommand{\fP}{\ensuremath{\mathcal{P}}}
+\newcommand{\fH}{\ensuremath{\mathcal{H}}}
+
+\raggedright
+\raggedbottom
+
+\begin{document}
+%\vspace*{0.15\textheight}
+
+\vspace*{1in}
+
+%\begin{center}
+\setlength{\parindent}{0pt}
+\renewcommand{\baselinestretch}{1.8}\normalsize
+
+\begin{center}
+
+Supplementary Material
+
+\noindent\hrulefill
+
+{\Large Efficient Bayesian Estimation for Open Population Capture-Recapture Models Without Data Augmentation} 
+
+\noindent\hrulefill
+
+\end{center}
+
+\renewcommand{\baselinestretch}{1.15}\normalsize 
+\bigskip
+
+\begin{center}
+{\bf Devin S. Johnson}\\
+ Pacific Islands Fisheries Science Center,\\
+ National Marine Fisheries Service, NOAA, \\
+ Honolulu, Hawai`i, USA \\
+ email: {\tt devin.johnson@noaa.gov} \\ \bigskip
+ 
+ {\bf Shelbie Ishimaru} \\
+Hawai`i Institute of Marine Biology, \\
+University of Hawai`i at Mānoa, \\
+Honolulu, Hawai`i, USA\\ 
+and \\
+Pacific Islands Fisheries Science Center,\\
+National Marine Fisheries Service, NOAA, \\
+Honolulu, Hawai`i, USA \\  \bigskip
+
+{\bf Janelle J. Badger} \\
+ Pacific Islands Fisheries Science Center,\\
+ National Marine Fisheries Service, NOAA, \\
+ Honolulu, Hawai`i, USA \\ \bigskip
+
+\bigskip
+
+\today
+
+\end{center}
+
+\vspace*{\fill}
+
+\clearpage
+
+
+
+\renewcommand{\baselinestretch}{1.25}\normalsize
+\raggedright
+\setlength{\parindent}{2em}
+\raggedbottom
+
+
+\section*{Web Appendix A: {\tt nimble} Code Template for Fitting JS Models}
+
+\subsection{Model definition}
+
+See {\tt ?nimbleEcology::dDHMMo} in {\tt R} for a more detailed explanation of the HMM arguments, {\tt inits} (contains $\bpi$), {\tt probObs} (contains $\bP_t(x_{it})$ values), and {\tt probTrans} (contains $\bG_t$ values). The following code would be contained in a file, say, \verb|js_model_code.R|:
+
+\small 
+\begin{verbatim}
+require(nimble)
+require(nimbleEcology)
+require(nimbleJSextras)
+
+js_model_def <- nimbleCode({
+
+  ######################################################
+  ### Model parameter and HMM argument specification ###
+  ######################################################
+  #---------------------------------------------------------------------------
+  # Capture probabilities
+  # ---------------------------------------------------------------------------
+  for(t in 1:K){
+    p[t] ~ dunif(0,1)
+  }
+  #---------------------------------------------------------------------------
+  # Detection matrix values, P_t(x), J x O x K (O = number of observable states)
+  #---------------------------------------------------------------------------
+  for(t in 1:K){
+    Pmats[1,1,t] <- 1
+    Pmats[1,2,t] <- 0
+    Pmats[2,1,t] <- 1-p[t]
+    Pmats[2,2,t] <- p[t]
+    Pmats[3,1,t] <- 1
+    Pmats[3,2,t] <- 0
+  }
+  #-----------------------------------------------------------------------------
+  # Individual recruitment probabilities
+  #-----------------------------------------------------------------------------
+  # Unconditional entry probabilities
+  mlogit_xi[1] <- 0
+  for(t in 2:K){
+    mlogit_xi[t] ~ dnorm(mean=0, sd=1)
+  }
+  xi[1:K] <- exp(mlogit_xi[1:K]) # normalizing constant not necessary
+  
+  # Conditional entry (at or before K)
+  for(t in 1:(K-1)){
+    xi_tilde[t] <- xi[t]/sum(xi[t:K])
+  }
+  xi_tilde[K] <- 1 # for exactness
+  #---------------------------------------------------------------------------
+  # Initial entry probability
+  #---------------------------------------------------------------------------
+  pi[1] <- 1-xi_tilde[1]
+  pi[2] <- xi_tilde[1]
+  pi[3] <- 0
+  #---------------------------------------------------------------------------
+  # Transition probability matrix (J x J x K)
+  #---------------------------------------------------------------------------
+  for(t in 1:(K-1)){
+    Gamma[1,1,t] <- 1-xi_tilde[t]
+    Gamma[1,2,t] <- xi_tilde[t]
+    Gamma[1,3,t] <- 0
+    Gamma[2,1,t] <- 0
+    Gamma[2,2,t] <- phi[t]
+    Gamma[2,3,t] <- 1 - phi[t]
+    Gamma[3,1,t] <- 0
+    Gamma[3,2,t] <- 0
+    Gamma[3,3,t] <- 1
+    # exit/survival probability
+    phi[t] ~ dunif(0,1)
+  }
+  ####################################
+  ### Jolly-Seber model components ###
+  ####################################
+  #---------------------------------------------------------------------------
+  # Unconditional detection probability
+  #---------------------------------------------------------------------------
+  pstar <- pstar_ms(
+    init = pi[1:3], probObs = Pmats[1:3, 1:2, 1:K], 
+    probTrans = Gamma[1:3, 1:3, 1:(K-1)],
+    len=K)
+  #---------------------------------------------------------------------------
+  # JS likelihood for observed individuals
+  #---------------------------------------------------------------------------
+  for(i in 1:nobs){
+    x[i, 1:K] ~ dJS_ms(
+      init = pi[1:3], probObs = pmat[1:3, 1:2, 1:K], 
+      probTrans = Gamma[1:3, 1:3, 1:(K-1)],
+      pstar = pstar, len = K
+    )
+  }
+  n ~ dpois(lambda*pstar)
+
+  # lambda prior distribution approximates objective scale prior for N
+  lambda ~ dgamma(1.0e-6, 1.0e-6)
+  ##############################################################
+  ### Posterior predictive sampling for abundance quantities ### 
+  ##############################################################
+  nu ~ dpois(lambda*(1-pstar))
+  Nsuper <- n+nu
+
+  nu_t[1:3, 1:K] <- sample_undet_ms(n=nu, init=pi[1:3], probObs=pmat[1:3,1:2,1:K],
+                                     probTrans=Gamma[1:3, 1:3, 1:(K-1)], len=K)
+  for(i in 1:nobs){
+    z[i,1:K] <- sample_det_ms(x=x[i,1:K], init=pi[1:3],
+                                    probObs=pmat[1:3, 1:2, 1:K],
+                                    probTrans=Gamma[1:3, 1:3, 1:(K-1)])
+  }
+  available[1:nobs, 1:K] <- z[1:nobs,1:K]==2
+  for(t in 1:K){
+    Nd[t] <- sum(available[1:nobs, t])
+    N[t] <- Nd[t] + nu_t[2,t]
+  }
+})
+\end{verbatim}
+\normalsize
+
+\subsection{Analysis Code}
+
+Here the matrix {\tt x} are the capture histories coded as 1 = not captured and 2 = captured, instead of 0/1.
+\small
+\begin{verbatim}
+#-----------------------------------------------------------------------------
+# Load and compile model code
+# -----------------------------------------------------------------------------
+source("js_model_code.R")
+
+js_model <- nimbleModel(
+  code = js_model_def,
+  constants = list(K=ncol(x), nobs=nrow(x)),
+  data = list(x = x, n = nrow(x)),
+  inits = list(
+    p = rep(0.5, K),
+    phi = rep(0.7, K-1),
+    rho = rep(0.1, K),
+    lambda = 2*nrow(x)
+    )
+)
+c_js_model <- compileNimble(js_model)
+js_mcmc <- buildMCMC(
+  js_model, 
+  monitors=c("p","rho", "phi","lambda","Nsuper", "N") 
+  )
+c_js_mcmc <- compileNimble(js_mcmc)
+#-----------------------------------------------------------------------------
+# Run MCMC
+#-----------------------------------------------------------------------------
+set.seed(8675309)
+samples <- runMCMC(c_js_mcmc, niter = 25000, nburnin = 5000, nchains = 1,
+                   thin = 1, samplesAsCodaMCMC = TRUE, progress = TRUE)
+
+\end{verbatim}
+\normalsize
+
+
+\clearpage
+
+
+\section*{Web Appendix B: Multistate abundance of nesting marine turtles}
+
+Here we present an example analysis with a multistate component, abundance of female nesting Hawaiian green sea turtles ({\it Chelonia mydas}) or {\it honu}. The data presented here are from the 2023 nesting season survey on Tern Island in Lalo (French Frigate Shoals), Northwestern Hawaiian Islands. During the season, female honu arrive to nest at Tern Island starting in late April until early August. Females will then alternate between ``nesting'' and ``internesting'' phases. The ``nesting'' phase is defined as the period where honu conduct nesting activities (ie. crawling, digging an egg chamber, or laying eggs). While the ``internesting'' phase is defined as the period between each successive nesting event when honu are not seen completing any nesting activities. Surveys are conducted at night to record and mark honu as they climb on to the beach to lay a clutch of eggs. This is repeated several times over the season. The goals of the surveys are to estimate how many nesting females are at the island in a given year as well as the distribution of nesting over the season. 
+
+Females are only captured when they are nesting which is essentially the same process as temporary emigration. So, we can use a 2-state model to account for the fact that when animals are in the internesting phase, they are not detectable. Here we use $s_2$ = ``nesting'' and $s_3$ = ``internesting''. Because these animals are long lived with high survival, we consider the entry and exit process to be the start and completion of nesting after which individuals leave Tern Island on migration to foraging areas. Although individuals may be present in the general area of Tern I. we do not consider an individual have entered the population of nesters until the first nest is attempted and it can be captured in nighttime surveys. This implies that the conditional state entry probabilities are $\alpha_{t,2}=1$ for all $t$. Similarly, once an individual has completed their last nest, even though it might remain in the area before migration, reproduction is complete and the individual is in state $s_4$, i.e., no longer available. These considerations imply an individual cannot exit from state $s_3$.
+
+In addition to not being able to exit from the internesting state we add an additional constraint on the exit process. The survey continues until the researchers are generally confidant that all individuals have completed reproduction and have migrated from Tern I. Therefore, add the constraint that all individuals will be in $s_4$ (post-exit) by a hypothetical occasion $K+1$. This easily accomplished my mimicking the entry process with a direct exit process, as opposed to a survival-like process. So, $\delta_t$, $t=1,\dots,K$ is the unconditional probability that an individual exits to $s_4$ between occasions $t$ and $t+1$ and $\sum \delta_t = 1$. As in the entry process, in order to place it in the HMM formulation we also need the conditional version,
+\[
+\tilde{\delta}_t = \delta_t \bigg/ \sum_{j=t}^K \delta_j
+\]
+which is the probability of reproduction completion given it has not happened before occasion $t+1$, but will happen before $K+1$.
+
+Given the specified aspects of the model, the HMM matrices are as follows,
+\[
+\bpi = \left[\begin{array}{cccc}
+1-\tilde{\xi}_1 & \tilde{\xi}_1 & 0 & 0
+\end{array}\right],
+\] 
+
+\[
+\text{diag}\left\{\bP_t(x_{it})\right\} = \left[\begin{array}{cccc}
+I(x_{it}=0) & p_t^{x_{it}}(1-p_t)^{1-x_{it}} & I(x_{it}=0) & I(x_{it}=0)
+\end{array}\right],
+\]
+
+\centerline{and}
+
+\[
+\bG_t = \left[\begin{array}{cccc}
+1-\tilde{\xi}_{t+1} & \tilde{\xi}_{t+1} & 0 & 0 \\
+0 & (1-\tilde{\delta}_t)(1-\psi_{t,2,3}) &  (1-\tilde{\delta}_t)\psi_{t,2,3} & \tilde{\delta}_t \\
+0 & \psi_{t,3,2} &  1-\psi_{t,3,2} & 0 \\
+0 & 0 & 0 & 1
+\end{array}
+\right],
+\] 
+where $p_t$ is the probability of a nesting female being captured in week $t$ given it was nesting that week. 
+
+
+
+\clearpage
+
+
+
+\bibliography{bayes_jolly_seber.bib}
+
+
+\end{document}
+

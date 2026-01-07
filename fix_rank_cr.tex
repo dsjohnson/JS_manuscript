@@ -570,27 +570,6 @@ The findings and conclusions in the paper are those of the authors and do not ne
 
 \appendix
 
-%\section*{Appendix A: A brief review of data augmentation for abundance estimation}
-%
-%To this point, we have not discussed estimation of capture-recapture model parameters and abundance, merely reformulated the the POPAN version of the Jolly-Seber model likelihood. Now we can begin discussing Bayesian estimation via Markov chain Monte Carlo (MCMC). MCMC is universally used do to the fact that for most general cases, closed form solutions are not obtainable. In early versions of MCMC software calculation of the unconditional detection probability, $\delta$, was not always straightforward as model complexity increased. To overcome this \cite{Royle:2007kx} introduced the concept of ``data augmentation'' (DA) for abundance estimation. DA uses the power of MCMC to stochastically integrate over all possible states for all individuals in the population. If we were able to know how many unseen individuals existed in the population, as well as, the states for all individuals, we could use the complete data likelihood, which is composed of many simple models that can easily be implemented in MCMC software. The DA method is formulated as follows. First, suppose there are $M>N$ known {\it possible} members of the population. The analyst must choose a large enough $M$ such that is known to be much larger than $N$. Then $M-n$ null individuals are added to the observed capture-histories to to form the complete capture histories, $\tilde{c}$. The DA posterior distribution is given by,    
-%\[
-%[\bphi, \bp, \ba, \mathbf{w}, \bz, \psi| \tilde{\bc}, M] = \prod_{i=1}^M [w_i|\psi] \prod_{t=1}^T[c_{it}|w_i, z_{it},p_t][z_{it}|\bz_{i,1:(t-1)},\phi_{t-1},\xi_t]
-%\]
-%where $\tilde{\bc}$ represents the capture-histories for all $M$ individuals in the augmented population and $z_{it}$ is an indicator that individual $i$ is in $\mathcal{A}_t$, $w_i$ is an indicator that animal $i$ belongs to the actual population. note that for observed individuals $w_i = 1$ for augmented individuals it must be estimated. The models for each component are
-%\[
-%[w_i|\psi] = \text{Bernoulli}(\psi),
-%\]
-%\[
-%[c_{it}|w_i,z_{it},p_t] = \text{Bernoulli}(w_iz_{it}p_t),
-%\]
-%and
-%\[
-%[z_{i1}|\xi_1 = \alpha_0] = \text{Bernoulli}(\xi_1),
-%\]
-%\[
-%[z_{it}|\bz_{i,1:(t-1)},\phi_{t-1},\xi_t] = \text{Bernoulli}\left(\phi_{t-1}z_{i,t-1} + \xi_t\prod_{k=1}^{t-1}(1-z_{ik})\right),\quad t=2,\dots,T.
-%\]
-%Using the DA approach, $N$ is not a parameter, but a derived calculation $N = \sum_{i=1}^M w_i$ and abundance at each occasion is $N_t = \sum_{i=1}^M w_i z_{it}$ \citep{Royle:2008kx}.
 
 
 \section{Forward-Backward Posterior Abundance Sampling Algorithms}
