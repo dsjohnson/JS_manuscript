@@ -178,6 +178,8 @@ Collapsed Gibbs samplers offer a method to improve MCMC convergence over standar
 
 The overall goal of this paper is to demonstrate the collapsed approach using the MCMC software in the {\tt R} package \nimble \citep{Valpine:2017vg} to illustrate that PX-DA methods are not necessary and JS models can be fit without data augmentation. The \nimble package allows users to create their own functions which can be compiled and included within an MCMC. Using this capability, as well as, the HMM likelihoods within the {\tt R} package {\tt nimbleEcology} \citep{GoldsteinEtAl2024a}, we analyze 3 real data sets with JS models of varying complexity as examples of practical JS fitting that can readily be used by practitioners just as easily as PX-DA methods. 
 
+\cite{KingEtAl2023a}
+
 %Here are some relevant references the paper will need later:
 %
 %\cite{Hooten:2023aa} 
@@ -203,7 +205,7 @@ Here we describe the class of Jolly-Seber family models as we will use them to d
 In a JS process the population is described as $N$ individuals that are available for capture in at least one capture occasion during the study period. If the study is relatively long-term, this may not be very useful, so, the occasion specific abundance, $N_t$, is often desired instead, where $N_t$ is the size of the population available for capture on occasion $t=1,\dots,K$. Individuals become available and unavailable through an entry and exit process. where individuals can be in 1 of 3 states ``pre-entry" (pre-birth), ``available", and ``post-exit" (post-death). For this paper we expand the set of states so that we may include general multistate models as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the post-exit state. The notation $z_{i,t} \in \{s_1,\dots,s_J\}$ will represent the true state of individual $i$ on occasion $t$, thus $N_t = \sum_{i=1}^N I(z_{i,t}\ne 1\text{ or } J)$, where $I(\dots)$ is and indicator function. 
 
 
-One of the major distinguishing features of JS family models relative to other capture-recapture models, such as Cormack-Jolly-Seber (CJS) models, is the entry probability. \citet{schwarz1996general} and \cite{crosbie1985parsimonious} parameterized entry in the JS model using marginal multinomial probabilities, $\xi_t$, $t=1,\dots,K$,  which are the unconditional probabilities that an individual enters between occasions $t-1$ and $t$ and is available for capture on occasion $t$. The first probability, $\xi_1$ is the probability that an individual is available at the first occasion. There are many ways to think about entry probabilities but we will base our discussion from this point. The main thing to consider when forming an conditional entry model is that all individuals must enter before occasion $K$, so the probabilities must reflect this constraint. Using the $\xi_t$ entry probabilities we can form the {\it conditional} entry probabilities that will used in the JS model computations herein,
+One of the major distinguishing features of JS family models relative to other capture-recapture models, such as Cormack-Jolly-Seber (CJS) models, is the entry probability. \citet{schwarz1996general} and \cite{crosbie1985parsimonious} parameterized entry in the JS model using marginal multinomial probabilities, $\xi_t$, $t=1,\dots,K$,  which are the unconditional probabilities that an individual enters between occasions $t-1$ and $t$ and is available for capture on occasion $t$. There are other ways to think about entry probability but for now, we will base our development on the traditional multinomial version. See Section 4.2 for an alternate example using the dynamic occupancy parameterization of  \citealt{Royle:2008kx}. With the $\xi_t$ entry probabilities we can form the {\it conditional} entry probabilities that will used in the JS model computations herein,
 \[
 \tilde{\xi}_t = \frac{\xi_t}{\sum_{j=t}^K \xi_j},
 \] 
@@ -415,15 +417,25 @@ In addition to the collapsed fully marginal specification we fitted the model us
 
 For full estimation we used 50,000 MCMC iterations following a 10,000 iteration burnin. Parameter estimates  are given in Table \ref{tab:dipper}. The super population size estimate is $N = 312.16$ with SD = 7.35 and 95\% HPD interval [299--336]. Yearly abundance estimates are illustrated in Figure \ref{fig:dipper.Nt}. 
 
-\subsection{Bottlenose Dolphin Abundance, Demography, and Heterogeneity}
+\subsection{Abundance trends of nesting Hawaiian green sea turtles}
 
-Using the results of Section 2 we demonstrate the fully marginal analysis of a population with several issues which complicate Jolly-Seber modeling, namely heterogeneity in entry, capture, and survival probabilities. \cite{caruso2024finite} present an analysis of common bottlenose dolphin ({\it Tursiops truncatus}) abundnace in the Tiber River estuary of the Mediterranean Sea using the data augmentation approach. This population has one main aspect which makes abundance analysis using a standard JS model not feasible. There are three populations of individuals: resident, part-time resident, and transient and it is unknown to which population each individual belongs. These three groups have differences in capture probability because part-time and transient animals have times which they are not in the study area, hence, there is a reduced detection probability within capture occasions compared to resident individuals. Moreover, transient animals enter briefly and leave permanently, thus, $\phi$ will be reduced for these individuals compared to resident and part-time resident individuals. Also, recruitment of each population might be different, that is, $\rho_t$ is unequal between latent groups. 
+\cite{BalazsEtAl2015a}
 
-In addition to latent population structure another issue complicates this particular analysis, the time interval between capture occasions is not constant. Therefore, entry and exit probabilities have to be adjusted in the model structure because the intervals over which this process plays out are different. This is straightforward for exit probability, e.g., $\phi_t = \phi^{h_t}$, where $h_t=\tau_{t+1}-\tau_t$ and $\tau_t$ is the time of capture occasion $t$. This will place $\phi$ on a per time unit basis. However, entry probability is more difficult because we are conditioning on entry before the end of the study. Also, with big time gaps there may be a significant probability that an individual can enter the population and exit between occasions. This violates the assumption that an individual cannot enter directly to $s_J$, the exit state. \cite{caruso2024finite} used the per time unit parameterization, as well as, time-specific recruitment probabilities, this adjusts for differing time gaps, however, it does not account for individuals entering and exiting between capture occasions. \cite{caruso2024finite} assume this probability is zero, the standard JS assumption. There are intervals within this data that range between days and months, so this assumption is quite dubious. When occasions are only days apart, individuals can enter and exit within days, however, with a months-long interval individuals cannot exit once they enter. Here we present a multistate robust-design alternative to account for latent structure, as well as, unequal capture intervals.
+\cite{PledgerEtAl2013a}
 
-$n = 195$
+\cite{kendall2019multistate}
 
-$K = 65$ 
+\cite{KingEtAl2023a}
+
+\cite{Hooten:2023aa}
+
+\cite{hooten2024geostatistical}
+
+\cite{langrock2011hidden}
+
+\cite{king2015semi}
+
+
 
 
 \section{Discussion}
