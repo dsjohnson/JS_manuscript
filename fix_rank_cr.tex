@@ -209,7 +209,7 @@ One of the major distinguishing features of JS family models relative to other c
 \[
 \tilde{\xi}_t = \frac{\xi_t}{\sum_{j=t}^K \xi_j},
 \] 
-which is the probability that an individual enters between $t-1$ and $t$ given it has not entered prior to $t-1$ but will enter before $K$. Note that we only need to model the $\epsilon$ up to a normalizing constant to calculate $\xi$. Also, note that the $\sum_j \xi_j = 1$ constraint is reflected in the fact that $\tilde{\xi}_K \equiv 1$. Given a set of $\tilde{\xi}$ conditional probabilities we can obtain the unconditional $\xi$ parameters with the relationship,
+which is the probability that an individual enters between $t-1$ and $t$ given it has not entered prior to $t-1$ but will enter before $K$. Note that we only need to model the $\xi_t$ up to a normalizing constant to calculate $\tilde{\xi}_t$. Also, note that the $\sum_j \xi_j = 1$ constraint is reflected in the fact that $\tilde{\xi}_K \equiv 1$. Given a set of $\tilde{\xi}$ conditional probabilities we can obtain the unconditional $\xi$ parameters with the relationship,
 \[
 \xi_t = \left\{ \begin{array}{ll}
 \tilde{\xi}_1  & t=1\\
