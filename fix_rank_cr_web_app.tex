@@ -305,17 +305,16 @@ samples <- runMCMC(c_js_mcmc, niter = 25000, nburnin = 5000, nchains = 1,
 \clearpage
 
 
-\section*{Web Appendix B: Multistate abundance of nesting marine turtles}
-
-Here we present an example analysis with a multistate component, abundance of female nesting Hawaiian green sea turtles ({\it Chelonia mydas}) or {\it honu}. The data presented here are from the 2023 nesting season survey on Tern Island in Lalo (French Frigate Shoals), Northwestern Hawaiian Islands. During the season, female honu arrive to nest at Tern Island starting in late April until early August. Females will then alternate between ``nesting'' and ``internesting'' phases. The ``nesting'' phase is defined as the period where honu conduct nesting activities (ie. crawling, digging an egg chamber, or laying eggs). While the ``internesting'' phase is defined as the period between each successive nesting event when honu are not seen completing any nesting activities. Surveys are conducted at night to record and mark honu as they climb on to the beach to lay a clutch of eggs. This is repeated several times over the season. The goals of the surveys are to estimate how many nesting females are at the island in a given year as well as the distribution of nesting over the season. 
-
-Females are only captured when they are nesting which is essentially the same process as temporary emigration. So, we can use a 2-state model to account for the fact that when animals are in the internesting phase, they are not detectable. Here we use $s_2$ = ``nesting'' and $s_3$ = ``internesting''. Because these animals are long lived with high survival, we consider the entry and exit process to be the start and completion of nesting after which individuals leave Tern Island on migration to foraging areas. Although individuals may be present in the general area of Tern I. we do not consider an individual have entered the population of nesters until the first nest is attempted and it can be captured in nighttime surveys. This implies that the conditional state entry probabilities are $\alpha_{t,2}=1$ for all $t$. Similarly, once an individual has completed their last nest, even though it might remain in the area before migration, reproduction is complete and the individual is in state $s_4$, i.e., no longer available. These considerations imply an individual cannot exit from state $s_3$.
-
-In addition to not being able to exit from the internesting state we add an additional constraint on the exit process. The survey continues until the researchers are generally confidant that all individuals have completed reproduction and have migrated from Tern I. Therefore, add the constraint that all individuals will be in $s_4$ (post-exit) by a hypothetical occasion $K+1$. This easily accomplished my mimicking the entry process with a direct exit process, as opposed to a survival-like process. So, $\delta_t$, $t=1,\dots,K$ is the unconditional probability that an individual exits to $s_4$ between occasions $t$ and $t+1$ and $\sum \delta_t = 1$. As in the entry process, in order to place it in the HMM formulation we also need the conditional version,
-\[
-\tilde{\delta}_t = \delta_t \bigg/ \sum_{j=t}^K \delta_j
-\]
-which is the probability of reproduction completion given it has not happened before occasion $t+1$, but will happen before $K+1$.
+%\section*{Web Appendix B: Multistate abundance of nesting marine turtles}
+%
+%
+%Females are only captured when they are nesting which is essentially the same process as temporary emigration. So, we can use a 2-state model to account for the fact that when animals are in the internesting phase, they are not detectable. Here we use $s_2$ = ``nesting'' and $s_3$ = ``internesting''. Because these animals are long lived with high survival, we consider the entry and exit process to be the start and completion of nesting after which individuals leave Tern Island on migration to foraging areas. Although individuals may be present in the general area of Tern I. we do not consider an individual have entered the population of nesters until the first nest is attempted and it can be captured in nighttime surveys. This implies that the conditional state entry probabilities are $\alpha_{t,2}=1$ for all $t$. Similarly, once an individual has completed their last nest, even though it might remain in the area before migration, reproduction is complete and the individual is in state $s_4$, i.e., no longer available. These considerations imply an individual cannot exit from state $s_3$.
+%
+%In addition to not being able to exit from the internesting state we add an additional constraint on the exit process. The survey continues until the researchers are generally confidant that all individuals have completed reproduction and have migrated from Tern I. Therefore, add the constraint that all individuals will be in $s_4$ (post-exit) by a hypothetical occasion $K+1$. This easily accomplished my mimicking the entry process with a direct exit process, as opposed to a survival-like process. So, $\delta_t$, $t=1,\dots,K$ is the unconditional probability that an individual exits to $s_4$ between occasions $t$ and $t+1$ and $\sum \delta_t = 1$. As in the entry process, in order to place it in the HMM formulation we also need the conditional version,
+%\[
+%\tilde{\delta}_t = \delta_t \bigg/ \sum_{j=t}^K \delta_j
+%\]
+%which is the probability of reproduction completion given it has not happened before occasion $t+1$, but will happen before $K+1$.
 
 Given the specified aspects of the model, the HMM matrices are as follows,
 \[

@@ -419,15 +419,30 @@ For full estimation we used 50,000 MCMC iterations following a 10,000 iteration 
 
 \subsection{Abundance and reproductive demographics of nesting Hawaiian green sea turtles}
 
-Hawaiian green sea turtles ({\it Chelonia mydas}) or {\it honu}  
+Here we present an example analysis with a multistate component, abundance of female nesting Hawaiian green sea turtles ({\it Chelonia mydas}) or {\it honu}. The data presented here are from the 1973--2016 nesting season surveys on the islets within the atoll of Lalo (French Frigate Shoals), Northwestern Hawaiian Islands. This example allows us to demonstrate that...
 
-full run tool 19.84 hours
 
-\cite{BalazsEtAl2015a}
+Over the 44 year study period $n$ = 5,271 females were captured. During the season, honu will migrate from the Main Hawaiian Islands (MHI) to nest at Lalo starting in late April through early August. After nesting is completed honu will return to the MHI and enter the foraging phase which lasts between 2--10 (average {\it c.} 4) years, where no nesting occurs \citep{BalazsEtAl2015a}. The time spent in the foraging phase is termed the {\it remigration interval}. 
 
-\cite{PledgerEtAl2013a}
+There are two alterations to the traditional JS model that are necessary to estimate the size of the nesting female population with this data. The main issue is that individuals become unavailable for capture for an extended time while they are foraging as it is not feasible to capture individuals throughout the entire MHI. During nesting phase individuals are concentrated at Lalo, thus, are relatively easy to capture. Secondly, processing individuals on their initial capture (unmarked) is more time consuming than recording individuals that already have a permanent identification (marked). In some years there is not enough total survey resources to equally capture marked and unmarked individuals. Therefore, in some years capture and processing of unmarked individuals is a lower priority than recording individuals that were previously marked. Here we develop a JS model that accounts for both of these issues. In addition, we also demonstrate some additional computational aspects we can use to increase MCMC efficiency with the collapsed Gibbs approach, namely we only need to use unique capture histories to fit the model and we can use the 2-stage methods of \cite{Hooten:2023aa} and \cite{hooten2024geostatistical} to process the abundance predictions portion of the MCMC sampler in parallel.  
 
-\cite{kendall2019multistate}
+First we consider the model structure. To model the effect of the remigration interval on abundance of hawksbill marine turtles ({\it Eretmochelys imbricata}) \citet{kendall2019multistate} used a version of the breeding return time (JS-BRT) model of \cite{PledgerEtAl2013a}. The JS-BRT model uses several intermediate (sub-) states to represent the overall state of the individual being in a nonbreeding state, e.g., for Lalo honu, the individual is in a nonbreeding (foraging) state if it is in any one of the substates, $S_t = F_1,\dots, \text{or } F_m$. The transition probabilities force the individual to pass through the substates sequentially or return to the reproductive (nesting) state. This substate ``trick'' is used to build a Hidden {\it semi}-Markov model (HSMM) rather than HMM, because, in this case, the dwell-time in the foraging state is not geometrically distributed.    
+
+
+The transition probability matrix can be represented with the block structure,
+\[
+\bG_t = \left[\begin{array}{cccc}
+1-\tilde{\xi}_{t+1} & \tilde{\xi}_{t+1}\boldsymbol{\Psi}_{\emptyset,R,t} & \mathbf{0} & 0\\
+\mathbf{0} & \mathbf{0} & \phi_{R,t}\boldsymbol{\Psi}_{R,F,t}  & (1-\phi_{R,t})\mathbf{1} \\
+\mathbf{0} & \phi_{F,t}\boldsymbol{\Psi}_{F,R,t} &  \phi_{F,t}\boldsymbol{\Psi}_{F,F,t} & (1-\phi_{F,t})\mathbf{1} \\
+0 & 0 & 0 & 1
+\end{array}
+\right],
+\] 
+where the $\boldsymbol{\Psi}_{a,b,t}$ matrices represent the submatrix describing transitions from the composite state ``$a$'' to composite state ``$b$''. See Appendix B for details on matrix dimensions and content for the honu analysis. 
+  
+
+
 
 \cite{KingEtAl2023a}
 
@@ -440,6 +455,7 @@ full run tool 19.84 hours
 \cite{king2015semi}
 
 
+1h14m for first part second was 9.37m
 
 
 \section{Discussion}
