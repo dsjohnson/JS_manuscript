@@ -397,19 +397,15 @@ Again, we acknowledge the unorthodox use of a deterministic function for a rando
 Here we demonstrate some additional computational savings that we can use due to the marginalization and factoring of the posterior distribution in the collapsed Gibbs sampler. Using the previous development, we can write the full JS model posterior distribution as,
 \begin{equation}
 \label{eq.post.factor}
-\begin{aligned}
-[\bz, \bz_u, n_u, \bt,\lambda,|\bx] &\propto [n_u|\bt,\lambda,\bx][\bz_u|n_u,\bt,\bx][\bz|\bt,\bx] \\
-&\qquad  \times [\bx|\bt,n][n|\bt,\lambda][\bt][\lambda] \\
-&= [n_u,\bz_u, \bz|\bt,\lambda,\bx] \times [n|\bt,\lambda][\bx|\bt][\bt][\lambda]
-\end{aligned}
+[\bvt, n_u, \bt,\lambda,|\bx] \propto [\bvt|n_u,\bt,\bx][n_u|\bt,\lambda,\bx]\times [\bx|\bt,n][n|\bt,\lambda][\bt][\lambda] 
 \end{equation} 
 The first savings to note is that we only need to use the unique capture histories to evaluate the fully marginal likelihood,
 \begin{equation}
-[\bx|\bt] = \prod_{i=1}^n [\bx_i|\bt] = \prod_{j=1}^m w_j[\bu_i|\bt]
+[\bx|\bt,n] = \prod_{i=1}^n [\bx_i|\bt,n] = \prod_{j=1}^m w_j[\bu_i|\bt,n]
 \end{equation}
 where $\bu_j$ is the $j$th unique capture-history and $w_j$ is the number of times it occurs in $\bx$. This is not new and is standard practice when fitting models using maximum likelihood methods, however, it is not possible with the PX-DA approach for Bayesian analysis. This can be a substantial computational savings if $m<<n$. 
 
-The second computational saving is due to the predictive factoring in (\ref{eq.post.factor}). This is the same factoring approach used by \cite{Hooten:2023aa}, and \cite{hooten2024geostatistical} to facilitate an efficient 2-stage approach to Bayesian estimation of closed-population models and we can do the same here. The 2-stage approach first involves drawing a posterior sample from $[\bt,\lambda|\bx, n]$, preferably using just the unique capture-histories. Then, divide the sample into $B$ batches and sample from $[n_u,\bz_u, \bz|\bt,\lambda,\bx]$ in parallel for each $(\bt,\lambda)$ in the separate batches. Of course, if occasion-specific abundance estimates are not desired, one would just sample $[n_u|\bt,\lambda,\bx]$ in the first stage and stop there. 
+The second computational saving is due to the predictive factoring in (\ref{eq.post.factor}). This is the same factoring approach used by \cite{Hooten:2023aa}, and \cite{hooten2024geostatistical} to facilitate an efficient 2-stage approach to Bayesian estimation of closed-population models and we can do the same here. The 2-stage approach first involves drawing a posterior sample from $[\bt,\lambda|\bx, n]$, preferably using just the unique capture-histories. Then, divide the sample into $B$ batches and sample from $[\bvt,n_u|\bt,\lambda,\bx]$ in parallel for each $(\bt,\lambda)$ in the separate batches. Of course, if occasion-specific abundance estimates ($\bvt$) are not desired, one would just sample $[n_u|\bt,\lambda,\bx] = \text{Poisson}(\lambda(1-p^*))$ in the first stage and stop there. 
 
 \section{Examples and Extensions}
 
