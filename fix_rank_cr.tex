@@ -338,6 +338,7 @@ s_1 & s_2 & \cdots & s_{J-1} & s_J \\
 
 Readers should note that we have left the portion of the original JS models dealing with loss upon capture. We find this part is often omitted in practice. If needed, it can be included in the model using a either second exit state in the transition matrix that explicitly feeds to $s_J$ with probability 1 at the next occasion.  
 
+
 \subsection{Using \nimble to perform collapsed Gibbs sampling}
 
 To perform this approach in \nimble we start by forming distributions for a model description. Unlike \jags the \nimble software possesses the ability to define new distributions and other functions that can be directly incorporated in model statements for MCMC analysis. This capability is accessed through the {\tt nimbleFunction()} function. For categorical data (e.g., multistate capture-histories), the {\tt nimbleEcology} package has already defined an unconditional HMM distribution (\ref{eq.uncond.lik}). This are accessed via the {\tt DHMMo()} HMM distribution. In the {\tt nimbleJSextras} package we used this general HMM distribution to create the bespoke distribution function,
@@ -391,6 +392,25 @@ nu_t[1:3, 1:K] <- sample_undet_ms(nu,...)
 \end{verbatim}
 Again, we acknowledge the unorthodox use of a deterministic function for a random variable. Now that we have posterior samples of $\bn_t$ and $\bn_{u,t}$ we can predict the state and time-specific abundances $\bN_t =  \bn_t + \bn_{u,t}$ and $N_t =  n_t + n_{u,t}$ and any function, $f(\bN_1,\dots,\bN_K)$, such as population growth. Appendix B provides a \nimble code template for fitting JS models via the collapsed sampler. Notably, the sample code illustrates the structure for the data input and HMM matrices contained in the ``{\tt ...}'' arguments of the previous code snippets. 
 
+\subsection{Additional computation benefits}
+
+Here we demonstrate some additional computational savings that we can use due to the marginalization and factoring of the posterior distribution in the collapsed Gibbs sampler. Using the previous development, we can write the full JS model posterior distribution as,
+\begin{equation}
+\label{eq.post.factor}
+\begin{aligned}
+[\bz, \bz_u, n_u, \bt,\lambda,|\bx] &\propto [n_u|\bt,\lambda,\bx][\bz_u|n_u,\bt,\bx][\bz|\bt,\bx] \\
+&\qquad  \times [\bx|\bt,n][n|\bt,\lambda][\bt][\lambda] \\
+&= [n_u,\bz_u, \bz|\bt,\lambda,\bx] \times [n|\bt,\lambda][\bx|\bt][\bt][\lambda]
+\end{aligned}
+\end{equation} 
+The first savings to note is that we only need to use the unique capture histories to evaluate the fully marginal likelihood,
+\begin{equation}
+[\bx|\bt] = \prod_{i=1}^n [\bx_i|\bt] = \prod_{j=1}^m w_j[\bu_i|\bt]
+\end{equation}
+where $\bu_j$ is the $j$th unique capture-history and $w_j$ is the number of times it occurs in $\bx$. This is not new and is standard practice when fitting models using maximum likelihood methods, however, it is not possible with the PX-DA approach for Bayesian analysis. This can be a substantial computational savings if $m<<n$. 
+
+The second computational saving is due to the predictive factoring in (\ref{eq.post.factor}). This is the same factoring approach used by \cite{Hooten:2023aa}, and \cite{hooten2024geostatistical} to facilitate an efficient 2-stage approach to Bayesian estimation of closed-population models and we can do the same here. The 2-stage approach first involves drawing a posterior sample from $[\bt,\lambda|\bx, n]$, preferably using just the unique capture-histories. Then, divide the sample into $B$ batches and sample from $[n_u,\bz_u, \bz|\bt,\lambda,\bx]$ in parallel for each $(\bt,\lambda)$ in the separate batches. Of course, if occasion-specific abundance estimates are not desired, one would just sample $[n_u|\bt,\lambda,\bx]$ in the first stage and stop there. 
+
 \section{Examples and Extensions}
 
 \subsection{The Dipper Data}\label{sec:dipper}
@@ -424,7 +444,7 @@ Here we present an example analysis with a multistate component, abundance of fe
 
 Over the 44 year study period $n$ = 5,271 females were captured. During the season, honu will migrate from the Main Hawaiian Islands (MHI) to nest at Lalo starting in late April through early August. After nesting is completed honu will return to the MHI and enter the foraging phase which lasts between 2--10 (average {\it c.} 4) years, where no nesting occurs \citep{BalazsEtAl2015a}. The time spent in the foraging phase is termed the {\it remigration interval}. 
 
-There are two alterations to the traditional JS model that are necessary to estimate the size of the nesting female population with this data. The main issue is that individuals become unavailable for capture for an extended time while they are foraging as it is not feasible to capture individuals throughout the entire MHI. During nesting phase individuals are concentrated at Lalo, thus, are relatively easy to capture. Secondly, processing individuals on their initial capture (unmarked) is more time consuming than recording individuals that already have a permanent identification (marked). In some years there is not enough total survey resources to equally capture marked and unmarked individuals. Therefore, in some years capture and processing of unmarked individuals is a lower priority than recording individuals that were previously marked. Here we develop a JS model that accounts for both of these issues. In addition, we also demonstrate some additional computational aspects we can use to increase MCMC efficiency with the collapsed Gibbs approach, namely we only need to use unique capture histories to fit the model and we can use the 2-stage methods of \cite{Hooten:2023aa} and \cite{hooten2024geostatistical} to process the abundance predictions portion of the MCMC sampler in parallel.  
+There are two alterations to the traditional JS model that are necessary to estimate the size of the nesting female population with this data. The main issue is that individuals become unavailable for capture for an extended time while they are foraging as it is not feasible to capture individuals throughout the entire MHI. During nesting phase individuals are concentrated at Lalo, thus, are relatively easy to capture. Secondly, processing individuals on their initial capture (unmarked) is more time consuming than recording individuals that already have a permanent identification (marked). In some years there is not enough total survey resources to equally capture marked and unmarked individuals. Therefore, in some years capture and processing of unmarked individuals is a lower priority than recording individuals that were previously marked. Here we develop a JS model that accounts for both of these issues. 
 
 First we consider the model structure. To model the effect of the remigration interval on abundance of hawksbill marine turtles ({\it Eretmochelys imbricata}) \citet{kendall2019multistate} used a version of the breeding return time (JS-BRT) model of \cite{PledgerEtAl2013a}. The JS-BRT model uses several intermediate (sub-) states to represent the overall state of the individual being in a nonbreeding state, e.g., for Lalo honu, the individual is in a nonbreeding (foraging) state if it is in any one of the substates, $S_t = F_1,\dots, \text{or } F_m$. The transition probabilities force the individual to pass through the substates sequentially or return to the reproductive (nesting) state. This substate ``trick'' is used to build a Hidden {\it semi}-Markov model (HSMM) rather than HMM, because, in this case, the dwell-time in the foraging state is not geometrically distributed.    
 
@@ -441,22 +461,14 @@ The transition probability matrix can be represented with the block structure,
 \] 
 where the $\boldsymbol{\Psi}_{a,b,t}$ matrices represent the submatrix describing transitions from the composite state ``$a$'' to composite state ``$b$''. See Appendix B for details on matrix dimensions and content for the honu analysis. 
   
-
-
-
-\cite{KingEtAl2023a}
-
-\cite{Hooten:2023aa}
-
-\cite{hooten2024geostatistical}
+\cite{king2016semi}
 
 \cite{langrock2011hidden}
 
-\cite{king2015semi}
 
 
-1h14m for first part second was 9.37m
 
+1.313867 hours for first part second was 9.413192 mins
 
 \section{Discussion}
 
