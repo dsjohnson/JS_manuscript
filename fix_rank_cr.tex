@@ -415,6 +415,8 @@ The second computational saving is due to the predictive factoring in (\ref{eq.p
 
 The first examination of the ubiquitous European dipper data was presented by \cite{Cormack1964} who used it for demonstration of the Cormack-Jolly-Seber (CJS) model for survival estimation from capture-recapture data. Many years later \cite{Lebreton:1992gr} used the data to demonstrate a JS analysis for abundance estimation. More recently, \cite{Royle:2008kx} demonstrate a Bayesian version of JS modeling using PX-DA. Here we demonstrate analysis of the data using the {\it per capita} recruitment parameterization of \cite{link2005modeling} and \cite{link2005modeling} for modeling entry probability. 
 
+\subsection{Model specifications}
+
 The entry probabilities of the {\it per capita} recruitment model are given by 
 \[
 \xi_t \propto \left\{ \begin{array}{ll}
@@ -433,6 +435,8 @@ This allows shrinkage of the full time model to the temporally constant model we
 
 We analyzed this same model with four different methods: (1) PX-DA with 300 augmented individuals, (2) PX-DA with 1,000 augmented individuals, (3) the collapsed sampler, and (4) the collapsed sampler using additional computational savings of Section (\ref{sec.savings}). Anecdotally, we compared the first 5,000 iterations of methods to assess progress toward convergence using the scale reduction diagnostic \citep{GelmanRubin1992a} as well as the multivariate version \citep{BrooksGelman1998a}. For full estimation we used 50,000 MCMC iterations following a 10,000 iteration burnin. 
 
+\subsection{Results}
+
 The multivariate scale reduction for the first 5,000 iterations of the collapsed approach was 1.11, while the scale reduction for the PX-DA approach with 300 and 1,000 augmented individuals was 1.22 and 1.33 respectively. For this diagnostic a value $\approx 1$ implies convergence. So, we can see that convergence begins sooner for the collapsed sampler, but for this analysis it was of little consequence because all methods had converged well before the 10,000 iteration burnin. For the 2-stage collapsed sampler, we use 10 parallel sessions so that each session used 5,000 iterations from the first stage to sample abundance.   
 
 To compare the relative run-times of each of the methods we hold PX-DA (300) as the gold-standard. The extra 700 augmented individuals in the second PX-DA increased run-time by 3.68$\times$. Run-time for the standard collapsed sampler was 1.82$\times$. Finally, the run-time of the collapsed sampler with computational savings was 0.11$\times$, a substantial improvement over the PX-DA methods. For the dipper data there are only $u=32$ unique capture-histories in the $n=294$ observed individuals. So, the likelihood calculation only needs to loop over the 32 unique histories for each MCMC iteration. 
@@ -446,89 +450,112 @@ Parameter estimates  are given in Table \ref{tab:dipper} for the standard collap
 
 \subsection{Abundance and reproductive demographics of nesting Hawaiian green sea turtles}
 
-Here we present an example analysis with a multistate component, abundance of female nesting Hawaiian green sea turtles ({\it Chelonia mydas}) or {\it honu}. This analysis demonstrates that we can still use the fully marginal collapsed sampler to fit models that incorporate individual by time effects, specifically we fitted a model with an effect of previous captures on the capture probability of an individual. In addition, these data are relatively large and PX-DA methods can be computationally expensive. 
+Here we present an example analysis with a multistate component, abundance of female nesting Hawaiian green sea turtles ({\it Chelonia mydas}) or {\it honu}. This analysis demonstrates that we can still use the fully marginal collapsed sampler to fit models that incorporate individual by time effects, specifically we fitted a model with an effect of previous captures on the current capture probability of an individual. In addition, to the capture heterogeneity these data are relatively large and PX-DA methods can be computationally expensive. So, we can use the two-stage collapsed sampler to efficiently sample the posterior. 
 
-The data presented here are from the 1973--2016 nesting season surveys on the islets within the atoll of Lalo (French Frigate Shoals), Northwestern Hawaiian Islands. Over the 44 year study period $n$ = 5,271 females were captured. During the season, honu will migrate from the Main Hawaiian Islands (MHI) to nest at Lalo starting in late April through early August. After nesting is completed honu will return to the MHI and enter the foraging phase which lasts between 2--10 (average {\it c.} 4) years, where no nesting occurs \citep{BalazsEtAl2015a}. The time between nesting occasions is termed the {\it remigration interval}. 
+The data presented here are from the 1973--2016 nesting season surveys on the islets within the atoll of Lalo (French Frigate Shoals), in the Northwestern Hawaiian Islands. Over the 44 year study period $n$ = 5,271 females were captured. During the season, honu will migrate from the Main Hawaiian Islands (MHI) to nest at Lalo starting in late April through early August. After nesting is completed honu will return to the MHI and enter the foraging phase which lasts between 2--10 (average {\it c.} 4) years, where no nesting occurs \citep{BalazsEtAl2015a}. The time between nesting occasions is termed {\it remigration interval}. 
 
-There are two alterations to the traditional JS model that are necessary to estimate the size of the nesting female population with this data. The main issue is that individuals become unavailable for capture for an extended time while they are foraging as it is not feasible to capture individuals throughout the entire MHI. During nesting phase individuals are concentrated at Lalo, thus, are relatively easy to capture. Secondly, processing individuals on their initial capture (unmarked) is more time consuming than recording individuals that already have a permanent identification (marked). In some years there is not enough total survey resources to equally processed marked and unmarked individuals. Therefore, in some years capture and processing of unmarked individuals is a lower priority than recording individuals that were previously marked. This is similar to the closed-population $M_b$ model where the individuals become ``trap happy'', however, this mathematical behavioral response is due to capture effort on the part of the researchers.
 
-First we consider the reproductive structure. To model the effect of the remigration interval on abundance of hawksbill marine turtles ({\it Eretmochelys imbricata}) \citet{kendall2019multistate} used a version of the breeding return time (JS-BRT) model of \cite{PledgerEtAl2013a}. The JS-BRT model uses several intermediate (sub-) states to represent the overall condition of the individual being in a nonbreeding state, e.g., for honu, the individual is in a foraging (nonbreeding) state if it is in any one of the substates, $F_1,\dots, \text{or } F_m$. The transition probabilities force the individual to pass through the substates sequentially or return to the reproductive (nesting) state. This substate trick is used to build a Hidden {\it semi}-Markov model (HSMM) rather than HMM, because, in this case, the dwell-time in the overall foraging state is not geometrically distributed as it would be in a Markov chain. Here we used $m=7$ substates to approximate a Poisson+1($\mu$) distribution for dwell time in the foraging state \citep{langrock2011hidden}. The Poisson+1($\mu$) distribution is defined at a Poisson variable with rate $\mu$ where 1 is added, so, the expected value is $\mu+1$ with variance $\mu$.
+\subsection{Model Specifications}
 
-Now we examine the pseudo trap response issue. In a PX-DA model this would be taken care of with a individual $\times$ occasion covariate, say $c_{i,t}$ that indicates if individual $i$ has been previously captured at time $t$. We cannot use that approach in the collapsed sampler because we are not explicitly simulating capture-histories for uncaptured individuals. However, we can use the another set of substates to define our reproductive state: $R_{00}$, $R_{01}$, $R_{10}$, $R_{11}$, where the subscripts indicate, respectively, previously captured and currently captured on occasion $t$. Thus, we have moved the capture process into the state transitions. In addition to the expanded reproductive state, we also need to further expand the foraging states to $F_{01},\dots,F_{0m},F_{11},\dots,F_{1m}$ where the first subscript denotes previous capture. These additional foraging states are not biologically different, they simply serve to prevent transitions among the reproductive states that are not permitted, e.g., if an individual is in $R_{00}$ its next reproductive state cannot be $R_{11}$ or $R_{10}$.
+There are two alterations to the traditional JS model that are necessary to estimate the size of the nesting female population with this data. The main issue is that individuals become unavailable for capture for an extended time while they are foraging as it is not feasible to capture individuals in the MHI with any systematic effort. During nesting phase individuals are concentrated at Lalo, thus, are relatively easy to capture. Secondarily, processing individuals on their initial capture (unmarked) is more time consuming than recording individuals that already have a permanent identification (marked). In some years there is not enough total survey resources to equally processed marked and unmarked individuals. Therefore, in some years capture and processing of unmarked individuals is a lower priority than recording individuals that were previously marked. This is similar to a closed-population $M_b$ model where the individuals become ``trap happy'', however, this mathematical behavioral response is due to capture effort on the part of the researchers.
 
-The model specifications for this model are notably different from the standard JS form described previously. However, It can still be placed in the same HMM framework for which we can use the collapsed Gibbs sampler with the additional computational savings benefits. Here we provide an overview of the matrix specifications, more details are found in Appendix B. 
+First we consider the reproductive structure. To model the effect of the remigration interval on abundance of hawksbill marine turtles ({\it Eretmochelys imbricata}) \citet{kendall2019multistate} used the breeding return time (JS-BRT) model of \cite{PledgerEtAl2013a} which is a special case of the semi-Markov capture-recpature model described by \cite{king2016semi}. The JS-BRT model uses several intermediate (sub-) states to represent the overall condition of the individual being in a nonbreeding state, e.g., for honu, the individual is in a foraging (nonbreeding) state if it is in any one of the substates, $F_1,\dots, \text{or } F_m$. The transition probabilities force the individual to pass through the substates sequentially or return to the reproductive (nesting) state. With regard to the composite state, $F=\{F_1,\dots,F_m\}$, the underlying model is a Hidden {\it semi}-Markov model (HSMM), because the dwell-time in the composite state is not geometrically distributed as it would be in a Markov chain.
 
-We begin with the transition probability matrix can be represented with the block structure,
+Now we examine the effort-induced trap response issue. In a PX-DA anaysis this would be taken care of with a individual $\times$ occasion covariate, say $c_{i,t}$ that indicates if individual $i$ has been previously captured on occasion $t$. We cannot use that approach in the collapsed sampler because we are not explicitly simulating state-histories for uncaptured individuals. However, we can use the another set of substates to define our reproductive state: $R_{00}$, $R_{01}$, $R_{10}$, $R_{11}$, where the subscripts indicate, respectively, previously captured and currently captured on occasion $t$. We have moved the capture process into the state transitions. In addition to the composite reproductive state, we also need to further expand the foraging substates to $F_{01},\dots,F_{0m},F_{11},\dots,F_{1m}$ where the first subscript denotes previous capture. These additional foraging states are not biologically different, they simply serve to prevent transitions among the reproductive states that are not permitted, e.g., if an individual is in $R_{00}$ its next reproductive state cannot be $R_{11}$ or $R_{10}$.
+
+The model specifications for this model are notably different from the standard JS form described previously. However, It can still be placed in the same HMM framework for which we can use the collapsed Gibbs sampler with the additional computational savings benefits. The HMM matrix specifications are as follows.
+
+We begin with the state transition matrix which can be represented in its general form with the block structure, \citep{langrock2011hidden,king2016semi},
 \[
 \bG_t = \left[\begin{array}{cccc}
-1-\tilde{\xi}_{t+1} & \tilde{\xi}_{t+1}\boldsymbol{\Psi}_{\emptyset,R,t+1} & \mathbf{0} & 0\\
-\mathbf{0} & \mathbf{0} & \phi\boldsymbol{\Psi}_{R,F,t}  & (1-\phi)\mathbf{1} \\
-\mathbf{0} & \phi\boldsymbol{\Psi}_{F,R,t} &  \phi\boldsymbol{\Psi}_{F,F,t} & (1-\phi)\mathbf{1} \\
+1-\tilde{\xi}_{t+1} & \tilde{\xi}_{t+1}\boldsymbol{\Psi}_{\emptyset,R,t} & \mathbf{0} & 0\\
+\mathbf{0} & \mathbf{0} & \phi_{R,t}\boldsymbol{\Psi}_{R,F,t}  & (1-\phi_{R,t})\mathbf{1} \\
+\mathbf{0} & \phi_{F,t}\boldsymbol{\Psi}_{F,R,t} &  \phi_{F,t}\boldsymbol{\Psi}_{F,F,t} & (1-\phi_{F,t})\mathbf{1} \\
 0 & 0 & 0 & 1
 \end{array}
 \right],
 \] 
-where the $\boldsymbol{\Psi}_{a,b,t}$ matrices represent the submatrix describing transitions from the composite state ``$a$'' to composite state ``$b$''. This transition matrix is similar to the HSMM capture recapture model of \cite{king2016semi} with the exception that we added the entry process as well. The composite states are $R$ with four substates and $F$ with 14 substates which makes each $\bG_t$ a $20 \times 20$ dimensional matrix. The entry submatrix is, $1\times 4$ where $\boldsymbol{\Psi}_{\emptyset,R,t} = [1-\alpha_t p_t\ \ \alpha_t p_t\ \ 0\ \ 0]$, where $p_t$ is the capture-probability and $0<\alpha_t < 1$ is the proportional reduction in capture probability due to reduced effort adding new individuals. The submatrix $\boldsymbol{\Psi}_{R,F,t}$ is a $4 \times 14$ indicator matrix such that $R_{00}$ transitions to $F_{01}$ and $R_{01}$, $R_{10}$, and $R_{11}$ transition to $F_{11}$ automatically. The submatrices $\boldsymbol{\Psi}_{F,F,t}$ and $\boldsymbol{\Psi}_{F,R,t}$ work together to allow transitions to proceed through foraging an and exit to a and appropriate reproductive state such that the number of occasions spent foraging is approximately Poisson+1 distributed \citep{langrock2011hidden}. The $\boldsymbol{\Psi}_{F,R,t}$, matrix is composed of elements,
+where the $\boldsymbol{\Psi}_{a,b,t}$ matrices represent the submatrix describing transitions from the composite state ``$a$'' to composite state ``$b$''. The entry $1\times 4$ entry submatrix is, $\boldsymbol{\Psi}_{\emptyset,R,t} = [1-\alpha_{t+1} p_{t+1}\ \ \alpha_{t+1} p_{t+1}\ \ 0\ \ 0]$, where $p_t$ is the capture-probability and $0 \le \alpha_t \le 1$ is the proportional reduction in capture probability due to reduced effort adding new individuals. The submatrix $\boldsymbol{\Psi}_{R,F,t}$ is a $4 \times 2m$ indicator matrix such that $R_{00}$ transitions to $F_{01}$ and $R_{01}$, $R_{10}$, and $R_{11}$ transition to $F_{11}$ automatically because honu cannot nest in subsequent years. The $\boldsymbol{\Psi}_{F,R,t}$, matrix is composed of elements,
 \[
 \psi_{F_{0j},R_{00},t} = \tau_{j}(1-\alpha_{t+1}p_{t+1}),\qquad \psi_{F_{0j},R_{01},t} = \tau_j\alpha_{t+1} p_{t+1} 
 \]
 \[
 \psi_{F_{1j},R_{10},t} = \tau_j(1-p_{t+1}),\qquad \psi_{F_{1j},R_{11},t} = \tau_j p_{t+1} 
 \]
-for $j=1,\dots,m$ where $\tau_j$ is the probability of transitioning from foraging substate $j$ to a reproductive state (see Appendix B). All other $F$ to $R$ transitions have probability zero. The $\boldsymbol{\Psi}_{F,F,t}$ matrix is composed of elements,
+for $j=1,\dots,m$ where $\tau_j$ is the probability of transitioning from foraging substate $j$ to a reproductive state. All other $F$ to $R$ transitions have probability zero. Finally, the $\boldsymbol{\Psi}_{F,F,t}$ matrix is composed of elements,
 \[
-\psi_{F_{0j},F_{0,j+1},t} = 1-\tau_j \text{ for } j=1,\dots,m-1, \text{ and } \psi_{F_{0m},F_{0m},t} = 1-\tau_{k}.
+\psi_{F_{0j},F_{0,j+1},t} = 1-\tau_j \text{ for } j=1,\dots,m-1, \text{ and } \psi_{F_{0m},F_{0m},t} = 1-\tau_{m}.
 \]
 The $F_1$ transitions are identical and all other probabilities are 0.
 
-The other HMM matrices are 
+The bulk of the model specification falls in the transition matrix. The other HMM matrices are, comparatively, more straightforward. The initial entry vector is,
 \[
-\bpi = \left[1-\tilde{\xi}_1\quad \tilde{\xi}_1\boldsymbol{\Psi}_{\emptyset,R,1}\quad \mathbf{0}\quad  0\right]
+\bpi = \left[1-\tilde{\xi}_1\quad \tilde{\xi}_1(1-\alpha_1) \quad \tilde{\xi}_1\alpha_1\quad \mathbf{0}\right]
 \]
-and $\bP(x_{i,t})$ is still a diagonal matrix with with $[x_{i,t}|s_l]$ entries. However, because the detection process has been absorbed in the states, $[x_{i,t}|s_l]$, is just an indicator that the observation $x_{i,t}$ is possible in state $s_l$. For example $[x_{i,t}=0|s_l=R_{00}]=1$ and  $[x_{i,t}=0|s_l=R_{01}]=0$. 
+where $\mathbf{0}$ is a $2m+3$ vector of zeros. The observation matrices, $\bP(x_{i,t})$, are still diagonal with with $[x_{i,t}|s_l]$ entries. However, because the detection process has been absorbed in the states, $[x_{i,t}|s_l]$, is just an indicator that the observation $x_{i,t}$ is possible in state $s_l$. For example $[x_{i,t}=0|s_l=R_{00}]=1$ and  $[x_{i,t}=0|s_l=R_{01}]=0$. 
 
-Now that we the general form of the HMM matrices, we can define specific models for the JS parameters. For this analysis we modeled survival probability using a logit trend,
+Now that we the general form of the HMM matrices, we can define specific components for this analysis. Honu are long-lived with very stable survival once they reach adulthood \citep{PiacenzaEtAl2016a} so we modeled the exit probability as constant over time and between states, $\phi_{s_l,t} = \phi$ with prior distribution $[\text{logit }\phi] = t(\sigma=1.52,\text{df}=6)$, where $t(\sigma,\text{df})$ is a scaled $t$ distribution with df degrees of freedom. We used this specification to closely approximate a uniform distribution for $\phi$ but the sampled parameter, $\text{logit }\phi$, is unconstrained. 
+%\[
+%\text{logit}(\phi_t) = \beta_{\phi0} + \beta_{\phi}\cdot t,
+%\]
+%with prior distributions, $[\beta_{\phi0}] = N(0,1.5^2)$ and $[\beta_{\phi}] = N(0,\sigma_{\phi}^2)$, where $[\sigma_{\phi}]=\text{Exponential}(1)$. 
+The entrance probabilities are modeled using recruitment probability \citep{Royle:2008kx}. The recruitment probability, $\rho_t$, is the probability that the individual enters at occasion $t$ given it has not yet entered. This is the essentially mirrors the exit probability. To use it in the collapsed sampler we need the unconditional entry probability,
 \[
-\text{logit}(\phi_t) = \beta_{\phi0} + \beta_{\phi}\cdot t,
+\xi_t \propto \left\{
+\begin{array}{ll}
+\rho_1 & t=1 \\
+\rho_t \prod_{j=1}^{t-1} (1-\rho_j) & t \ge 2
+\end{array}, \right.
 \]
-with prior distributions, $[\beta_{\phi0}] = N(0,1.5^2)$ and $[\beta_{\phi}] = N(0,\sigma_{\phi}^2)$, where $[\sigma_{\phi}]=\text{Exponential}(1)$. The entrance probabilities are modeled using the recruitment probabilities of \cite{xxx}. The recruitment probability, $\rho_t$ is the probability that the individual enters at occasion $t$ given it has not yet entered. This is the essentially the reverse of the exit probability. To use it in the collapsed sampler we need,
+from which we obtain $\tilde{\xi}_t$ for the transition matrices. We, again, used the logit transformation to specify the prior distributions $[\text{logit }\rho_t] = t(1.52,6)$. For the capture probability parameters, $p_t$ and $\alpha_t$ we used the $t(1.52,6)$ prior distributions as well. Finally, we used $m=5$ foraging substates to model the remigration interval, with $[\text{logit }\tau_j] = t(1.52,6)$. This choice of $m$ results in a total of $J=1+4+2(5)+1 =16$ states for the model. 
+
+Using the two-stage approach we ran the MCMC sampler for 50,000 iterations following a 20,000 iteration burnin. Within the histories of the 5,271 observed individuals, there were only $1,338$ unique capture-histories. So, we reduced the sample size burden in the first stage by about 75\%. Anecdotally, as all computation environments are different, on an Apple macbook with an M2 max processor, the first stage MCMC took approximately 3.4 hours to run. For the second stage we used 10 parallel sessions and this completed in approximately 7.5 minutes. If we assume that there is linear run time relative to $n$ this implies the equivalent PX-DA version would take at least 32 hours to complete. This is, of course, just an educated guess but illustrative of the possible improvement based on the dipper example.
+
+\subsection{Results}
+
+As expected, there were several years where capture probability was significantly lower for newly encountered individuals than those that had been previously captured (Figure \ref{fig:honu.p}). On some occasions $\hat{p}_t\approx 1$ while $\hat{\alpha}_t\hat{p}_t$ was substantially lower. Survival (exit) probability was $\hat{\phi}$ = 0.91 [95\% CI:0.91 -- 0.92].
+The unconditional remigration interval probabilities, say $r$, can be calculated from the breeding return probabilities, $\tau_j$ using,
 \[
-\xi_t \propto  \rho_t \prod_{j=1}^{t-1} (1-\rho_j).
+[r=k|\tau_1,\dots,\tau_5] = \left\{
+\begin{array}{ll}
+\tau_1 & k=2\\
+\tau_{k-1}\prod_{j=1}^{k-1} (1-\tau_j) & k \ge 3 
+\end{array} \right.
 \]
-This gives us the unconditional probability of entry from which we obtain $\tilde{\xi}_t$ for the transition matrices. Recruitment was modeled with a Gaussian radial basis function.
-\[
-\text{logit}(\rho_t) = \beta_{\rho0} + \mathbf{b}_t\bb_{\rho}
-\] 
-where $[\beta_{\rho0}] = N(0,1.5^2)$, $\mathbf{b}_t$ is a 20 knot Gaussian radial basis function evaluated at $t=1,\dots,K$, $[\beta_{\rho,j}] = N(0,\sigma_{\rho}^2)$ for $j=1,\dots,20$, and $[\sigma_{\rho}]=\text{Exponential}(1)$. The capture probabilities for previously captured individuals is modeled as,
-\[
-\text{logit}(p_t) = \beta_{p0} + \epsilon_{t},
-\]
-where $\text{days}_t$ is the number of survey days spent at Lalo on occasion $t$, $[\beta_{p,0}] = N(0,1.5^2)$, and 
- $[\epsilon_{t}] = N(0,\sigma_{p}^2)$, where $[\sigma_p]=\text{Exponential}(1)$. The effort reduction for new captures is modeled with independent beta distributions,
- \[
- [\alpha_t] = \text{Beta}(5,1)
- \]
- such that the expected value is 5/6 with a model at $\alpha_t$=1. It was expected that new capture effort was mostly similar to $p_t$. Finally, for the Poisson+1 remigration interval distribution, we allowed $\mu$ to vary by year as well,
- \[
- \log (\mu_t) = \beta_{\mu,0} + \beta_\mu \cdot
- \]
-where 
+where for any index $ >5$, $\tau_5$ is used. 
+Remigration probability estimates, $\hat{r}$ peaked at 3 years and showed a slight decline to 4 years, illustrating the most common remigration interval is somewhere between 3 and 4 years (Figure \ref{fig:honu.renest}). The average remigration from these probabilities is 3.74 years [3.68 -- 3.82] which is similar to the empirically observed value of 4 reported by \cite{BalazsEtAl2015a}.
 
-\cite{SolowEtAl2002a}
+%Recruitment was modeled with a Gaussian radial basis function.
+%\[
+%\text{logit}(\rho_t) = \beta_{\rho0} + \mathbf{b}_t\bb_{\rho}
+%\] 
+%where $[\beta_{\rho0}] = N(0,1.5^2)$, $\mathbf{b}_t$ is a 20 knot Gaussian radial basis function evaluated at $t=1,\dots,K$, $[\beta_{\rho,j}] = N(0,\sigma_{\rho}^2)$ for $j=1,\dots,20$, and $[\sigma_{\rho}]=\text{Exponential}(1)$. 
+%The capture probabilities for previously captured individuals is modeled as,
+%\[
+%\text{logit}(p_t) = \beta_{p0} + \epsilon_{t},
+%\]
+%where $\text{days}_t$ is the number of survey days spent at Lalo on occasion $t$, $[\beta_{p,0}] = N(0,1.5^2)$, and 
+% $[\epsilon_{t}] = N(0,\sigma_{p}^2)$, where $[\sigma_p]=\text{Exponential}(1)$. The effort reduction for new captures is modeled with independent beta distributions,
+% \[
+% [\alpha_t] = \text{Beta}(5,1)
+% \]
+% such that the expected value is 5/6 with a model at $\alpha_t$=1. It was expected that new capture effort was mostly similar to $p_t$. Finally, for the Poisson+1 remigration interval distribution, we allowed $\mu$ to vary by year as well,
+% \[
+% \log (\mu_t) = \beta_{\mu,0} + \beta_\mu \cdot
+% \]
+%where 
 
-\cite{PiacenzaEtAl2016a}
+%\cite{SolowEtAl2002a}
+% \cite{PiacenzaEtAl2016a}
 
-3.389517 hours and 7.49999 mins = 3.514517 hrs
 
-expanded = 31.95015 hours
 
-n = 5271 and u = 1338
-
-growth 0.53\% [-0.58 -- 1.44]
-
-expected ri 3.74 yr [3.68 -- 3.82]
-
-survival 0.91 [0.91 -- 0.92]
+%3.389517 hours and 7.49999 mins = 3.514517 hrs
+%expanded = 31.95015 hours
+%n = 5271 and u = 1338
+%growth 0.53\% [-0.58 -- 1.44]
+%expected ri 3.74 yr [3.68 -- 3.82]
+%survival 0.91 [0.91 -- 0.92]
 
 % https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/global/time-series/hawaiianRegion/land_ocean/
 
@@ -618,17 +645,18 @@ The findings and conclusions in the paper are those of the authors and do not ne
 \clearpage
 
 \begin{figure}
- \includegraphics{rho_entry_probs.png}
-\caption{Individual recruitment probability estimates for Lalo honu.}
-\label{fig:honu.rho}
+ \includegraphics{renest_int.png}
+\caption{Estimated renesting interval probability distribution distribution function for Lalo honu. }
+\label{fig:honu.renest}
 \end{figure}
 
 \clearpage
 
+
 \begin{figure}
- \includegraphics{renest_int.png}
-\caption{Estimated renesting interval probability distribution distribution function for Lalo honu. }
-\label{fig:honu.renest}
+ \includegraphics{rho_entry_probs.png}
+\caption{Individual recruitment probability estimates for Lalo honu.}
+\label{fig:honu.rho}
 \end{figure}
 
 \clearpage
@@ -710,7 +738,7 @@ Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS)
 
 \vspace{0.5em}
 \STATE \textbf{Forward pass:}
-\STATE Compute $\mathbf{f}_1 = \bpi \mathbf{P}(0)$
+\STATE Compute $\mathbf{f}_1 = \bpi \mathbf{P}_1(0)$
 \STATE Normalize $\mathbf{f}_{1} = \mathbf{f}_{1}/\text{sum}(\mathbf{f}_{1})$
 \FOR{$t = 1$ to $K-1$}
     \STATE $\mathbf{f}_{t+1} = \mathbf{f}_{t} \bG_{t} \mathbf{P}_{t+1}(0) $
