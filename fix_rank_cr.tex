@@ -523,8 +523,11 @@ The unconditional remigration interval probabilities, say $r$, can be calculated
 \end{array} \right.
 \]
 where for any index $ >5$, $\tau_5$ is used. 
-Remigration probability estimates, $\hat{r}$ peaked at 3 years and showed a slight decline to 4 years, illustrating the most common remigration interval is somewhere between 3 and 4 years (Figure \ref{fig:honu.renest}). The average remigration from these probabilities is 3.74 years [3.68 -- 3.82] which is similar to the empirically observed value of 4 reported by \cite{BalazsEtAl2015a}.
+Remigration probability estimates, $\hat{r}$ peaked at 3 years and showed a slight decline to 4 years, illustrating the most common remigration interval is somewhere between 3 and 4 years (Figure \ref{fig:honu.renest}). The average remigration from these probabilities is 3.74 years [3.68 -- 3.82] which is similar to the empirically observed value of 4 reported by \cite{BalazsEtAl2015a}. 
 
+rho results
+
+Yearly abundance of reproductive age honu and 95\% credible intervals are shown in Figure (\ref{fig:honu.abund}). The first 6 years were discarded because because there are females that have nested before and are in the population desired for inference but they were in foraging phase and did not have a chance to be exposed to capture. As the figure illustrates, the population climbs rapidly for the first few years as all the foraging females become exposed to capture. The 6 year burnin was chosen based on the posterior renesting interval distribution. For all MCMC samples, $<1$\% of renesting intervals last 7 years or more. So for those individuals that nested immediately before the first occasion there is only a trivial chance that they did not nest again by the 7th occasion, thus, all females have been exposed to capture and $N_t$ represents the abundance of all nesting females. 
 %Recruitment was modeled with a Gaussian radial basis function.
 %\[
 %\text{logit}(\rho_t) = \beta_{\rho0} + \mathbf{b}_t\bb_{\rho}
@@ -760,14 +763,6 @@ Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS)
 \STATE Return $\mathbf{\mathbf{n}_u}$
 \end{algorithmic}
 \end{algorithm}
-
-
-
-\clearpage
-
-
-\section{HMM matrix specifications for honu abundance estimation}
-
 
 \end{document}
 
