@@ -203,7 +203,7 @@ The overall goal of this paper is to demonstrate the collapsed approach using th
 
 Here we describe the class of Jolly-Seber family models as we will use them to develop the collapsed Gibbs sampler methods. All of the variations we consider here have been previously described in the literature, so there are no new model specifications herein, but we are using a general form to include as many different JS aspects for open populations as possible.  
 
-In a JS process the population is described as $N$ individuals that are available for capture in at least one capture occasion during the study period. If the study is relatively long-term, this may not be very useful, so, the occasion specific abundance, $N_t$, is often desired instead, where $N_t$ is the size of the population available for capture on occasion $t=1,\dots,K$. Individuals become available and unavailable through an entry and exit process where individuals can be in 1 of 3 states ``pre-entry" (pre-birth), ``available", and ``post-exit" (post-death). For this paper we expand the set of states so that we may include general multistate models as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the post-exit state. The notation $z_{i,t} \in \{s_1,\dots,s_J\}$ will represent the true state of individual $i$ on occasion $t$, thus $N_t = \sum_{i=1}^N I(1 < z_{i,t} < J)$, where $I(\dots)$ is and indicator function. 
+In a JS process the population is described as $N$ individuals that are available for capture in at least one capture occasion during the study period. If the study is relatively long-term, this may not be very useful, so, the occasion specific abundance, $N_t$, is often desired instead, where $N_t$ is the size of the population available for capture on occasion $t=1,\dots,K$. Individuals become available and unavailable through an entry and exit process where individuals can be in 1 of 3 states ``pre-entry" (pre-birth), ``available", and ``post-exit" (post-death). For this paper we expand the set of states so that we may include general multistate models as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the post-exit state. The notation $z_{it} \in \{s_1,\dots,s_J\}$ will represent the true state of individual $i$ on occasion $t$, thus $N_t = \sum_{i=1}^N I(1 < z_{it} < J)$, where $I(\dots)$ is and indicator function. 
 
 
  \citet{schwarz1996general} and \cite{crosbie1985parsimonious} parameterized entry in the JS model using multinomial probabilities, $\xi_t$, $t=1,\dots,K$,  which are the unconditional probabilities that an individual enters between occasions $t-1$ and $t$ and is available for capture on occasion $t$. With the $\xi_t$ entry probabilities we can form the {\it conditional} entry probabilities that will used in the JS model computations herein,
@@ -218,11 +218,11 @@ which is the probability that an individual enters between $t-1$ and $t$ given i
 %\tilde{\xi}_t \prod_{j=1}^{t-1} (1-\tilde{\xi}_j) & t=2,\dots,K
 %\end{array} \right. .
 %\]
-Because we are considering multistate models as well, when an individual first enters the available population between $t-1$ and $t$ we must also model which state it enters into. These are denoted,  $\alpha_{t,l}$, where $\sum_{l=2}^{J-1} \alpha_{t,l}=1$. 
+Because we are considering multistate models as well, when an individual first enters the available population between $t-1$ and $t$ we must also model which state it enters into. These are denoted,  $\alpha_{l,t}$, where $\sum_{l=2}^{J-1} \alpha_{l,t}=1$. 
 
-We turn our attention to transitions between states (including exit) after entry. Given that and individual has entered prior to occasion $t$, the probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{t,l}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. That is, the probability that an individual transitions from $s_l \to s_J$ is $1-\phi_{t,l}$. If we consider $s_J$ to be ``death'' then the $\phi$ parameters are the typical survival probabilities. Finally, $\psi_{t,l,l'}$ ($\sum_{l'=2}^{J-1}\psi_{t,l,l'} = 1$) is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$ . 
+We turn our attention to transitions between states (including exit) after entry. Given that and individual has entered prior to occasion $t$, the probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{l,t}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. That is, the probability that an individual transitions from $s_l \to s_J$ is $1-\phi_{l,t}$. If we consider $s_J$ to be ``death'' then the $\phi$ parameters are the typical survival probabilities. Finally, $\psi_{l,l',t}$ ($\sum_{l'=2}^{J-1}\psi_{l,l',t} = 1$) is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$ . 
 
-Now that we have described how individuals transition in and out of availability and through states we can consider a description of the data models for the observed data. Traditionally, data for the JS model are composed of capture histories for each individual captured at least once, $\bx_i = (x_{i1},\dots,x_{iK})$ where $x_{it} \in \{0,1\}$ depending on whether or not individual $i=1,\dots,n$ was captured on occasion $t$. However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was captured in $R_t$ sub-occasions during primary occasion $t$ which defines a robust design model. Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured, implying a multistate model \citep{xxx}. We denote the likelihood of observing $x_{i,t}$ given the individual is in state $z_{it}=s_l$ as $[x_{it}|s_l]$.  Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. We briefly present a few examples for common models. For a standard Jolly-Seber model with a binary capture history and only 1 available state ($s_2$ = ``alive'') the likelihood would be,
+Now that we have described how individuals transition in and out of availability and through states we can consider a description of the data models for the observed data. Traditionally, data for the JS model are composed of capture histories for each individual captured at least once, $\bx_i = (x_{i,1},\dots,x_{i,K})$ where $x_{it} \in \{0,1\}$ depending on whether or not individual $i=1,\dots,n$ was captured on occasion $t$. However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was captured in $R_t$ sub-occasions during primary occasion $t$ which defines a robust design model. Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured, implying a multistate model \citep{xxx}. We denote the likelihood of observing $x_{it}$ given the individual is in state $z_{it}=s_l$ as $[x_{it}|s_l]$.  Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. We briefly present a few examples for common models. For a standard Jolly-Seber model with a binary capture history and only 1 available state ($s_2$ = ``alive'') the likelihood would be,
 \[
 [x_{it}|s_2] = \text{Bernoulli}(x_{it}|p_t),
 \]
@@ -376,13 +376,13 @@ to the previous \nimble model statement. If quantities such as $N_t$ or populati
 
 The final step in the collapsed sampler is to sample the unobserved and partially observed state matrices, $\bz_u$ and $\bz$. Because we have marginalized over the true states, $\bz$ with the HMM-based likelihood calculations it is not as readily apparent how this can be accomplished, however, we can use standard HMM algorithms to efficiently draw from those posterior distributions as well. Then we can extend the method to $\bz_u$.
 
-To begin the final step, we must sample the true states for the observed individuals from the predictive distribution, $[\bz_{i}| \bt, \bx_i]$. This can be accomplished efficiently with the Forward--Filtering Backward--Sampling (FFBS) algorithm for conditional state sampling of HMMs \citep{scott2002bayesian}. The details of the of the FFBS algorithm can be found in Appendix A (algorithm 1). Heuristically, the algorithm works by first using the HMM forward algorithm \citep{zucchini2016hidden} followed by a backward pass through the capture history to sample from $[z_{i,t}|z_{i,t+1},\dots,z_{i,K},\bt, \bx_i]$ at each occasion. To facilitate this sampling algorithm we have coded the FFBS algorithm into the {\tt nimbleJSextras} package and it can be implemented via adding the line,
+To begin the final step, we must sample the true states for the observed individuals from the predictive distribution, $[\bz_{i}| \bt, \bx_i]$. This can be accomplished efficiently with the Forward--Filtering Backward--Sampling (FFBS) algorithm for conditional state sampling of HMMs \citep{scott2002bayesian}. The details of the of the FFBS algorithm can be found in Appendix A (algorithm 1). Heuristically, the algorithm works by first using the HMM forward algorithm \citep{zucchini2016hidden} followed by a backward pass through the capture history to sample from $[z_{it}|z_{i,t+1},\dots,z_{i,K},\bt, \bx_i]$ at each occasion. To facilitate this sampling algorithm we have coded the FFBS algorithm into the {\tt nimbleJSextras} package and it can be implemented via adding the line,
 \begin{verbatim}
 for(i in 1:nobs){
   z[i,1:K] <- sample_det_ms(x=x[i,1:K], ...),
   }
 \end{verbatim}
-this will draw a sample from $[\bz_{i}| \bt, \bx_i]$. Here we have proceeded against convention by specifying a random quantity with a deterministic \nimble function, however, one would never use this distribution as a likelihood, so the coding overhead to specify it as a distribution seems unnecessary and it functions in the same manner as a bespoke distribution.  Once we perform the the FFBS algorithm for each captured individual we can calculate the derived quantity, $n_{t,l} = \sum_{i=1}^n I(z_{i,t}=s_l)$, the abundance of observed individuals in state $s_l$ at time $t$. For simplicity, we use the bold notation, $\bn_t = (n_{t,1},\dots,n_{t,J})$, to represent the vector of state-specific abundances and $n_t = \sum_{l=2}^{J-1} n_{t,l}$ to represent the total abundance of captured individuals available at time $t$. For a standard JS model ($J=3$) this is accomplished with the following code.
+this will draw a sample from $[\bz_{i}| \bt, \bx_i]$. Here we have proceeded against convention by specifying a random quantity with a deterministic \nimble function, however, one would never use this distribution as a likelihood, so the coding overhead to specify it as a distribution seems unnecessary and it functions in the same manner as a bespoke distribution.  Once we perform the the FFBS algorithm for each captured individual we can calculate the derived quantity, $n_{t,l} = \sum_{i=1}^n I(z_{it}=s_l)$, the abundance of observed individuals in state $s_l$ at time $t$. For simplicity, we use the bold notation, $\bn_t = (n_{t,1},\dots,n_{t,J})$, to represent the vector of state-specific abundances and $n_t = \sum_{l=2}^{J-1} n_{t,l}$ to represent the total abundance of captured individuals available at time $t$. For a standard JS model ($J=3$) this is accomplished with the following code.
 \begin{verbatim}
  available[1:nobs,1:K] <- z[1:nobs,1:K]==2
  for(t in 1:K){ n_t[t] <- sum(available[1:nobs, t]) }
@@ -392,7 +392,7 @@ Now that we have the state and time-specific abundances for the observed individ
 \begin{verbatim}
 nu_t[1:3, 1:K] <- sample_undet_ms(nu,...)
 \end{verbatim}
-Again, we acknowledge the unorthodox use of a deterministic function for a random variable. Now that we have posterior samples of $\bn_t$ and $\bn_{u,t}$ we can predict the state and time-specific abundances $\bN_t =  \bn_t + \bn_{u,t}$ and $N_t =  n_t + n_{u,t}$ and any function, $f(\bN_1,\dots,\bN_K)$, such as population growth. Appendix B provides a \nimble code template for fitting a standard JS model via the collapsed sampler. Notably, the sample code illustrates the structure for the data input and HMM matrices contained in the ``{\tt ...}'' arguments of the previous code snippets. 
+Again, we acknowledge the unorthodox use of a deterministic function for a random variable. Now that we have posterior samples of $\bn_t$ and $\bn_{u,t}$ we can predict the state and time-specific abundances $\bN_t =  \bn_t + \bn_{u,t}$ and $N_t =  n_t + n_{u,t}$ and any function, $f(\bN_1,\dots,\bN_K)$, such as population growth. The online supplement provides a \nimble code template for fitting a standard JS model via the collapsed sampler. Notably, the sample code illustrates the structure for the data input and HMM matrices contained in the ``{\tt ...}'' arguments of the previous code snippets. 
 
 \subsection{Additional computation benefits of the collapsed sampler} \label{sec.savings}
 
@@ -493,9 +493,9 @@ The bulk of the model specification falls in the transition matrix. The other HM
 \[
 \bpi = \left[1-\tilde{\xi}_1\quad \tilde{\xi}_1(1-\alpha_1) \quad \tilde{\xi}_1\alpha_1\quad \mathbf{0}\right]
 \]
-where $\mathbf{0}$ is a $2m+3$ vector of zeros. The observation matrices, $\bP(x_{i,t})$, are still diagonal with with $[x_{i,t}|s_l]$ entries. However, because the detection process has been absorbed in the states, $[x_{i,t}|s_l]$, is just an indicator that the observation $x_{i,t}$ is possible in state $s_l$. For example $[x_{i,t}=0|s_l=R_{00}]=1$ and  $[x_{i,t}=0|s_l=R_{01}]=0$. 
+where $\mathbf{0}$ is a $2m+3$ vector of zeros. The observation matrices, $\bP(x_{it})$, are still diagonal with with $[x_{it}|s_l]$ entries. However, because the detection process has been absorbed in the states, $[x_{it}|s_l]$, is just an indicator that the observation $x_{it}$ is possible in state $s_l$. For example $[x_{it}=0|s_l=R_{00}]=1$ and  $[x_{it}=0|s_l=R_{01}]=0$. 
 
-Now that we the general form of the HMM matrices, we can define specific components for this analysis. Honu are long-lived with very stable survival once they reach adulthood \citep{PiacenzaEtAl2016a} so we modeled the exit probability as constant over time and between states, $\phi_{s_l,t} = \phi$ with prior distribution $[\text{logit }\phi] = t(\sigma=1.52,\text{df}=6)$, where $t(\sigma,\text{df})$ is a scaled $t$ distribution with df degrees of freedom. We used this specification to closely approximate a uniform distribution for $\phi$ but the sampled parameter, $\text{logit }\phi$, is unconstrained. 
+Now that we the general form of the HMM matrices, we can define specific components for this analysis. Honu are long-lived with very stable survival once they reach adulthood \citep{PiacenzaEtAl2016a} so we modeled the exit probability as constant over time and between states, $\phi_{l,t} = \phi$ with prior distribution $[\text{logit }\phi] = t(\sigma=1.52,\text{df}=6)$, where $t(\sigma,\text{df})$ is a scaled $t$ distribution with df degrees of freedom. We used this specification to closely approximate a uniform distribution for $\phi$ but the sampled parameter, $\text{logit }\phi$, is unconstrained. 
 %\[
 %\text{logit}(\phi_t) = \beta_{\phi0} + \beta_{\phi}\cdot t,
 %\]
@@ -710,7 +710,7 @@ Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS)
 \begin{algorithm}[H]
 \caption{FFBS for Observed Individuals}
 \begin{algorithmic}[1]
-\STATE \textbf{Inputs:} $\bx_i$, $\bpi$, $\{\bG_t\}$, $\{\mathbf{P}_t(x_{i,t})\}$
+\STATE \textbf{Inputs:} $\bx_i$, $\bpi$, $\{\bG_t\}$, $\{\mathbf{P}_t(x_{it})\}$
 \STATE \textbf{Output:} posterior draw of hidden state sequence $\mathbf{z}_i \sim [\mathbf{z}_i|\bx_i, \bt]$
 
 \vspace{0.5em}
@@ -728,7 +728,7 @@ Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS)
 \FOR{$t = K-1$ down to $1$}
     \STATE Compute $\mathbf{b} = \mathbf{f}_t \odot \bG_t[,z_{i,t+1}]$ ($\odot$ \text{ is elementwise multiplication})
     \STATE Normalize $\mathbf{b} = \mathbf{b}/\text{sum}(\mathbf{b})$
-     \STATE Sample $z_{i,t} \sim \text{categorical}(\mathbf{b})$
+     \STATE Sample $z_{it} \sim \text{categorical}(\mathbf{b})$
 \ENDFOR
 \STATE Return $\mathbf{z}_i=(z_{i,1},\dots,z_{i,K})$
 \end{algorithmic}
@@ -764,10 +764,6 @@ Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS)
 \STATE Return $\mathbf{\mathbf{n}_u}$
 \end{algorithmic}
 \end{algorithm}
-
-\clearpage
-
-\section{Code template for fitting a basic Jolly-Seber model using collapsed Gibbs sampling} 
 
 \end{document}
 
