@@ -526,7 +526,7 @@ The unconditional remigration interval probabilities, say $r$, can be calculated
 where for any index $ >5$, $\tau_5$ is used. 
 Remigration probability estimates, $\hat{r}$ peaked at 3 years and showed a slight decline to 4 years, illustrating the most common remigration interval is somewhere between 3 and 4 years (Figure \ref{fig:honu.renest}). The average remigration from these probabilities is 3.74 years [3.68 -- 3.82] which is similar to the empirically observed value of 4 reported by \cite{BalazsEtAl2015a}. 
 
-rho results
+{\sc rho results}
 
 Yearly abundance of reproductive age honu and 95\% credible intervals are shown in Figure (\ref{fig:honu.abund}). The first 6 years were discarded because because there are females that have nested before and are in the population desired for inference but they were in foraging phase and did not have a chance to be exposed to capture. As the figure illustrates, the population climbs rapidly for the first few years as all the foraging females become exposed to capture. The 6 year burnin was chosen based on the posterior renesting interval distribution. For all MCMC samples, $<1$\% of renesting intervals last 7 years or more. So for those individuals that nested immediately before the first occasion there is only a trivial chance that they did not nest again by the 7th occasion, thus, all females have been exposed to capture and $N_t$ represents the abundance of all nesting females. 
 %Recruitment was modeled with a Gaussian radial basis function.
@@ -565,15 +565,15 @@ Yearly abundance of reproductive age honu and 95\% credible intervals are shown 
 
 \section{Discussion}
 
-Under this distribution $[n_u|\bt,\lambda] =  \text{Poisson}(\lambda (1-p^*))$, which implies $[N=n+n_u|\lambda] =  \text{Poisson}(\lambda)$. If we assign the prior $[\lambda]=\lambda^{-1}$ we obtain the objective scale prior for $N$ \citep{link2013cautionary,schofield2023estimating}.
-
-why go to the trouble to marginalize to undo it with abundance sampling
-
-There are several reasons for this choice. First \cite{schofield201650} and \cite{schofield2023estimating} show there are several beneficial numerical and statistical properties of the Poisson abundance model. In addition, we can motivate the choice from the data augmentation approach. The prior induced on $N$ using data augmentation is  
-\[
-[N|M, \psi] = \text{binomial}(M,\psi)
-\]
-where $M$ is a chosen upper bound and $\psi$ is an inclusion probability.  Finally, \cite{link2013cautionary} suggests the scale prior $[N] \propto N^{-1}$ for abundance estimation. One method of approximating this prior is to specify the Poisson prior with Gamma hyper prior as we are using here. Moreover, \cite{schofield2023estimating} shows the posterior distributions are equivalent if one uses the scale priors $[N] \propto N^{-1}$ and $[\lambda] \propto \lambda^{-1}$. Of course, one can always use the improper prior distribution in bespoke MCMC code but the Gamma distribution in already included in software such as NIMBLE and JAGS and can be made as similar as desired, because $\text{Gamma}(\lambda|\epsilon,\epsilon) \to \lambda^{-1}$ as $\epsilon \to 0$. 
+%Under this distribution $[n_u|\bt,\lambda] =  \text{Poisson}(\lambda (1-p^*))$, which implies $[N=n+n_u|\lambda] =  \text{Poisson}(\lambda)$. If we assign the prior $[\lambda]=\lambda^{-1}$ we obtain the objective scale prior for $N$ \citep{link2013cautionary,schofield2023estimating}.
+%
+%why go to the trouble to marginalize to undo it with abundance sampling
+%
+%There are several reasons for this choice. First \cite{schofield201650} and \cite{schofield2023estimating} show there are several beneficial numerical and statistical properties of the Poisson abundance model. In addition, we can motivate the choice from the data augmentation approach. The prior induced on $N$ using data augmentation is  
+%\[
+%[N|M, \psi] = \text{binomial}(M,\psi)
+%\]
+%where $M$ is a chosen upper bound and $\psi$ is an inclusion probability.  Finally, \cite{link2013cautionary} suggests the scale prior $[N] \propto N^{-1}$ for abundance estimation. One method of approximating this prior is to specify the Poisson prior with Gamma hyper prior as we are using here. Moreover, \cite{schofield2023estimating} shows the posterior distributions are equivalent if one uses the scale priors $[N] \propto N^{-1}$ and $[\lambda] \propto \lambda^{-1}$. Of course, one can always use the improper prior distribution in bespoke MCMC code but the Gamma distribution in already included in software such as NIMBLE and JAGS and can be made as similar as desired, because $\text{Gamma}(\lambda|\epsilon,\epsilon) \to \lambda^{-1}$ as $\epsilon \to 0$. 
 
 
 
