@@ -43,8 +43,11 @@
 \newcommand{\bt}{\ensuremath{\boldsymbol{\theta}}}
 \newcommand{\bvt}{\ensuremath{\boldsymbol{\vartheta}}}
 
+%% \tt software names
 \newcommand{\jags}{{\tt JAGS }}
 \newcommand{\nimble}{{\tt nimble }}
+\newcommand{\nimbleEcology}{{\tt nimbleEcology }}
+\newcommand{\nimbleJSextras}{{\tt nimbleJSExtras }}
 
 %%%%%%%%%%%%%
 
@@ -144,13 +147,24 @@ Honolulu, Hawai`i, USA \\  \bigskip
 
 %% ABSTRACT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\vspace*{0.25\textheight}
+%\vspace*{0.25\textheight}
 \begin{center}
-\begin{minipage}{0.65\paperwidth}
+\begin{minipage}{0.75\paperwidth}
 \renewcommand{\baselinestretch}{1}\normalsize
 
 \centerline{\bf Abstract} 
-This happens last. \bigskip
+\begin{enumerate}
+\item Bayesian estimation of abundance with capture-recapture data has been dominated for nearly 20 years by the parameter-expansion data-augmentation (PX-DA) approach. The PX-DA approach expands the parameter set to include the latent true states of the individuals. PX-DA allows straightforward coding of models in MCMC software such as \jags (Just another Gibbs Sampler) or {\tt nimble}, however, this approach can be computationally demanding for large or low detectability populations. 
+
+\item We develop a collapsed Gibbs sampler version of the PX-DA approach to reduce computational burden when using Markov Chain Monte Carlo (MCMC) to fit Jolly-Seber (JS) type models. Using the collapsed sampler no parameter expansion or data augmentation is needed. One of the main benefits is that the MCMC only needs to iterate over unique capture-histories and it can be divided into 2 stages where the second stage sampler can be run in parallel. We provide an {\tt R} package \nimbleJSextras that uses the functionality of the \nimble and \nimbleEcology packages to perform MCMC analysis for JS models with the same ease for practitioners the PX-DA approach.  
+
+\item Using the \nimbleJSextras package, we analyzed two real data sets to illustrate the method. First we analyzed the classic dipper data using {\it per capita} recruitment parameterization. We compared the collapsed sampler to PX-DA with both 300 and 1,000 augmented individuals. The default collapsed sampler was slower than the PX-DA 300 analysis, but much faster than the PX-DA 1,000 analysis. The 2-stage collapsed sampler only needed approximately 1/10 of the PX-DA 300 time to run. 
+
+\item In the second example we analyzed a long-term data set of female nesting green turtles in the Northwest Hawaiian Islands. The analysis demonstrates that the collapsed sampler can fit models that have individual $\times$ time effects. The capture effort for this data varied between new captures and previously captured animals such that the effort induced a trap happy response. In addition green turtle have a protracted period between nesting where they are unavailable for capture. So a breeding return time model was used to model the temporary emigration. 
+
+\end{enumerate}
+
+\bigskip
 
 {\bf Key words}: Some, Key, words, Go, Here
 \end{minipage}
