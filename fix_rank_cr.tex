@@ -417,11 +417,11 @@ Here we demonstrate some additional computational savings that we can use due to
 \label{eq.post.factor}
 [\bvt, n_u, \bt,\lambda,|\bx] \propto [\bvt|n_u,\bt,\bx][n_u|\bt,\lambda,\bx]\times [\bx|\bt,n][n|\bt,\lambda][\bt][\lambda] 
 \end{equation} 
-The first savings to note is that we only need to use the unique capture histories to evaluate the fully marginal likelihood,
+The first savings to note is that we only need to use the unique capture histories to evaluate the fully marginal likelihood \citep{turek2016efficient},
 \begin{equation}
-[\bx|\bt,n] = \prod_{i=1}^n [\bx_i|\bt,n] = \prod_{j=1}^{n^*} w_j[\bu_i|\bt,n]
+[\bx|\bt,n] = \prod_{i=1}^n [\bx_i|\bt,n] = \prod_{j=1}^{n^*} w_j[\bu_j|\bt,n]
 \end{equation}
-where $\bu_j$ is the $j$th unique capture-history, $w_j$ is the number of times it occurs in $\bx$ and $n^*$ is number of unique histories in $\bx$. This is standard practice when fitting models using maximum likelihood methods, however, it is not possible using the PX-DA approach for Bayesian analysis. This can be a substantial computational savings if $n^*$ is much smaller than $n$. 
+where $\bu_j$ is the $j$th unique capture-history, $w_j$ is the number of times it occurs in $\bx$ and $n^*$ is number of unique histories in $\bx$. This is standard practice when fitting models using maximum likelihood methods, however, it is not possible using the PX-DA approach for Bayesian analysis. This can be a substantial computational savings if $n^*$ is much smaller than $n$ \citep{turek2016efficient}. 
 
 The second computational saving is due to the predictive factoring in (\ref{eq.post.factor}). This is the same approach used by \cite{Hooten:2023aa}, and \cite{hooten2024geostatistical} to facilitate an efficient 2-stage approach to Bayesian estimation of closed-population models and we can do the same here. The 2-stage approach first involves drawing a posterior sample from $[\bt,\lambda|\bx, n]$, preferably using just the unique capture-histories. Then, divide the sample into $B$ batches and sample from $[\bvt,n_u|\bt,\lambda,\bx]$ in parallel for each $(\bt,\lambda)$ in the separate batches. 
 
