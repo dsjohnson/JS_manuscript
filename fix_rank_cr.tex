@@ -190,26 +190,6 @@ Collapsing a Gibbs sampler is a method to improve MCMC convergence over standard
 The overall goal of this paper is to develop and demonstrate the collapsed approach for JS models using the MCMC software in the {\tt R} package \verb|nimble| \citep{Valpine:2017vg} to illustrate that PX-DA methods are not necessary and JS models can be fit without data augmentation in regular practice. The \verb|nimble| package allows users to create their own functions which can be compiled and included within MCMC model statements. Using this capability, as well as the HMM likelihoods within the {\tt R} package {\tt nimbleEcology} \citep{GoldsteinEtAl2024a} we developed an extension package, {\tt nimbleJSextras}\footnote{Available at \url{https://github.com/dsjohnson/nimbleJSextras}} that included JS likelihood and other functions for using the collapsed Gibbs sampler. The benefits of this approach include the fact it is not necessary to specify a fixed number of augmented individuals that were not captured. Thus, practitioners do not need to worry about possible biases induced by adding too few individuals \citep{link2013cautionary}. Moreover, because augmented individuals are not used, the likelihood scales with the number of unique capture-histories, making it more efficient for large samples and populations. Finally, we can use the likelihood factoring approach of \cite{king2015capture} and \cite{Hooten:2023aa} to split the sampler into two stages where the second stage abundance sample can be executed in parallel. We demonstrate its use and benefits through analysis the classic European dipper ({\it Cinclus cinclus}) data as well as more complex breeding return-time JS model for green sea turtles ({\it Chelonia mydas}). The analysis and accompanying code illustrate that augmentation is not necessary and the fully marginal collapsed Gibbs sampling approach can be used by practitioners just as easily as PX-DA methods. 
 
 
-
-%Here are some relevant references the paper will need later:
-%
-%\cite{Hooten:2023aa} 
-%\cite{hooten2024geostatistical}
-%\cite{hooten2018prior}
-%\cite{schwarz1996general}
-%\cite{Royle:2007kx}
-%\cite{link2013cautionary}
-%\cite{schofield2023estimating}
-%\cite{schofield201650}
-%\cite{link2005modeling}
-%\cite{johnson2010model}
-%\cite{king2015capture}
-%\cite{mcclintock2020uncovering}
-%\cite{glennie2019open}
-%\cite{zhang2023flexible}
-%\cite{yackulic2020need}
-%\cite{KingEtAl2023a}
-
 \section{The Jolly-Seber class of models}
 
 Here we describe the class of Jolly-Seber models as we will use them to develop the collapsed Gibbs sampler methods. All of the variations we consider here have been previously described in the literature, so there are no new model specifications herein, but we are using a general form to include as many different JS aspects for open populations as possible.  
@@ -221,15 +201,7 @@ In a JS process the population is described as $N$ individuals that are availabl
 \[
 \tilde{\xi}_t = \frac{\xi_t}{\sum_{j=t}^K \xi_j},
 \] 
-which is the probability that an individual enters between $t-1$ and $t$ given it has not entered prior to $t-1$ but will enter before $K$. Note that we only need to model the $\xi_t$ up to a normalizing constant to calculate $\tilde{\xi}_t$ because that is the form of entry that is actually used in the likelihood we will work with here. %Also, note that the $\sum_j \xi_j = 1$ constraint is reflected in the fact that $\tilde{\xi}_K \equiv 1$. 
-%Given a set of $\tilde{\xi}$ conditional probabilities we can obtain the unconditional $\xi$ parameters with the relationship,
-%\[
-%\xi_t = \left\{ \begin{array}{ll}
-%\tilde{\xi}_1  & t=1\\
-%\tilde{\xi}_t \prod_{j=1}^{t-1} (1-\tilde{\xi}_j) & t=2,\dots,K
-%\end{array} \right. .
-%\]
-Because we are considering multistate models as well, when an individual first enters the available population between $t-1$ and $t$ we must also model which state it enters into. These are denoted,  $\alpha_{l,t}$, where $\sum_{l=2}^{J-1} \alpha_{l,t}=1$. 
+which is the probability that an individual enters between $t-1$ and $t$ given it has not entered prior to $t-1$ but will enter before $K$. Note that we only need to model the $\xi_t$ up to a normalizing constant to calculate $\tilde{\xi}_t$ because that is the form of entry that is actually used in the likelihood we will work with here. Because we are considering multistate models as well, when an individual first enters the available population between $t-1$ and $t$ we must also model which state it enters into. These are denoted,  $\alpha_{l,t}$, where $\sum_{l=2}^{J-1} \alpha_{l,t}=1$. 
 
 We turn our attention to transitions between states (including exit) after entry. Given that an individual has entered prior to occasion $t$, the probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{l,t}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. That is, the probability that an individual transitions from $s_l \to s_J$ is $1-\phi_{l,t}$. If we consider $s_J$ to be ``death'' then the $\phi$ parameters are the typical survival probabilities. Finally, $\psi_{l,l',t}$ ($\sum_{l'=2}^{J-1}\psi_{l,l',t} = 1$) is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$ and survived to occasion $t+1$. 
 
