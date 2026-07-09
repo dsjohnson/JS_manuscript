@@ -420,10 +420,10 @@ $d_t \propto E[N_t/N|\bt, N]$, the expected relative abundance, and $f_t$ is the
 
 In addition to the {\it per capita} recruitment parameterization of the entry model, we also use a hierarchical approach for estimation of the  parameters. The hierarchical model adds the random effects components,
 \begin{center}
-$\text{logit } \phi_t \sim N(\mu_\phi,\sigma_\phi^2)$ \\
-$\text{logit } p_t \sim N(\mu_p,\sigma_p^2)$, and $\text{log } f_t \sim N(\mu_f,\sigma_f^2)$
+$[\text{logit } \phi_t] = N(\mu_\phi,\sigma_\phi^2)$ \\
+$[\text{logit } p_t] = N(\mu_p,\sigma_p^2)$, and $[\text{log } f_t] = N(\mu_f,\sigma_f^2)$
 \end{center}
-This allows shrinkage of the full time model to the temporally constant model. We used the complexity prior distribution \citep{martins2017penalising} on each of the three the variance components, $\sigma \sim \text{Exponential}(1)$. All mean components of the random effect where given the vaguely informative $N(0,1.5^2)$ prior distribution. For $\lambda$ we used $[\lambda] =$ Gamma(1.0e-6, 1.0e-6) to approximate the objective prior, $[\lambda]=\lambda^{-1}$\citep{schofield2023estimating}.
+This allows shrinkage of the full time model to the temporally constant model. We used the complexity prior distribution \citep{martins2017penalising} on each of the three the variance components, $\sigma_* \sim \text{Exponential}(1)$. All mean components of the random effect where given the vaguely informative $N(0,1.5^2)$ prior distribution. For $\lambda$ we used $[\lambda] =$ Gamma(1.0e-6, 1.0e-6) to approximate the objective prior, $[\lambda]=\lambda^{-1}$\citep{schofield2023estimating}.
 
 Code for this example is provided in the online supplement and the dipper data was obtained from the {\tt marked} package \citep{Laake:2013aa}. We analyzed this same model with four different methods: (1) PX-DA with 300 augmented individuals, (2) PX-DA with 1,000 augmented individuals, (3) the collapsed sampler, and (4) the collapsed sampler using additional computational savings of Section (\ref{sec.savings}).  For the 2-stage collapsed sampler, we used 10 parallel sessions so that each session used 5,000 iterations from the first stage to sample abundance. We compared the first 5,000 iterations of methods to assess progress toward convergence using the scale reduction diagnostic \citep{GelmanRubin1992a} as well as the multivariate version \citep{BrooksGelman1998a}. For full estimation we used 50,000 MCMC iterations following a 10,000 iteration burnin. 
 
@@ -434,6 +434,17 @@ The multivariate scale reduction for the first 5,000 iterations of the collapsed
 To compare the relative run-times of each of the methods we hold PX-DA (300) as the default standard. The extra 700 augmented individuals in the second PX-DA increased run-time by 3.68$\times$. Run-time for the standard collapsed sampler was 1.82$\times$. Finally, the run-time of the two-stage parallel collapsed sampler was 0.11$\times$, a substantial improvement over the PX-DA methods. For the dipper data there are only $n^* =32$ unique capture-histories in the $n=294$ observed individuals. So, the likelihood calculation only needs to loop over the 32 unique histories for each MCMC iteration. 
 
 Parameter estimates  are given in Table \ref{tab:dipper} for the standard collapsed sampler. For each of the four methods, the parameter and abundance estimates aligned outside of Monte Carlo error, as expected, because the same model is fitted. The super population size estimate is $N = 324.6$ with SD = 16.3 and 95\% highest probability density interval of [300--356]. Yearly abundance estimates are illustrated in Figure \ref{fig:dipper.Nt}. 
+\begin{figure}
+\centering
+\begin{minipage}{0.8\textwidth}
+\centering
+ \includegraphics[width=0.9\textwidth]{dipper_Nt.pdf}
+\caption{Time-specific abundance estimates for the European dipper data analysis. Error bars are 95\% highest probability density intervals.}
+\label{fig:dipper.Nt}
+\end{minipage}
+\end{figure}
+
+
 %
 %pxda300: 4.582749 mins
 %pxda1000: 16.86174 mins
@@ -486,11 +497,7 @@ The bulk of the model specification falls in the transition matrix. The other HM
 \]
 where $\mathbf{0}$ is a $2m+3$ row vector of zeros. The observation matrices, $\bP(x_{it})$, are still diagonal with $[x_{it}|s_l]$ entries. However, because the detection process has been absorbed in the states, $[x_{it}|s_l]$ is just an indicator that the observation $x_{it}$ is possible in state $s_l$. For example $[x_{it}=0|s_l=R_{00}]=1$ and $[x_{it}=0|s_l=R_{01}]=0$. 
 
-Now that we have the general form of the HMM matrices, we can define specific components for this analysis. Honu are long-lived with very stable survival once they reach adulthood \citep{PiacenzaEtAl2016a} so we modeled survival probability as constant over time and between states, $\phi_{l,t} = \phi$ with prior distribution $[\text{logit }\phi] = t(\sigma=1.52,\text{df}=6)$, where $t(\sigma,\text{df})$ is a scaled $t$ distribution with df degrees of freedom. We used this specification to closely approximate a uniform distribution for $\phi$ but the sampled parameter, $\text{logit }\phi$, is unconstrained. 
-%\[
-%\text{logit}(\phi_t) = \beta_{\phi0} + \beta_{\phi}\cdot t,
-%\]
-%with prior distributions, $[\beta_{\phi0}] = N(0,1.5^2)$ and $[\beta_{\phi}] = N(0,\sigma_{\phi}^2)$, where $[\sigma_{\phi}]=\text{Exponential}(1)$. 
+Now that we have the general form of the HMM matrices, we can define specific components for this analysis. Honu are long-lived with very stable survival once they reach adulthood \citep{PiacenzaEtAl2016a} so we modeled survival probability as constant over time and between states, $\phi_{l,t} = \phi$ with prior distribution $[\text{logit }\phi] = t(\sigma=1.52,\text{df}=6)$, where $t(\sigma,\text{df})$ is a scaled $t$ distribution with df degrees of freedom. We used this specification to closely approximate a uniform distribution for $\phi$ but the sampled parameter, $\text{logit }\phi$, is unconstrained.
 The entrance probabilities are modeled using recruitment probability \citep{Royle:2008kx}. The recruitment probability, $\rho_t$, is the probability that the individual enters at occasion $t$ given it has not yet entered. This essentially mirrors the exit probability. To use it in the collapsed sampler we need the unconditional entry probability,
 \[
 \xi_t \propto \left\{
@@ -505,7 +512,17 @@ Using the two-stage approach we ran the MCMC sampler for 50,000 iterations follo
 
 \subsubsection{Results}
 
-As expected, there were several years where capture probability was significantly lower for newly encountered individuals than those that had been previously captured (Figure \ref{fig:honu.p}). On some occasions $\hat{p}_t\approx 1$ while $\hat{\eta}_t\hat{p}_t$ was substantially lower. Yearly survival probability was $\hat{\phi}$ = 0.91 [95\% CI: 0.91 -- 0.92].
+As expected, there were several years where capture probability was significantly lower for newly encountered individuals than those that had been previously captured (Figure \ref{fig:honu.p}). 
+\begin{figure}
+\centering
+\begin{minipage}{0.8\textwidth}
+\centering
+ \includegraphics[width=0.9\textwidth]{capt_probs.png}
+\caption{Capture probability estimates for Lalo honu data. Blue estimates are for individuals that have been previously captured ($p_t$)and red color denotes individuals that have not been previously captured ($\eta_t p_t$). Error bars are 90\% highest probability density intervals.}
+\label{fig:honu.p}
+\end{minipage}
+\end{figure}
+On some occasions $\hat{p}_t\approx 1$ while $\hat{\eta}_t\hat{p}_t$ was substantially lower. Yearly survival probability was $\hat{\phi}$ = 0.91 [95\% CI: 0.91 -- 0.92].
 The probability distribution function for remigration interval, $r$, can be calculated from the breeding return probabilities, $\tau_j$ using,
 \[
 [r=k|\tau_1,\dots,\tau_5] = \left\{
@@ -515,36 +532,40 @@ The probability distribution function for remigration interval, $r$, can be calc
 \end{array} \right.
 \]
 where for any index $ >5$, $\tau_5$ is used. 
-Remigration probability estimates peaked at 3 years and showed a slight decline to 4 years, illustrating the most common remigration interval is somewhere between 3 and 4 years (Figure \ref{fig:honu.renest}). The average remigration from these probabilities is 3.74 years [3.68 -- 3.82] which is similar to the empirically observed value of 4 reported by \cite{BalazsEtAl2015a}. 
+Remigration probability estimates peaked at 3 years and showed a slight decline to 4 years, illustrating the most common remigration interval is somewhere between 3 and 4 years (Figure \ref{fig:honu.remig}). 
+\begin{figure}
+\centering
+\begin{minipage}{0.8\textwidth}
+\centering
+ \includegraphics[width=0.9\textwidth]{remig_int.png}
+\caption{Estimated remigration interval probability distribution function for Lalo honu. Gray envelope is the 90\% highest probability density interval.}
+\label{fig:honu.remig}
+\end{minipage}
+\end{figure}
+The average remigration from these probabilities is 3.74 years [3.68 -- 3.82] which is similar to the empirically observed value of 4 reported by \cite{BalazsEtAl2015a}. 
 
-The estimates of recruitment probability ($\rho_t$) were low but relatively consistent for the bulk of the time series (Figure \ref{fig:honu.rho}A) with a marked increase in both point estimates and uncertainty as the end of the series is reached. This is expected and is not indicative of a real biological increase in population entry, as can be seen by examining the corresponding estimates of marginal entry probability ($\xi_t$; Figure \ref{fig:honu.rho}B). It is a result of the fact that the model constrains entry to occur before the end of the study, and the uncertainty results from the breeding return time portion of the model. Individuals may enter near the end of the study and, if not captured, they most likely will not be seen before the study concludes. 
+The estimates of recruitment probability ($\rho_t$) were low but relatively consistent for the bulk of the time series (Figure \ref{fig:honu.rho}A) with a marked increase in both point estimates and uncertainty as the end of the series is reached. This is expected and is not indicative of a real biological increase in population entry, as can be seen by examining the corresponding estimates of marginal entry probability ($\xi_t$; Figure \ref{fig:honu.rho}B). 
+\begin{figure}
+\centering
+\begin{minipage}{0.8\textwidth}
+\centering
+ \includegraphics[width=0.9\textwidth]{rho_entry_probs.png}
+\caption{Plot A illustrates individual recruitment probability estimates ($\rho_t$) for Lalo honu. Plot B illustrates unconditional entry probabilities ($\xi_t$). In both plots error bars represent 90\% highest probability density intervals.}
+\label{fig:honu.rho}
+\end{minipage}
+\end{figure}
+It is a result of the fact that the model constrains entry to occur before the end of the study, and the uncertainty results from the breeding return time portion of the model. Individuals may enter near the end of the study and, if not captured, they most likely will not be seen before the study concludes. 
  
-Yearly abundance of female reproductive age honu and 90\% credible intervals are shown in Figure \ref{fig:honu.abund}. The first 6 years were discarded because there are females that have nested before and are in the desired population, but they were in the foraging phase and did not have a chance to be exposed to capture \citep{kendall2019multistate}. As Figure (\ref{fig:honu.abund}) illustrates, the population climbs rapidly for the first few years as all the foraging females become exposed to capture. The 6-year burn-in was chosen based on the posterior renesting interval distribution. For all MCMC samples, $<1$\% of renesting intervals last 7 years or more. So for those individuals that nested immediately before the first occasion, there is only a small chance that they did not nest again by the 7th occasion; thus, all females have been exposed to capture and $N_t$ represents the abundance of all nesting females. The overall, superpopulation abundance was estimated $\hat{N}$ = 10,280 [9,041--11,437]. The 99\%-tile of the posterior was 12,217. Thus in order to make sure that $M$ is large enough for a PX-DA version analysis, one should add at least 12,217 - 5,271 $\approx$ 7,000 individuals. 
-%Recruitment was modeled with a Gaussian radial basis function.
-%\[
-%\text{logit}(\rho_t) = \beta_{\rho0} + \mathbf{b}_t\bb_{\rho}
-%\] 
-%where $[\beta_{\rho0}] = N(0,1.5^2)$, $\mathbf{b}_t$ is a 20 knot Gaussian radial basis function evaluated at $t=1,\dots,K$, $[\beta_{\rho,j}] = N(0,\sigma_{\rho}^2)$ for $j=1,\dots,20$, and $[\sigma_{\rho}]=\text{Exponential}(1)$. 
-%The capture probabilities for previously captured individuals is modeled as,
-%\[
-%\text{logit}(p_t) = \beta_{p0} + \epsilon_{t},
-%\]
-%where $\text{days}_t$ is the number of survey days spent at Lalo on occasion $t$, $[\beta_{p,0}] = N(0,1.5^2)$, and 
-% $[\epsilon_{t}] = N(0,\sigma_{p}^2)$, where $[\sigma_p]=\text{Exponential}(1)$. The effort reduction for new captures is modeled with independent beta distributions,
-% \[
-% [\alpha_t] = \text{Beta}(5,1)
-% \]
-% such that the expected value is 5/6 with a model at $\alpha_t$=1. It was expected that new capture effort was mostly similar to $p_t$. Finally, for the Poisson+1 remigration interval distribution, we allowed $\mu$ to vary by year as well,
-% \[
-% \log (\mu_t) = \beta_{\mu,0} + \beta_\mu \cdot
-% \]
-%where 
-
-%\cite{SolowEtAl2002a}
-% \cite{PiacenzaEtAl2016a}
-
-
-
+Yearly abundance of female reproductive age honu and 90\% credible intervals are shown in Figure \ref{fig:honu.abund}. 
+\begin{figure}
+\centering
+\begin{minipage}{0.8\textwidth}
+ \includegraphics[width=0.9\textwidth]{abund.png}
+\caption{Estimated abundance of nesting female honu. The crosses are the number of observed individuals in a given year and the interval points are the estimated abundance in the entire population. The gray interval points are estimated abundance prior to the occasion when all individuals had a chance to be captured. Prior to that time there are some adult honu that were foraging and had not revisited Lalo for capture to be possible. Error bars represent 90\% highest probability density intervals.}
+\label{fig:honu.abund}
+\end{minipage}
+\end{figure}
+The first 6 years were discarded because there are females that have nested before and are in the desired population, but they were in the foraging phase and did not have a chance to be exposed to capture \citep{kendall2019multistate}. As Figure (\ref{fig:honu.abund}) illustrates, the population climbs rapidly for the first few years as all the foraging females become exposed to capture. The 6-year burn-in was chosen based on the posterior renesting interval distribution. For all MCMC samples, $<1$\% of renesting intervals last 7 years or more. So for those individuals that nested immediately before the first occasion, there is only a small chance that they did not nest again by the 7th occasion; thus, all females have been exposed to capture and $N_t$ represents the abundance of all nesting females. The overall, superpopulation abundance was estimated $\hat{N}$ = 10,280 [9,041--11,437]. The 99\%-tile of the posterior was 12,217. Thus in order to make sure that $M$ is large enough for a PX-DA version analysis, one should add at least 12,217 - 5,271 $\approx$ 7,000 individuals. 
 %3.389517 hours and 7.49999 mins = 3.514517 hrs
 %expanded = 31.95015 hours
 %n = 5271 and u = 1338
@@ -625,44 +646,19 @@ Astute readers will notice, while we used the collapsed Gibbs sampler to derive 
 
 \clearpage
 
-\begin{figure}
- \includegraphics{dipper_Nt.pdf}
-\caption{Time-specific abundance estimates for the European dipper data analysis. Error bars are 95\% highest probability density intervals.}
-\label{fig:dipper.Nt}
-\end{figure}
-
-\clearpage
-
-\begin{figure}
- \includegraphics{capt_probs.png}
-\caption{Capture probability estimates for Lalo honu data. Blue estimates are for individuals that have been previously captured ($p_t$)and red color denotes individuals that have not been previously captured ($\eta_t p_t$). Error bars are 90\% highest probability density intervals.}
-\label{fig:honu.p}
-\end{figure}
-
-\clearpage
-
-\begin{figure}
- \includegraphics{renest_int.png}
-\caption{Estimated renesting interval probability distribution function for Lalo honu. Gray envelope is the 90\% highest probability density interval.}
-\label{fig:honu.renest}
-\end{figure}
 
 \clearpage
 
 
-\begin{figure}
- \includegraphics{rho_entry_probs.png}
-\caption{Plot A illustrates individual recruitment probability estimates ($\rho_t$) for Lalo honu. Plot B illustrates unconditional entry probabilities ($\xi_t$). In both plots error bars represent 90\% highest probability density intervals.}
-\label{fig:honu.rho}
-\end{figure}
+\clearpage
+
 
 \clearpage
 
-\begin{figure}
- \includegraphics{abund.png}
-\caption{Estimated abundance of nesting female honu. The crosses are the number of observed individuals in a given year and the interval points are the estimated abundance in the entire population. The gray interval points are estimated abundance prior to the occasion when all individuals had a chance to be captured. Prior to that time there are some adult honu that were foraging and had not revisited Lalo for capture to be possible. Error bars represent 90\% highest probability density intervals.}
-\label{fig:honu.abund}
-\end{figure}
+
+
+\clearpage
+
 
 
 
