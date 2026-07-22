@@ -187,7 +187,14 @@ Honolulu, Hawai`i, USA \\  \bigskip
 
 For over 60 years, open-population capture–recapture models, particularly those in the Jolly–Seber (JS) family \citep{Jolly1965,Seber1965}, have been fundamental tools for estimating demographic rates such as survival, recruitment, and population size in open systems where individuals can enter or leave the population between sampling occasions. Classical maximum-likelihood estimators and their extensions \citep{schwarz1996general} have long provided practical means for inference, yet they are often limited in their capacity to accommodate hierarchical structures, covariate effects, or complex dependence among parameters. Bayesian approaches have addressed many of these limitations, enabling flexible modeling and coherent quantification of uncertainty \citep{Royle:2008kx}. 
 
-Adoption of Bayesian inference for JS models was initially hindered in regular use because standard Bayesian Markov Chain Monte Carlo (MCMC) software at the time, such as {\tt WinBUGS} \citep{LunnEtAl2000a} or {\tt JAGS} \citep{plummer2003jags} did not have the capability to calculate the JS likelihood within the MCMC sampler. Therefore, practitioners would have to code the JS likelihood as well as bespoke MCMC algorithms for Bayesian estimation of JS parameters. The groundbreaking papers of \cite{Durban:2005yw} and \cite{Royle:2007kx} introduced the concept of a population of augmented individuals which may or may not be part of the true population of interest, depending on whether or not they entered based on an probabilistic binary indicator of inclusion. This parameter expansion data augmentation (PX-DA) specification was formalized for JS models by \cite{RoyleDorazio2012a}. By introducing latent inclusion indicators as part of the hierarchical model, PX-DA allows MCMC sampling in a fixed-dimensional parameter space, where abundance is simply the sum of the latent inclusion indicators and not a model parameter. This breakthrough allowed users to construct a JS model hierarchically in {\tt WinBUGS} or {\tt JAGS} using simple, standard distributions. Due to the ease in which JS models could be fit with PX-DA methods, regular use of Bayesian methods for estimating abundance from capture-recapture increased dramatically and augmentation methods became the dominant paradigm for abundance estimation in a Bayesian setting. The PX-DA approach opened many doors for fitting models that cannot be easily fit with maximum likelihood methods, namely those including individual heterogeneity components (e.g., \citealt{Durban:2005yw} and \citealt{Royle:2008kx}, Ch. 10) and other hierarchical specifications for time-indexed effects. 
+JS model quick description....
+
+Adoption of Bayesian inference for JS models was initially hindered in regular use because standard Bayesian Markov Chain Monte Carlo (MCMC) software at the time, such as {\tt WinBUGS} \citep{LunnEtAl2000a} or {\tt JAGS} \citep{plummer2003jags} did not have the capability to calculate the JS likelihood within the MCMC sampler. Therefore, practitioners would have to code the JS likelihood as well as bespoke MCMC algorithms for Bayesian estimation of JS parameters. 
+
+The groundbreaking papers of \cite{Durban:2005yw} and \cite{Royle:2007kx} introduced the concept of a population of augmented individuals which may or may not be part of the true population of interest, depending on whether or not they entered based on an probabilistic binary indicator of inclusion. 
+
+
+%This parameter expansion data augmentation (PX-DA) specification was formalized for JS models by \cite{RoyleDorazio2012a}. By introducing latent inclusion indicators as part of the hierarchical model, PX-DA allows MCMC sampling in a fixed-dimensional parameter space, where abundance is simply the sum of the latent inclusion indicators and not a model parameter. This breakthrough allowed users to construct a JS model hierarchically in {\tt WinBUGS} or {\tt JAGS} using simple, standard distributions. Due to the ease in which JS models could be fit with PX-DA methods, regular use of Bayesian methods for estimating abundance from capture-recapture increased dramatically and augmentation methods became the dominant paradigm for abundance estimation in a Bayesian setting. The PX-DA approach opened many doors for fitting models that cannot be easily fit with maximum likelihood methods, namely those including individual heterogeneity components (e.g., \citealt{Durban:2005yw} and \citealt{Royle:2008kx}, Ch. 10) and other hierarchical specifications for time-indexed effects. 
 
 Although data augmentation was instrumental in ushering in a new era of Bayesian JS modeling, the convenience comes at a cost. The approach can be computationally inefficient for analyses requiring a large amount of augmentation \citep{Royle:2007kx} and is prone to slow mixing \citep{SchofieldBarker2008a}. For example, if the probability of capture is relatively low and the population is large, many augmented individuals need to be added to the data and states for every individual must be updated even when their current inclusion indicator does not indicate they are part of the actual population. In addition, \cite{link2013cautionary} notes some questionable properties of PX-DA method relative to the discrete uniform prior induced by the parameter expansion. To alleviate some of these issues and speed computation \cite{yackulic2020need} and \cite{saracco2023fast} proposed the ``marginalized'' capture-recapture models, which formulates capture-recapture models as a Hidden Markov Model (HMM; \citealt{zucchini2016hidden}). The HMM forward algorithm allows one to marginalize over latent states so that they need not be sampled as part of the MCMC. This increases speed and often improves MCMC chain mixing. However, the user still needs to augment data for undetected individuals. In this paper, we introduce a fully marginalized Bayesian formulation of the JS model that eliminates the need for any data augmentation. Our approach integrates analytically over both the unobserved individual encounter histories and the latent states of all individuals using a conditional HMM formulation of JS family models. We propose using the exact JS likelihood within a {\it collapsed} Gibbs sampler \citep{Liu1994a} to estimate parameters and derived quantities of JS models. 
 
@@ -198,7 +205,7 @@ The overall goal of this paper is to develop and demonstrate the collapsed appro
 
 \section{The Jolly-Seber class of models}
 
-Here we describe the class of Jolly-Seber models as we will use them to develop the collapsed Gibbs sampler. All of the variations we consider here have been previously described in the literature, so there are no new model specifications herein, but we are using a general form to include as many different JS aspects for open populations as possible.  
+%Here we describe the class of Jolly-Seber models as we will use them to develop the collapsed Gibbs sampler. All of the variations we consider here have been previously described in the literature, so there are no new model specifications herein, but we are using a general form to include as many different JS aspects for open populations as possible.  
 
 In a JS process the population is described as $N$ individuals that are available for capture in at least one capture occasion during the study period. If the study is relatively long-term, this value may not be very useful, so, the occasion specific abundance, $N_t$, is often desired instead, where $N_t$ is the size of the population available for capture on occasion $t=1,\dots,K$. Individuals become available and unavailable through an entry and exit process where individuals can be in 1 of 3 states: ``pre-entry" (pre-birth), ``available", and ``post-exit" (post-death). For this paper we expand the set of states so that we may include general multistate models as well. Therefore, an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the post-exit state. The notation $z_{it} \in \{s_1,\dots,s_J\}$ will represent the true state of individual $i$ on occasion $t$, thus $N_t = \sum_{i=1}^N I(1 < z_{it} < J)$, where $I(\dots)$ is and indicator function. 
 
@@ -211,19 +218,21 @@ which is the probability that an individual enters between $t-1$ and $t$ given i
 
 We turn our attention to transitions between states (including exit) after entry. Given that an individual has entered prior to occasion $t$, the probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{l,t}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. That is, the probability that an individual transitions from $s_l \to s_J$ is $1-\phi_{l,t}$. If we consider $s_J$ to be ``death'' then the $\phi$ parameters are the typical survival probabilities. Finally, $\psi_{l,l',t}$ ($\sum_{l'=2}^{J-1}\psi_{l,l',t} = 1$) is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$ and survived to occasion $t+1$. 
 
-Now that we have described how individuals transition in and out of availability and through states we can consider a description of the data models for the observed data. Traditionally, data for the JS model are composed of capture histories for each individual captured at least once, $\bx_i = (x_{i1},\dots,x_{iK})$ where $x_{it} \in \{0,1\}$ depending on whether or not individual $i=1,\dots,n$ was captured on occasion $t$. However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was captured in $R_t$ secondary occasions during primary occasion $t$ which defines a robust design model (e.g., \citealt{kendall1995likelihood}). Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured, implying a multistate model \citep{White2006}. We denote the likelihood of observing $x_{it}$ given the individual is in state $z_{it}=s_l$ as $[x_{it}|s_l]$.  Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. We briefly present a few examples for common models. For a standard Jolly-Seber model with a binary capture history and only 1 available state ($s_2$ = ``alive'') the likelihood would be,
-\[
-[x_{it}|s_2] = \text{Bernoulli}(x_{it}|p_t),
-\]
-where $p_t$ is the probability of capture on occasion $t$. If the model being fit is a robust design formulation where $x_{it}$, are the number of captures in $R_t$ sub-occasions within each main occasion, the likelihood would be,
-\[
-[x_{it}|s_2] = \text{Binomial}(x_{it}|R_t, p_t). 
-\]
-For a multistate model where $x_{it}$ is recorded as a categorical state with uncertainty (e.g., \citealt{johnson2016multivariate}) then we use the mixture distribution
-\[
-[x_{it}|s_l] = (1-p_{t,l})I(x_{it}=0) + p_{t,l}\text{Categorical}(x_{it}|\boldsymbol{\delta}_l,x_{it}\ne0)
-\]
-where $\boldsymbol{\delta}_l$ is the vector of probabilities for the range of categories that can be observed when the individual is captured in state $s_l$. For example, one might accurately observe the state $x_{it} = s_l$ or it is unknown, say $x_{it} = $``u'', then $\delta_l$ would represent the probability of observing the true state. For any model $[x_{it}|s_1 (\text{or } s_J)]$ is an indicator that $x_{it}=0$. 
+Now that we have described how individuals transition in and out of availability and through states we can consider a description of the data models for the observed data. Traditionally, data for the JS model are composed of capture histories for each individual captured at least once, $\bx_i = (x_{i1},\dots,x_{iK})$ where $x_{it} \in \{0,1\}$ depending on whether or not individual $i=1,\dots,n$ was captured on occasion $t$. 
+%
+%However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was captured in $R_t$ secondary occasions during primary occasion $t$ which defines a robust design model (e.g., \citealt{kendall1995likelihood}). Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured, implying a multistate model \citep{White2006}. We denote the likelihood of observing $x_{it}$ given the individual is in state $z_{it}=s_l$ as $[x_{it}|s_l]$.  Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. We briefly present a few examples for common models. For a standard Jolly-Seber model with a binary capture history and only 1 available state ($s_2$ = ``alive'') the likelihood would be,
+%\[
+%[x_{it}|s_2] = \text{Bernoulli}(x_{it}|p_t),
+%\]
+%where $p_t$ is the probability of capture on occasion $t$. If the model being fit is a robust design formulation where $x_{it}$, are the number of captures in $R_t$ sub-occasions within each main occasion, the likelihood would be,
+%\[
+%[x_{it}|s_2] = \text{Binomial}(x_{it}|R_t, p_t). 
+%\]
+%For a multistate model where $x_{it}$ is recorded as a categorical state with uncertainty (e.g., \citealt{johnson2016multivariate}) then we use the mixture distribution
+%\[
+%[x_{it}|s_l] = (1-p_{t,l})I(x_{it}=0) + p_{t,l}\text{Categorical}(x_{it}|\boldsymbol{\delta}_l,x_{it}\ne0)
+%\]
+%where $\boldsymbol{\delta}_l$ is the vector of probabilities for the range of categories that can be observed when the individual is captured in state $s_l$. For example, one might accurately observe the state $x_{it} = s_l$ or it is unknown, say $x_{it} = $``u'', then $\delta_l$ would represent the probability of observing the true state. For any model $[x_{it}|s_1 (\text{or } s_J)]$ is an indicator that $x_{it}=0$. 
 
 
 \subsection{A brief review of data augmentation for Jolly-Seber models}
@@ -237,9 +246,11 @@ The posterior distribution for inference is
 \end{equation}
 where $\bt$ are the parameters of the JS model described in the previous section and $\gamma$ is the probability that an individual is a member of the superpopulation. 
 
-The main benefit of the PX-DA approach is that all the distributions on the right-hand side of (\ref{eq:pxda.post}) are all standard distributions, so they can readily be described in the model statements for MCMC software such as {\tt JAGS} and \verb|nimble| and the dimension of the products remain fixed at $M$ individuals so trans-dimensional methods are not needed. Gibbs sampling for the PX-DA proceeds by sequentially sampling from the conditional distributions: $[\bz^+|\bt,\bw^+,\bx^+]$, $[\bw^+|\bt,\gamma,\bz^+,\bx^+]$,
-$[\gamma|\bw^+]$, and $[\bt|\bz^+,\bw^+,\bx^+]$. Of course, these may be broken up further into scalar parameter updates. During updates, the raw quantities $\bz^+$ and $\bw^+$, as well as, $\gamma$ are not usually useful on their 
-own and abundance metric summaries, say $\bvt=f(\bz^+,\bw^+)$, are usually stored such as $N=\bw'\mathbf{1}$ or $N_t=\sum_{i=1}^M z_{it}w_i$. So, the resulting posterior desired is usually, $[\bt,\bvt|\bx^+]$. Note, that the posterior distribution used for inference depends on the size of the augmentation data set, so it is not the exact posterior, however, if $M$ is chosen large enough it is a very good approximation. 
+%The main benefit of the PX-DA approach is that all the distributions on the right-hand side of (\ref{eq:pxda.post}) are all standard distributions, so they can readily be described in the model statements for MCMC software such as {\tt JAGS} and \verb|nimble|. 
+
+%and the dimension of the products remain fixed at $M$ individuals so trans-dimensional methods are not needed. Gibbs sampling for the PX-DA proceeds by sequentially sampling from the conditional distributions: $[\bz^+|\bt,\bw^+,\bx^+]$, $[\bw^+|\bt,\gamma,\bz^+,\bx^+]$,
+%$[\gamma|\bw^+]$, and $[\bt|\bz^+,\bw^+,\bx^+]$. Of course, these may be broken up further into scalar parameter updates. During updates, the raw quantities $\bz^+$ and $\bw^+$, as well as, $\gamma$ are not usually useful on their 
+%own and abundance metric summaries, say $\bvt=f(\bz^+,\bw^+)$, are usually stored such as $N=\bw'\mathbf{1}$ or $N_t=\sum_{i=1}^M z_{it}w_i$. So, the resulting posterior desired is usually, $[\bt,\bvt|\bx^+]$. Note, that the posterior distribution used for inference depends on the size of the augmentation data set, so it is not the exact posterior, however, if $M$ is chosen large enough it is a very good approximation. 
 
 \section{Collapsed Gibbs sampling for Jolly-Seber models}
 
@@ -590,13 +601,11 @@ Given that we are using the exact likelihood in a traditional Bayesian analysis 
 
 
 \section*{Acknowledgments}
-{\it Redacted for double-blind peer review}.
-%The findings and conclusions in the paper are those of the authors and do not necessarily represent the views of the National Marine Fisheries Service, NOAA. Reference to trade names does not imply endorsement by the National Marine Fisheries Service, NOAA. This manuscript has undergone National Marine Fisheries Service internal review for technical and policy content. Thanks to P.Conn for initial technical review and suggestions. 
-The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+The findings and conclusions in the paper are those of the authors and do not necessarily represent the views of the National Marine Fisheries Service, NOAA. Reference to trade names does not imply endorsement by the National Marine Fisheries Service, NOAA. This manuscript has undergone National Marine Fisheries Service internal review for technical and policy content. Thanks to P.Conn for initial technical review and suggestions. 
 
-%\section*{Conflict of Interest}
-%
-%The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+\section*{Conflict of Interest}
+
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
 
 
 \bibliography{bayes_jolly_seber.bib}
