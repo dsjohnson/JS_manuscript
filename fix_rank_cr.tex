@@ -181,14 +181,12 @@ Now that we have described how individuals transition in and out of availability
 
 % \subsection{A brief review of data augmentation for Jolly-Seber models}
 
-To provide a framework for developing the collapsed Gibbs sampler, we provide a brief review of the PX-DA approach. Let $\bx$ represent the $n\times K$ capture history matrix, $\bz$ is the associated matrix of true state values. $\bx_{aug} = \mathbf{0}$ and $\bz_{aug}$ are the $M-n \times K$ matrices for the $M-n$ augmented individuals. For the PX-DA approach we combine, $\bx^+ = (\bx',\bx_{aug}')'$ and $\bz^+ = (\bz',\bz_{aug}')'$, and treat them as observed data and true states respectively. The indicator of population inclusion is $\bw^+ = (\mathbf{1},\bw_{aug}')'$. The posterior distribution for inference is
+To provide a framework for developing the collapsed Gibbs sampler, we provide a brief review of the PX-DA approach for Bayesian inference. Let $\bx$ represent the $n\times K$ capture history matrix, $\bz$ is the associated matrix of true state values. $\bx_{aug} = \mathbf{0}$ and $\bz_{aug}$ are the $M-n \times K$ matrices for the $M-n$ augmented individuals. For the PX-DA approach we combine, $\bx^+ = (\bx',\bx_{aug}')'$ and $\bz^+ = (\bz',\bz_{aug}')'$, and treat them as observed data and true states respectively. The indicator of population inclusion is $\bw^+ = (\mathbf{1},\bw_{aug}')'$. The posterior distribution for inference is
 \begin{equation}
 \label{eq:pxda.post}
 [\bt,\gamma, \bw_{aug}, \bz^+|\bx^+] \propto [\bx^+|\bz^+,\bw^+,\bt][\bz^+|\bt][\bw^+|\gamma][\bt][\gamma],
 \end{equation}
-where $\bt$ are the parameters of the JS model described in the previous section and $\gamma$ is the probability that an individual is a member of the population. 
-
-%The main benefit of the PX-DA approach is that all the distributions on the right-hand side of (\ref{eq:pxda.post}) are all standard distributions, so they can readily be described in the model statements for MCMC software such as {\tt JAGS} and \verb|nimble|. 
+where $\bt$ are the parameters of the JS model described in the previous section and $\gamma$ is the probability that an individual is a member of the population. The main benefit of the PX-DA approach is that all the distributions on the right-hand side of (\ref{eq:pxda.post}) are standard distributions, so they can readily be described in the model statements for MCMC software such as {\tt JAGS} and {\tt nimble}. 
 
 %and the dimension of the products remain fixed at $M$ individuals so trans-dimensional methods are not needed. Gibbs sampling for the PX-DA proceeds by sequentially sampling from the conditional distributions: $[\bz^+|\bt,\bw^+,\bx^+]$, $[\bw^+|\bt,\gamma,\bz^+,\bx^+]$,
 %$[\gamma|\bw^+]$, and $[\bt|\bz^+,\bw^+,\bx^+]$. Of course, these may be broken up further into scalar parameter updates. During updates, the raw quantities $\bz^+$ and $\bw^+$, as well as, $\gamma$ are not usually useful on their 
@@ -227,7 +225,7 @@ In the first step we need to draw a sample from the marginal posterior distribut
 where, $[\bx,\bz|\bt,\bc]$ is the conditional distribution of the capture histories and states given the individuals where captured at least once, indicated by ``$\bc$,'' and $[n|\bt,\gamma] = \text{Binomial}(M, \gamma p^*)$ is the probability of capturing $n$ individuals over the course of study, where $p^*$ is the probability of being captured at least once. 
 %Note that the left-hand side of $[\bt,\gamma, \bz|\bx]$ does not condition on $\bc$ this is because $\bc$ is a deterministic function of $\bx$. So, after $\bx$ is accounted for, $\bc$ is redundant. 
 
-Before we continue with marginalizing over $\bz$ let us take a closer look at  $[n|\bt,\gamma]$. We do not have any augmented data in the marginal posterior, but we still have the remnants of that process, $M$ and $\gamma$. One way to remove their effect is to allow $M\to \infty$. If we follow this limit while simultaneously allowing $\gamma \to 0$ such that $M\gamma \to \lambda$, then  $[n|\bt,\gamma] \to [n|\bt,\lambda] = \text{Poisson}(\lambda p^*)$.  So, marginalizing over the components of an infinitely large augmented data set, yields the posterior,
+Before we continue with marginalizing over $\bz$ let us take a closer look at  $[n|\bt,\gamma]$. We do not have any augmented data in the marginal posterior, but we still have the remnants of that process, $M$ and $\gamma$. We remove their effect by allowing $M\to \infty$. If we follow this limit while simultaneously allowing $\gamma \to 0$ such that $M\gamma \to \lambda$, then  $[n|\bt,\gamma] \to [n|\bt,\lambda] = \text{Poisson}(\lambda p^*)$.  So, marginalizing over the components of an infinitely large augmented data set, yields the posterior,
 \[
 [\bt,\lambda, \bz|\bx] \propto  [\bx,\bz|\bt,\bc][n|\bt, \lambda][\bt][\lambda].
 \]
@@ -239,17 +237,17 @@ Now the next step in evaluating the fully marginal posterior distribution, is to
 \label{eq.uncond.lik}
 [\bx_i|\bt] = \bpi\bP_1(x_{i1})\bG_1\bP_2(x_{i2}) \cdots \bG_{K-1}\bP_K(x_{iK})\mathbf{1}.
 \end{equation}
-where $\bpi$ is the initial state probability vector, $\bP_t(x)$ is a diagonal matrix of observation likelihoods for each state, $\bG_t$ is the probability transition matrix for states, and $\mathbf{1}$ is a vector of ones. Therefore, to evaluate the probability of a single capture-history, $\bx_i$, conditional on being captured at least once, we can use another iteration of the HMM formulation to obtain,
+where $\bpi$ is the initial state probability vector, $\bP_t(x)$ is a diagonal matrix of observation likelihoods for each state, $\bG_t$ is the probability transition matrix for states, and $\mathbf{1}$ is a vector of ones. Therefore, to evaluate the probability of a single capture-history, $\bx_i$, conditional on being captured at least once, we use another iteration of the HMM formulation to obtain,
 \begin{equation}
 \label{eq:dJS}
  [\bx_i|\bt,c]  = \frac{[\bx_i|\bt]}{1-[\bx_i=\mathbf{0}|\bt]}
 \end{equation}
-where the denominator, $p^*=1-[\bx_i=\mathbf{0}|\bt]$. Efficient HMM algorithms can be used to evaluate both the numerator and denominator because the denominator is calculated by simply replacing the observed capture-history with all 0s and evaluating it with (\ref{eq.uncond.lik}) as well. Thus, The fully marginal posterior can be evaluated efficiently as,
+where the denominator, $p^*=1-[\bx_i=\mathbf{0}|\bt]$. Efficient HMM algorithms can be used to evaluate both the numerator and denominator because the denominator is calculated by simply replacing the observed capture-history with all 0s and evaluating it with (\ref{eq.uncond.lik}) as well. The fully marginal posterior can be evaluated efficiently as,
 \begin{equation}
 [\bt,\lambda|\bx] \propto \prod_{i=1}^n \frac{[\bx_i|\bt]}{1-[\bx_i=\mathbf{0}|\bt]}~ [n|\bt, \lambda][\bt][\lambda]
 \end{equation}
 
-For the general JS family model the matrices in the likelihood function (\ref{eq:dJS}) are given as follows. First, the initial state probability vector is 
+For a traditional multistate JS model the matrices in the likelihood function (\ref{eq:dJS}) are given as follows. First, the initial state probability vector is 
 %
 \[
 \bpi = \begin{blockarray}{cccccc} 
@@ -281,7 +279,7 @@ Now that we have an efficient JS likelihood formulation, the first stage MCMC ca
 
 \subsection{Predicting states and abundance}
 
-Now we turn our focus to drawing the second stage posterior predictive sample of states, $\bz^+$, and abundance quantities, which we denote as, $\bvt = f(\bz^+, \bw^+)$. First we note that because we are in an infinite augmentation paradigm, $\bz_{aug}$ and $\bw_{aug}$ are no longer well defined as they are infinite vectors. Therefore we switch to prediction of $\bz$, $\bz_u$ and $n_u$ where $\bz_u$ are the states of the individuals in the population but remained uncaptured through out the study and $n_u$ is the number of uncaptured individuals. Therefore, the second sample is drawn from the predictive distribution,
+Now we turn our focus to drawing the second stage posterior predictive sample of states, $\bz^+$, and abundance quantities, denoted as $\bvt = f(\bz^+, \bw^+)$. First we note that because we are in an infinite augmentation paradigm, $\bz_{aug}$ and $\bw_{aug}$ are no longer well defined as they are infinite vectors. Therefore we switch to prediction of $\bz$, $\bz_u$ and $n_u$ where $\bz_u$ are the states of the individuals in the population but remained uncaptured through out the study and $n_u$ is the number of uncaptured individuals. Therefore, the second sample is drawn from the predictive distribution,
 \begin{equation}
 [\bz, \bz_u, n_u|\bt,\lambda,\bx] = [\bz|\bt,\bx][\bz_u|n_u,\bt,\bx][n_u|\bt,\lambda,\bx].
 \end{equation} 
@@ -290,7 +288,7 @@ To begin, because $[N|\lambda] = \text{Poisson}(\lambda)$ under the same infinit
 \[
 [n_u|\bt, \lambda] = \text{Poisson}(\lambda (1-p^*)),
 \]
-conditionally independent of the data, $\bx$. So, for each iteration of an MCMC algorithm it can be updated with a draw from a standard Poisson distribution as a posterior predictive variable. Then the prediction for the overall abundance, $N$, results directly from $N = n_u + n$. \cite{schofield2023estimating} and \cite{johnson2010model} both describe abundance estimation as {\it predicting} the number of undetected individuals. If other abundance quantities such as $N_t$ are desired, we must sample $\bz$ and $\bz_u$ to calculate these within the second stage sampler. Because we have marginalized over the true states, $\bz$ with the HMM-based likelihood calculations it is not as readily apparent how this can be accomplished, however, we can use standard HMM algorithms to efficiently draw from those posterior distributions as well. Then we can extend the method to $\bz_u$.
+conditionally independent of the data, $\bx$. So, for each iteration of an MCMC algorithm it can be updated with a draw from a standard Poisson distribution as a posterior predictive variable. Then the prediction for the overall abundance, $N$, results directly from $N = n_u + n$. \cite{schofield2023estimating} and \cite{johnson2010model} both describe abundance estimation as {\it predicting} the number of undetected individuals. If other abundance quantities such as $N_t$ are desired, we must sample $\bz$ and $\bz_u$ to calculate these within the second stage sampler. We can use Bayesian HMM algorithms to efficiently draw from those posterior distributions as well. 
 
 To sample the latent states of individuals in the population we first sample the true states for the observed individuals from $[\bz_i| \bt, \bx_i]$. This can be accomplished efficiently with the Forward--Filtering Backward--Sampling (FFBS) algorithm for conditional state sampling of HMMs \citep{scott2002bayesian}. The details of the of the FFBS algorithm can be found in Appendix A (algorithm 1). Heuristically, the algorithm works by first using the HMM forward algorithm \citep{zucchini2016hidden} followed by a backward pass through the capture history to sample from $[z_{it}|z_{i,t+1},\dots,z_{i,K},\bt, \bx_i]$ at each occasion. To facilitate this sampling algorithm we have coded the FFBS algorithm into the {\tt nimbleJSextras} package and it can be implemented via model code statements, \verb|z[i,1:K] <- sample_det_ms(x[i,1:K], ...)|. Here we have proceeded against convention by specifying a random quantity with a deterministic {\tt nimble} function, however, one would never use this distribution as a likelihood, so the coding overhead to specify it as a bespoke distribution seems unnecessary and it functions in the same manner for drawing a realization.  
 
