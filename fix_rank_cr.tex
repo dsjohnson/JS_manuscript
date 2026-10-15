@@ -106,21 +106,21 @@ $^2$Hawai`i Institute of Marine Biology and Cooperative Institute of Marine and 
 
 \today
 
-\bigskip\bigskip
-
+%\bigskip\bigskip
+\clearpage
 
 
 %\small
 %{\bf Author contributions}: DSJ, SKI, and JJG developed proposed methodology; DSJ developed software for the collapsed sampler; DSJ and SKI performed data curation and formal analysis; DSJ led the writing of the original draft; SKI and JJG contributed to the review and editing of the manuscript. \bigskip
 %
-%{\bf Data and Code Availability}: Data and code to run all analyses in this manuscript are provided in the supplementary file \verb|supp_code_data.zip|.
+%{\bf Data and Code Availability}: Data and code to run all analyses in this manuscript are provided in the supplementary file {\tt supp_code_data.zip}.
 
 
 \linenumbers
 
 %% ABSTRACT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-{\bf Abstract}. Bayesian estimation of abundance with capture-recapture data has been dominated for nearly 20 years by the parameter-expansion data-augmentation (PX-DA) approach. The PX-DA approach expands the parameter set to include the latent true states of the individuals. PX-DA allows straightforward coding of models in MCMC software such as \verb|JAGS| (Just Another Gibbs Sampler) or \verb|nimble|, however, this approach can be computationally demanding for large or low detectability populations. We develop a 2-stage collapsed Gibbs sampler to reduce computational burden when using Markov Chain Monte Carlo (MCMC) to fit Jolly-Seber (JS) models. Using the collapsed sampler, no parameter expansion or data augmentation is needed. Two of the main computational benefits are: (1) the MCMC only needs to iterate over unique capture-histories and (2) the second stage of the sampler can be run in parallel. We provide an {\tt R} package \verb|nimbleJSextras| that uses the functionality of the \verb|nimble| and \verb|nimbleEcology| packages to perform MCMC analysis for JS models with the same ease for practitioners the PX-DA approach.  Using the \verb|nimbleJSextras| package, we analyzed two real data sets to illustrate the method. First we analyzed the classic dipper data using {\it per capita} recruitment parameterization. In the second example we analyzed a data set of 5,271 female nesting green turtles in the Northwest Hawaiian Islands over a 44 year period that contained time by individual behavioral effects induced by capture procedures. In the dipper analysis the relative speed of the MCMC compared to the PX-DA sampler depended on the number of augmented individuals, slower for 300 augmented individuals and faster for 1,000 individuals. Convergence metrics showed slightly quicker convergence of the collapsed MCMC than the PX-DA sampler. The full 2-stage collapsed sampler ran in only 1/10 the amount of time needed for the PX-DA sampler. The more complex green turtle data finished in $<3.5$ hours illustrating that relatively large, long-term data can be analyzed efficiently even with a complex capture probability model using the 2-stage collapsed sampler. Moreover, trial analyses are not necessary to determine an adequate number of augmented individuals. 
+{\bf Abstract}. Bayesian estimation of abundance with capture-recapture data has been dominated for nearly 20 years by the parameter-expansion data-augmentation (PX-DA) approach. The PX-DA approach expands the parameter set to include the latent true states of the individuals. PX-DA allows straightforward coding of models in MCMC software such as {\tt JAGS} or {\tt nimble}, however, this approach can be computationally demanding for large or low detectability populations. We develop a 2-stage collapsed Gibbs sampler to reduce computational burden when using Markov Chain Monte Carlo (MCMC) to fit Jolly-Seber (JS) models. Using the collapsed sampler, no parameter expansion or data augmentation is needed. Two of the main computational benefits are: (1) the MCMC only needs to iterate over unique capture-histories and (2) the second stage of the sampler can be run in parallel. We provide an {\tt R} package {\tt nimbleJSextras} that uses the functionality of the {\tt nimble} and {\tt nimbleEcology} packages to perform MCMC analysis for JS models with the same ease for practitioners the PX-DA approach.  Using the {\tt nimbleJSextras} package, we analyzed two real data sets to illustrate the method. First we analyzed the classic dipper data using {\it per capita} recruitment parameterization. In the second example we analyzed a data set of 5,271 female nesting green turtles in the Northwest Hawaiian Islands over a 44 year period that contained time by individual behavioral effects induced by capture procedures. In the dipper analysis the relative speed of the MCMC compared to the PX-DA sampler depended on the number of augmented individuals, slower for 300 augmented individuals and faster for 1,000 individuals. Convergence metrics showed slightly quicker convergence of the collapsed MCMC than the PX-DA sampler. The full 2-stage collapsed sampler ran in only 1/10 the amount of time needed for the PX-DA sampler. The more complex green turtle data finished in $<3.5$ hours illustrating that relatively large, long-term data can be analyzed efficiently even with a complex capture probability model using the 2-stage collapsed sampler. Moreover, trial analyses are not necessary to determine an adequate number of augmented individuals. 
 
 \bigskip
 
@@ -436,11 +436,10 @@ The probability distribution function for remigration interval, $r$, can be calc
 [r=k|\tau_1,\dots,\tau_5] = \left\{
 \begin{array}{ll}
 \tau_1 & k=2\\
-\tau_{k-1}\prod_{j=1}^{k-1} (1-\tau_j) & k \ge 3 
+\tau_{k-1}\prod_{j=1}^{k-2} (1-\tau_j) & k \ge 3 
 \end{array} \right.
 \]
-where for any index $ >5$, $\tau_5$ is used. 
-Remigration probability estimates peaked at 3 years and showed a slight decline to 4 years, illustrating the most common remigration interval is somewhere between 3 and 4 years (Figure \ref{fig:honu.remig}). 
+where $\tau_j=\tau_5$ if $j \ge 5$. Remigration probability estimates peaked at 3 years and showed a slight decline to 4 years, illustrating the most common remigration interval is somewhere between 3 and 4 years (Figure \ref{fig:honu.remig}). 
 \begin{figure}
 \centering
 \begin{minipage}{0.8\textwidth}
@@ -500,14 +499,17 @@ Given that we are using the exact likelihood in a traditional Bayesian analysis 
 \section*{Acknowledgments}
 The findings and conclusions in the paper are those of the authors and do not necessarily represent the views of the National Marine Fisheries Service, NOAA. Reference to trade names does not imply endorsement by the National Marine Fisheries Service, NOAA. This manuscript has undergone National Marine Fisheries Service internal review for technical and policy content. Thanks to P.Conn for initial technical review and suggestions. 
 
-\section*{Conflict of Interest}
-
-The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+%\section*{Conflict of Interest}
+%
+%The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
 
 
 \bibliography{bayes_jolly_seber.bib}
 
 \clearpage
+
+\renewcommand{\baselinestretch}{1.5}\normalsize
+
 
 
 \begin{table}
@@ -561,7 +563,13 @@ The authors declare that they have no known competing financial interests or per
 
 \section{Forward-Backward Posterior Abundance Sampling Algorithms}
 
-Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS) algorithm for sampling the conditional posterior distribution of the true state of an individual(s). These algorithms are used within each round of MCMC updates to draw from the state distributions conditional on the observed data, $\bx=\{\bx_1,\dots,\bx_n\}$, and the parameters, $\bt$ at the current iteration. The first version is for updating the true state, $\bz_i=(z_{i1},\dots,z_{iK})$ of an observed individual with capture history $\bx_i\ne\mathbf{0}$. The second version is for updating the state and time-specific abundance of all unobserved individuals given the observed data, $\bx$, the number of unobserved individuals, $n_u$, and the current parameters, $\bt$. Both of these algorithms are coded as \verb|nimble| functions ({\tt \verb|sample_det_**|} and {\tt \verb|sample_undet_**|}) in the \verb|nimbleJSextras| package available at \href{https://github.com/dsjohnson/nimbleJSextras}{https://github.com/dsjohnson/nimbleJSextras} or \href{https://dsjohnson.r-universe.dev/nimbleJSextras}{https://dsjohnson.r-universe.dev/nimbleJSextras}.
+\renewcommand{\baselinestretch}{1.8}\normalsize
+
+
+Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS) algorithm for sampling the conditional posterior distribution of the true state of an individual(s). These algorithms are used within each round of MCMC updates to draw from the state distributions conditional on the observed data, $\bx=\{\bx_1,\dots,\bx_n\}$, and the parameters, $\bt$ at the current iteration. The first version is for updating the true state, $\bz_i=(z_{i1},\dots,z_{iK})$ of an observed individual with capture history $\bx_i\ne\mathbf{0}$. The second version is for updating the state and time-specific abundance of all unobserved individuals given the observed data, $\bx$, the number of unobserved individuals, $n_u$, and the current parameters, $\bt$. Both of these algorithms are coded as {\tt nimble} functions (\verb|sample_det_**| and \verb|sample_undet_**|) in the {\tt nimbleJSextras} package available at \url{https://github.com/dsjohnson/nimbleJSextras}. %or \href{https://dsjohnson.r-universe.dev/nimbleJSextras}{https://dsjohnson.r-universe.dev/nimbleJSextras}.
+
+\renewcommand{\baselinestretch}{1.5}\normalsize
+
 
 \begin{algorithm}[H]
 \caption{FFBS for Observed Individuals}
@@ -591,7 +599,7 @@ Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS)
 \end{algorithm}
 
 \begin{algorithm}[H]
-\caption{FFBS for Unobserved Individuals}
+\caption{Multinomial FFBS for Unobserved Individuals}
 \begin{algorithmic}[1]
 \STATE \textbf{Inputs:} $\bpi$, $\{\bG_t\}$, $\{\mathbf{P}_t(0)\}$, $n_u$.
 \STATE \textbf{Output:} posterior draw of abundance of unobserved individuals $\mathbf{n}_{u} \sim [\mathbf{n}_{u}|\bx, n, \bt]$, where $\mathbf{n}_u$ is a $J\times K$ matrix of state- and occasion-specific abundance of unobserved individuals. 
