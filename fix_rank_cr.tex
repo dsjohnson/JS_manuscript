@@ -106,8 +106,8 @@ $^2$Hawai`i Institute of Marine Biology and Cooperative Institute of Marine and 
 \today
 
 %\bigskip\bigskip
-\clearpage
-
+%\clearpage
+\bigskip\bigskip
 
 %\small
 %{\bf Author contributions}: DSJ, SKI, and JJG developed proposed methodology; DSJ developed software for the collapsed sampler; DSJ and SKI performed data curation and formal analysis; DSJ led the writing of the original draft; SKI and JJG contributed to the review and editing of the manuscript. \bigskip
@@ -119,11 +119,11 @@ $^2$Hawai`i Institute of Marine Biology and Cooperative Institute of Marine and 
 
 %% ABSTRACT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-{\bf Abstract}. Bayesian estimation of abundance with capture-recapture data has been dominated for nearly 20 years by the parameter-expansion data-augmentation (PX-DA) approach. The PX-DA approach expands the parameter set to include the latent true states of the individuals. PX-DA allows straightforward coding of models in MCMC software such as {\tt JAGS} or {\tt nimble}, however, this approach can be computationally demanding for large or low detectability populations. We develop a 2-stage collapsed Gibbs sampler to reduce computational burden when using Markov Chain Monte Carlo (MCMC) to fit Jolly-Seber (JS) models. Using the collapsed sampler, no parameter expansion or data augmentation is needed. Two of the main computational benefits are: (1) the MCMC only needs to iterate over unique capture-histories and (2) the second stage of the sampler can be run in parallel. We provide an {\tt R} package {\tt nimbleJSextras} that uses the functionality of the {\tt nimble} and {\tt nimbleEcology} packages to perform MCMC analysis for JS models with the same ease for practitioners the PX-DA approach.  Using the {\tt nimbleJSextras} package, we analyzed two real data sets to illustrate the method. First we analyzed the classic dipper data using {\it per capita} recruitment parameterization. In the second example we analyzed a data set of 5,271 female nesting green turtles in the Northwest Hawaiian Islands over a 44 year period that contained time by individual behavioral effects induced by capture procedures. In the dipper analysis the relative speed of the MCMC compared to the PX-DA sampler depended on the number of augmented individuals, slower for 300 augmented individuals and faster for 1,000 individuals. Convergence metrics showed slightly quicker convergence of the collapsed MCMC than the PX-DA sampler. The full 2-stage collapsed sampler ran in only 1/10 the amount of time needed for the PX-DA sampler. The more complex green turtle data finished in $<3.5$ hours illustrating that relatively large, long-term data can be analyzed efficiently even with a complex capture probability model using the 2-stage collapsed sampler. Moreover, trial analyses are not necessary to determine an adequate number of augmented individuals. 
+{\bf Abstract}. Bayesian estimation of abundance with capture-recapture data has been dominated for nearly 20 years by the parameter-expansion data-augmentation (PX-DA) approach. The PX-DA approach expands the parameter set to include the latent true states of the individuals. PX-DA allows straightforward coding of models in MCMC software such as {\tt JAGS} or {\tt nimble}, however, this approach can be computationally demanding for large or low detectability populations. We develop a 2-stage collapsed Gibbs sampler to reduce computational burden when using Markov Chain Monte Carlo (MCMC) to fit Jolly-Seber (JS) models. Using the collapsed sampler, no parameter expansion or data augmentation is needed. Two of the main computational benefits are: (1) the MCMC only needs to iterate over unique capture-histories and (2) the second stage of the sampler can be run in parallel. We provide an {\tt R} package {\tt nimbleJSextras} that uses the functionality of the {\tt nimble} and {\tt nimbleEcology} packages to perform MCMC analysis for JS models with the same ease for practitioners the PX-DA approach.  Using the {\tt nimbleJSextras} package, we analyzed two real data sets to illustrate the method. First we analyzed the classic dipper data using {\it per capita} recruitment parameterization. In the second example we analyzed a data set of 5,271 female nesting green turtles in the Northwest Hawaiian Islands over a 44 year period that contained time by individual behavioral effects induced by capture procedures. In the dipper analysis the relative speed of the MCMC compared to the PX-DA sampler depended on the number of augmented individuals, slower for 300 augmented individuals and faster for 1,000 individuals. Convergence metrics showed slightly quicker convergence of the collapsed MCMC than the PX-DA sampler. The full 2-stage collapsed sampler ran in approximately 1/10 the amount of time needed for the PX-DA sampler. The more complex green turtle data finished in $<3.5$ hours illustrating that relatively large, long-term data can be analyzed efficiently even with a complex capture probability model using the 2-stage collapsed sampler. Moreover, trial analyses are not necessary to determine an adequate number of augmented individuals. 
 
 \bigskip
 
-%{\bf Key words}: Abundance estimation, Bayesian, capture-recapture, collapsed Gibbs sampler, Markov Chain Monte Carlo, parallel computing
+{\bf Key words}: Abundance estimation, Bayesian, capture-recapture, collapsed Gibbs sampler, Markov Chain Monte Carlo, parallel computing
 
 %\clearpage
 
@@ -138,49 +138,30 @@ For over 60 years, open-population capture–recapture models, particularly thos
 
 Adoption of Bayesian inference for JS models was initially hindered in regular use because standard Bayesian Markov Chain Monte Carlo (MCMC) software at the time, such as {\tt WinBUGS} \citep{LunnEtAl2000a} or {\tt JAGS} \citep{plummer2003jags} did not have the capability to calculate the JS likelihood within the MCMC sampler. Therefore, practitioners would have to code the JS likelihood as well as bespoke MCMC algorithms for Bayesian estimation of JS parameters. The groundbreaking papers of \cite{Durban:2005yw} and \cite{Royle:2007kx} introduced the concept of a population of augmented individuals. This parameter expansion data augmentation (PX-DA) specification was formalized for JS models by \cite{RoyleDorazio2012a}. By introducing latent inclusion indicators as part of the hierarchical model, PX-DA allows MCMC sampling in a fixed-dimensional parameter space, where abundance is simply the sum of the latent inclusion indicators and not a model parameter. This breakthrough allowed users to construct a JS model hierarchically in {\tt WinBUGS} or {\tt JAGS} using simple, standard distributions.
 
-%This parameter expansion data augmentation (PX-DA) specification was formalized for JS models by \cite{RoyleDorazio2012a}. By introducing latent inclusion indicators as part of the hierarchical model, PX-DA allows MCMC sampling in a fixed-dimensional parameter space, where abundance is simply the sum of the latent inclusion indicators and not a model parameter. This breakthrough allowed users to construct a JS model hierarchically in {\tt WinBUGS} or {\tt JAGS} using simple, standard distributions. Due to the ease in which JS models could be fit with PX-DA methods, regular use of Bayesian methods for estimating abundance from capture-recapture increased dramatically and augmentation methods became the dominant paradigm for abundance estimation in a Bayesian setting. The PX-DA approach opened many doors for fitting models that cannot be easily fit with maximum likelihood methods, namely those including individual heterogeneity components (e.g., \citealt{Durban:2005yw} and \citealt{Royle:2008kx}, Ch. 10) and other hierarchical specifications for time-indexed effects. 
+Although data augmentation was instrumental in ushering in a new era of Bayesian JS modeling, the convenience comes at a cost. The approach can be computationally inefficient for analyses requiring a large amount of augmentation \citep{Royle:2007kx} and is prone to slow mixing \citep{SchofieldBarker2008a}. To alleviate some of these issues and speed computation \cite{yackulic2020need} and \cite{saracco2023fast} proposed the ``marginalized'' capture-recapture models, which formulates capture-recapture models as a Hidden Markov Model (HMM; \citealt{zucchini2016hidden}). The HMM forward algorithm allows one to marginalize over latent states so that they need not be sampled as part of the MCMC, however, the user still needs to augment data for undetected individuals if abundance estimation is desired. In this paper, we introduce a fully marginalized Bayesian formulation of the JS model that eliminates the need for any state or data augmentation. Our approach integrates analytically over both the unobserved individual encounter histories and the latent states of all individuals using a conditional HMM formulation of JS family models. 
 
-Although data augmentation was instrumental in ushering in a new era of Bayesian JS modeling, the convenience comes at a cost. The approach can be computationally inefficient for analyses requiring a large amount of augmentation \citep{Royle:2007kx} and is prone to slow mixing \citep{SchofieldBarker2008a}. 
-%For example, if the probability of capture is relatively low and the population is large, many augmented individuals need to be added to the data and states for every individual must be updated even when their current inclusion indicator does not indicate they are part of the actual population. In addition, \cite{link2013cautionary} notes some questionable properties of PX-DA method relative to the discrete uniform prior induced by the parameter expansion. 
-To alleviate some of these issues and speed computation \cite{yackulic2020need} and \cite{saracco2023fast} proposed the ``marginalized'' capture-recapture models, which formulates capture-recapture models as a Hidden Markov Model (HMM; \citealt{zucchini2016hidden}). The HMM forward algorithm allows one to marginalize over latent states so that they need not be sampled as part of the MCMC. This increases speed and often improves MCMC chain mixing. However, the user still needs to augment data for undetected individuals if abundance estimation is desired. In this paper, we introduce a fully marginalized Bayesian formulation of the JS model that eliminates the need for any data augmentation. Our approach integrates analytically over both the unobserved individual encounter histories and the latent states of all individuals using a conditional HMM formulation of JS family models. 
+The fully marginalized JS model is motivated by ``collapsing'' the PX-DA Gibbs sampler. A collapsed Gibbs sampler is a method to improve MCMC convergence over standard Gibbs samplers. \cite{Liu1994a} provides a mathematical proof which shows that the rate of convergence for a collapsed Gibbs sampler is at least as good, but often better, than the standard Gibbs sampler for any particular model. Unfortunately, we cannot directly use the theoretical results to prove that the collapsed Gibbs sampler for JS models will always converge at a faster rate because neither the PX-DA sampler nor the collapsed version developed here use strictly Gibbs updates. That is, at least some, if not all, of the parameters are updated using Metropolis-within-Gibbs updates because the full conditional distributions are not standard. However, studies have shown that MCMC convergence for collapsed samplers using Metropolis updates can still offer improvement but it may not be as good as strictly Gibbs updates \citep{VanDykJiao2015a}.  
 
-The fully marginalized JS model is motivated by ``collapsing'' the PX-DA Gibbs sampler. Collapsing a Gibbs sampler is a method to improve MCMC convergence over standard Gibbs samplers. \cite{Liu1994a} provides a mathematical proof which shows that the rate of convergence for a collapsed Gibbs sampler is at least as good, but often better, than the standard Gibbs sampler for any particular model. Unfortunately, we cannot directly use the theoretical results to prove that the collapsed Gibbs sampler for JS models will always converge at a faster rate because neither the PX-DA sampler nor the collapsed version presented here use strictly Gibbs updates. That is, at least some, if not all, of the parameters are updated using Metropolis-within-Gibbs updates because the full conditional distributions are not standard. However, \cite{VanDykJiao2015a} note that MCMC convergence for collapsed samplers using Metropolis updates can still offer improvement but it may not be as good as strictly Gibbs updates.  
-
-The overall goal of this paper is to develop and demonstrate the collapsed approach for JS models using the MCMC software in the {\tt R} package {\tt nimble} \citep{Valpine:2017vg} to illustrate that PX-DA methods are not necessary and JS models can be fit without data augmentation in regular practice. The {\tt nimble} package allows users to create their own distribution functions which can be compiled and included within MCMC model statements. Using this capability, as well as the HMM likelihoods within the {\tt R} package {\tt nimbleEcology} \citep{GoldsteinEtAl2024a} we developed an {\tt R} package, {\tt nimbleJSextras}\footnote{Available at \url{https://github.com/dsjohnson/nimbleJSextras}} that includes the JS likelihood and other functions for performing MCMC analysis of JS models with the collapsed Gibbs sampler. The benefits of this approach include the fact it is not necessary to specify a fixed number of augmented individuals that were not captured. Thus, practitioners do not need to worry about possible biases induced by adding too few undetected individuals \citep{link2013cautionary}. Moreover, because augmented individuals are not used, the likelihood scales with the number of unique capture-histories, making it more efficient for large samples and populations. Finally, we can use the likelihood factoring approach of \cite{king2015capture} and \cite{Hooten:2023aa} to split the sampler into two stages where the second stage abundance sample can be executed in parallel. We demonstrate its use and benefits through analysis the classic European dipper ({\it Cinclus cinclus}) data as well as more complex breeding return-time JS model for Hawaiian green sea turtles (honu; {\it Chelonia mydas}). The analysis and accompanying code illustrate that augmentation is not necessary and the fully marginal collapsed Gibbs sampling approach can be used by practitioners just as easily as PX-DA methods. 
+The overall goal of this paper is to develop and demonstrate the collapsed approach for JS models using the MCMC software in the {\tt R} package {\tt nimble} \citep{Valpine:2017vg} to illustrate that PX-DA methods are not necessary and JS models can be fit without data augmentation in regular practice. The {\tt nimble} package allows users to create their own distribution functions which can be compiled and included within MCMC model statements. Using this capability, as well as the HMM distributions within the {\tt R} package {\tt nimbleEcology} \citep{GoldsteinEtAl2024a} we developed an {\tt R} package, {\tt nimbleJSextras}\footnote{Available at \url{https://github.com/dsjohnson/nimbleJSextras}} that includes the JS distribution and other functions for performing MCMC analysis of JS models with the collapsed Gibbs sampler. The benefits of this approach include the fact it is not necessary to specify a fixed number of augmented individuals that were not captured. Thus, practitioners do not need to worry about possible biases induced by adding too few augmented individuals \citep{link2013cautionary} or the additional time to assess what amount of augmentation is necessary to avoid this bias. Moreover, because augmented individuals are not used, the likelihood scales with the number of unique capture-histories, making it more efficient for large samples and populations. Finally, we can use the likelihood factoring approach of \cite{king2015capture} and \cite{Hooten:2023aa} to split the sampler into two stages where the second stage abundance sample can be executed in parallel. We demonstrate its use and benefits through analysis the classic European dipper ({\it Cinclus cinclus}) data as well as more complex breeding return-time model for Hawaiian green sea turtles (honu; {\it Chelonia mydas}). The analyses illustrate that augmentation is not necessary and the fully marginal collapsed Gibbs sampling approach can be used by practitioners just as easily as PX-DA methods. 
 
 
 \section{The Jolly-Seber class of models}
 
-%Here we describe the class of Jolly-Seber models as we will use them to develop the collapsed Gibbs sampler. All of the variations we consider here have been previously described in the literature, so there are no new model specifications herein, but we are using a general form to include as many different JS aspects for open populations as possible.  
+Modern (POPAN) JS models have two population concepts, the population and the active population \citep{crosbie1985parsimonious,schwarz1996general}. The population is the collection of $N$ individuals that are available for capture in at least one sampling occasion during the study period. The occasion specific active population is composed of $N_t$ individuals that are (potentially) available for capture on sampling occasion $t=1,\dots,K$. Individuals enter, transition, and exit the active population through a Markov process where an individual can be in one of $J+2$ states, $0,\dots,J+1$ where $s=0$ is the pre-entry (pre-birth) state and $s = J+1$ is the post-exit (death) absorbing state where the individual is inactive for the remainder of the study. The intermediate states,  $s = 1,\dots,J$, are states where the animal is potentially available for capture. These may be biological or demographic in nature such as breeding or temporary emigration. The notation $z_{i,t} \in \{0,\dots,J+1\}$ will represent the true state of individual $i$ on occasion $t$, thus $N_t = \sum_{i=1}^N \mathcal{I}(1 \le z_{i,t} \le J)$, where $\mathcal{I}(\cdot)$ is and indicator function. 
 
-In a JS process the population is described as $N$ individuals that are available for capture (detection) in at least one capture occasion during the study period. If the study is relatively long, this value may not be very useful. So, the occasion specific abundance, $N_t$, is often desired instead, where $N_t$ is the size of the population available for capture on occasion $t=1,\dots,K$. Individuals become available and unavailable through an entry and exit process where an individual can be in one of $J$ states, $s_1,\dots,s_J$ where $s_1$ is the pre-entry state and $s_J$ is the post-exit state where the individual is not available for capture. The intermediate states,  $s_2,\dots,s_{J-1}$, are states where the animal is may or may not available for capture. The intermediate states may be biological or demographic such as breeding states or demographic such as present or not present on the study area (temporary emigration). The notation $z_{it} \in \{s_1,\dots,s_J\}$ will represent the true state of individual $i$ on occasion $t$, thus $N_t = \sum_{i=1}^N I(1 < z_{it} < J)$, where $I(\dots)$ is and indicator function. 
+Entry into the active population (e.g., birth) is governed by the multinomial probabilities, $\xi_t$, $t=1,\dots,K$ ($\sum_{t=1}^K\xi_t = 1$),  which are the unconditional probabilities that an individual enters between occasions $t-1$ and $t$ and is available for capture on occasion $t$  \citep{crosbie1985parsimonious,schwarz1996general}. When an individual first enters the active population between $t-1$ and $t$, the probability that it enters into state $s$ is $\alpha_{s,t}$, where $\sum_{s=1}^{J} \alpha_{s,t}=1$. Given that an individual has entered prior to occasion $t$, the probability that an individual remains in the active population between occasions $t$ and $t+1$ (e.g., survives), given it is currently in state $s$, is $\phi_{s,t}$. Finally, $\psi_{r,s,t}$ ($\sum_{s=1}^{J}\psi_{r,s,t} = 1$) is the probability that an individual transitions from states $r$ to $s$ between times $t$ and $t+1$ given it was in the active population at time $t$ and survived to occasion $t+1$. 
 
- \citet{schwarz1996general} and \cite{crosbie1985parsimonious} parameterized entry into the population using multinomial probabilities, $\xi_t$, $t=1,\dots,K$,  which are the unconditional probabilities that an individual enters between occasions $t-1$ and $t$ and is available for capture on occasion $t$. For the development herein we also need the {\it conditional} entry probabilities, $\tilde{\xi}_t = \xi_t /\sum_{j=t}^K \xi_j$,
-which is the probability that an individual enters between $t-1$ and $t$ given it has not entered prior to $t-1$ but will enter before $K$. When an individual first enters the available population between $t-1$ and $t$, the probability that is transitions specifically to state $s_l$ is $\alpha_{l,t}$, where $\sum_{l=2}^{J-1} \alpha_{l,t}=1$. 
+Data for the JS model are composed of capture histories for each individual captured at least once, $\bx_i = (x_{i,1},\dots,x_{i,K})$ where $x_{i,t} \in \{0,1,\dots,O\}$ is recorded as 0 if the individual is not captured or 1 of $O$ observable states when it is captured. We use the notation $[x_{i,t}|s]$ to represent the likelihood of observing $x_{i,t}$ on occasion $t$ given the individual is in state $z_{it} = s$. For a traditional JS model where the observation is binary (i.e., 0 = not captured, 1 = captured), 
+\[
+[x_{i,t}|s] = \left\{
+\begin{array}{rll}
+& (1-p_{s,t})(1-x_{i,t}) + p_{s,t}x_{i,t},&s=1,\dots,J\\
+& 1-x_{i,t},\text{ for }& s=0 \text{ or } J+1
+\end{array} \right.
+\]      
+and $p_{s,t}$ is the probability of capture in state $s$ on occasion $t$.
 
-Given that an individual has entered prior to occasion $t$, the probability that an individual does not exit the population between occasions $t$ and $t+1$ given it is currently available for capture in state $s_l$ on occasion $t$ is $\phi_{l,t}$, $l=2,\dots,J-1$ and $t=1,\dots,K-1$. If we consider $s_J$ to be ``death'' then the $\phi$ parameters are the typical survival probabilities. Finally, $\psi_{l,l',t}$ ($\sum_{l'=2}^{J-1}\psi_{l,l',t} = 1$) is the probability that an individual transitions from state $s_l$ to $s_{l'}$ between times $t$ and $t+1$ given it was in the available population at time $t$ and survived to occasion $t+1$. 
-
-Now that we have described how individuals transition in and out of availability and through states we can consider a description of the models for the observed data. Data for the JS model are composed of capture histories for each individual captured at least once, $\bx_i = (x_{i1},\dots,x_{iK})$ where $x_{it}$ is recorded as 1 of $R$ observable states, $o_1,\dots,o_R$. These could be as simple as a binary captured/not captured set of states or they could partially related to the true states, for example, $o_1$ implies the individual is not captured and $o_l = s_l$ for $l=2,\dots,J-1$. We use the notation $[x_{it}=o_r|s_l]$ to represent the probability of observing $x_{it}=o_r$ on occasion $t$ given the individual is in state $s_l$ and the conditional distribution function is $[x_{it}|s_l]$.     
-
-%
-%However, we expand this notation in a general way to cover other models such as robust design and multistate JS models. For example, $x_{it}$ might represent the number of times the animal was captured in $R_t$ secondary occasions during primary occasion $t$ which defines a robust design model (e.g., \citealt{kendall1995likelihood}). Or, $x_{it}$ might be recorded as the individual being in a particular state if it is captured, implying a multistate model \citep{White2006}. We denote the likelihood of observing $x_{it}$ given the individual is in state $z_{it}=s_l$ as $[x_{it}|s_l]$.  Throughout the paper, we use the ``$[A|B]$'' notation to represent a conditional density (distribution) function of $A$ given $B$. We briefly present a few examples for common models. For a standard Jolly-Seber model with a binary capture history and only 1 available state ($s_2$ = ``alive'') the likelihood would be,
-%\[
-%[x_{it}|s_2] = \text{Bernoulli}(x_{it}|p_t),
-%\]
-%where $p_t$ is the probability of capture on occasion $t$. If the model being fit is a robust design formulation where $x_{it}$, are the number of captures in $R_t$ sub-occasions within each main occasion, the likelihood would be,
-%\[
-%[x_{it}|s_2] = \text{Binomial}(x_{it}|R_t, p_t). 
-%\]
-%For a multistate model where $x_{it}$ is recorded as a categorical state with uncertainty (e.g., \citealt{johnson2016multivariate}) then we use the mixture distribution
-%\[
-%[x_{it}|s_l] = (1-p_{t,l})I(x_{it}=0) + p_{t,l}\text{Categorical}(x_{it}|\boldsymbol{\delta}_l,x_{it}\ne0)
-%\]
-%where $\boldsymbol{\delta}_l$ is the vector of probabilities for the range of categories that can be observed when the individual is captured in state $s_l$. For example, one might accurately observe the state $x_{it} = s_l$ or it is unknown, say $x_{it} = $``u'', then $\delta_l$ would represent the probability of observing the true state. For any model $[x_{it}|s_1 (\text{or } s_J)]$ is an indicator that $x_{it}=0$. 
-
-
-% \subsection{A brief review of data augmentation for Jolly-Seber models}
-
-To provide a framework for developing the collapsed Gibbs sampler, we provide a brief review of the PX-DA approach for Bayesian inference. Let $\bx$ represent the $n\times K$ capture history matrix, $\bz$ is the associated matrix of true state values. $\bx_{aug} = \mathbf{0}$ and $\bz_{aug}$ are the $M-n \times K$ matrices for the $M-n$ augmented individuals. For the PX-DA approach we combine, $\bx^+ = (\bx',\bx_{aug}')'$ and $\bz^+ = (\bz',\bz_{aug}')'$, and treat them as observed data and true states respectively. The indicator of population inclusion is $\bw^+ = (\mathbf{1},\bw_{aug}')'$. The posterior distribution for inference is
+To provide a framework for developing the collapsed Gibbs sampler, we provide a brief review of the PX-DA approach for Bayesian JS inference. Let $\bx$ represent the $n\times K$ capture history matrix, $\bz$ is the associated matrix of true state values. $\bx_{aug} = \mathbf{0}$ and $\bz_{aug}$ are the $M-n \times K$ matrices for the $M-n$ augmented individuals. For the PX-DA approach one combines, $\bx^+ = (\bx',\bx_{aug}')'$ and $\bz^+ = (\bz',\bz_{aug}')'$, and treats them as observed data and true states respectively. The indicator of population inclusion is $\bw^+ = (\mathbf{1},\bw_{aug}')'$. The posterior distribution for inference is
 \begin{equation}
 \label{eq:pxda.post}
 [\bt,\gamma, \bw_{aug}, \bz^+|\bx^+] \propto [\bx^+|\bz^+,\bw^+,\bt][\bz^+|\bt][\bw^+|\gamma][\bt][\gamma],
@@ -193,7 +174,7 @@ where $\bt$ are the parameters of the JS model described in the previous section
 
 \section{Collapsed Gibbs sampling for Jolly-Seber models}
 
-Collapsed Gibbs samplers are constructed by marginalizing over some components of the model, using a standard Gibbs sampler to sample the remaining parameters, then the marginalized parameters are sampled using their posterior predictive distribution given the first sample. For example, if one was interested in the posterior $[\bt_1,\bt_2|\bx] \propto [\bx|\bt_1,\bt_2][\bt_1,\bt_2]$, the corresponding collapsed sampler would first draw from $[\bt_1|\bx]\propto [\bx|\bt_1][\bt_1]$ then draw from the posterior predictive distribution $[\bt_2|\bt_1,\bx]$. Relative to a standard Gibbs sampler, faster convergence is achieved because the first sample is not conditioned on the second sample components, reducing the covariance between them \citep{Liu1994a}. In the case of JS models, $\bt_1 = (\bt, \gamma)$ and $\bt_2 = (\bz^+, \bw_{aug})$.
+Collapsed Gibbs samplers are constructed by marginalizing over some components of the model, using a standard Gibbs sampler to sample the remaining parameters, then the marginalized parameters are sampled using their posterior predictive distribution given the first sample. For example, to sample from the posterior $[\bt_1,\bt_2|\bx]$, the corresponding collapsed sampler would first draw from $[\bt_1|\bx]\propto [\bx|\bt_1][\bt_1]$ then draw from the posterior predictive distribution $[\bt_2|\bt_1,\bx]$. Relative to a standard Gibbs sampler, faster convergence is achieved because the first sample is not conditioned on the second sample components, reducing the covariance between them \citep{Liu1994a}. In the case of JS models, $\bt_1 = (\bt, \gamma)$ and $\bt_2 = (\bz^+, \bw_{aug})$.
 
 
 
@@ -224,7 +205,8 @@ In the first step we need to draw a sample from the marginal posterior distribut
 where, $[\bx,\bz|\bt,\bc]$ is the conditional distribution of the capture histories and states given the individuals where captured at least once, indicated by ``$\bc$,'' and $[n|\bt,\gamma] = \text{Binomial}(M, \gamma p^*)$ is the probability of capturing $n$ individuals over the course of study, where $p^*$ is the probability of being captured at least once. 
 %Note that the left-hand side of $[\bt,\gamma, \bz|\bx]$ does not condition on $\bc$ this is because $\bc$ is a deterministic function of $\bx$. So, after $\bx$ is accounted for, $\bc$ is redundant. 
 
-Before we continue with marginalizing over $\bz$ let us take a closer look at  $[n|\bt,\gamma]$. We do not have any augmented data in the marginal posterior, but we still have the remnants of that process, $M$ and $\gamma$. We remove their effect by allowing $M\to \infty$. If we follow this limit while simultaneously allowing $\gamma \to 0$ such that $M\gamma \to \lambda$, then  $[n|\bt,\gamma] \to [n|\bt,\lambda] = \text{Poisson}(\lambda p^*)$.  So, marginalizing over the components of an infinitely large augmented data set, yields the posterior,
+%Before we continue with marginalizing over $\bz$ let us take a closer look at  $[n|\bt,\gamma]$. 
+We do not have any augmented data in the marginal posterior, but we still have the remnants of that process, $M$ and $\gamma$. We remove their effect by allowing $M\to \infty$. If we follow this limit while simultaneously allowing $\gamma \to 0$ such that $M\gamma \to \lambda$, then  $[n|\bt,\gamma] \to [n|\bt,\lambda] = \text{Poisson}(\lambda p^*)$.  So, marginalizing over the components of an infinitely large augmented data set, yields the posterior,
 \[
 [\bt,\lambda, \bz|\bx] \propto  [\bx,\bz|\bt,\bc][n|\bt, \lambda][\bt][\lambda].
 \]
@@ -236,66 +218,60 @@ Now the next step in evaluating the fully marginal posterior distribution, is to
 \label{eq.uncond.lik}
 [\bx_i|\bt] = \bpi\bP_1(x_{i1})\bG_1\bP_2(x_{i2}) \cdots \bG_{K-1}\bP_K(x_{iK})\mathbf{1}.
 \end{equation}
-where $\bpi$ is the initial state probability vector, $\bP_t(x)$ is a diagonal matrix of observation likelihoods for each state, $\bG_t$ is the probability transition matrix for states, and $\mathbf{1}$ is a vector of ones. Therefore, to evaluate the probability of a single capture-history, $\bx_i$, conditional on being captured at least once, we use another iteration of the HMM formulation to obtain,
+where $\bpi$ is the initial state probability vector, $\bP_t(x)$ is a diagonal matrix of observation likelihoods for each state ($[x|s],\ s=0,\dots,J+1$), $\bG_t$ is the probability transition matrix for states, and $\mathbf{1}$ is a vector of ones. Therefore, to evaluate the probability of a single capture-history, $\bx_i$, conditional on being captured at least once, we use a second iteration of the HMM formulation to obtain,
 \begin{equation}
 \label{eq:dJS}
  [\bx_i|\bt,c]  = \frac{[\bx_i|\bt]}{1-[\bx_i=\mathbf{0}|\bt]}
 \end{equation}
-where the denominator, $p^*=1-[\bx_i=\mathbf{0}|\bt]$. Efficient HMM algorithms can be used to evaluate both the numerator and denominator because the denominator is calculated by simply replacing the observed capture-history with all 0s and evaluating it with (\ref{eq.uncond.lik}) as well. The fully marginal posterior can be evaluated efficiently as,
-\begin{equation}
+where the denominator, $p^*=1-[\bx_i=\mathbf{0}|\bt]$, the probability of being captured at least once. Efficient HMM algorithms can be used to evaluate both the numerator and denominator because $1 - p^*$ is calculated by simply replacing the observed capture-history with all 0s and evaluating it with (\ref{eq.uncond.lik}) as well. The fully marginal posterior can be evaluated efficiently as,
+\begin{equation}\label{eq.js.lik}
 [\bt,\lambda|\bx] \propto \prod_{i=1}^n \frac{[\bx_i|\bt]}{1-[\bx_i=\mathbf{0}|\bt]}~ [n|\bt, \lambda][\bt][\lambda]
 \end{equation}
 
 For a traditional multistate JS model the matrices in the likelihood function (\ref{eq:dJS}) are given as follows. First, the initial state probability vector is 
 %
 \[
-\bpi = \begin{blockarray}{cccccc} 
-s_1 & s_2 & \cdots & s_{J-1} & s_J \\
-\begin{block}{[cccccc]}
-1-\tilde{\xi}_1 & \tilde{\xi}_1\alpha_{1,2} & \cdots & \tilde{\xi}_1\alpha_{1,J-1} & 0 \\
-\end{block}
-\end{blockarray}.
+\bpi = \left[\begin{array}{cccccc} 
+1-\tilde{\xi}_1 & \tilde{\xi}_1\alpha_{1,1} & \cdots & \tilde{\xi}_1\alpha_{1,J} & 0 \\
+\end{array}\right],
 \]
 % 
-The observation likelihood matrix, $\mathbf{P}_t(x_{it})$ is a $J\times J$ diagonal matrix with entries, $[x_{it} | s_l]$, $l=1,\dots J$.  Finally, the probability transition matrix is, for $t=1,\dots,K-1$,
+ where $\tilde{\xi}_t = \xi_t /\sum_{j=t}^K \xi_j$, is the conditional probability that an individual enters between $t-1$ and $t$ given it has not entered prior to $t-1$. The probability transition matrix is, for $t=1,\dots,K-1$,
 %
 \begin{equation}
 \label{eq.gamma.mat}
-\bG_t = \begin{blockarray}{cccccc} 
-s_1 & s_2 & \cdots & s_{J-1} & s_J \\
-\begin{block}{[ccccc]l}
-1-\tilde{\xi}_{t+1} & \tilde{\xi}_{t+1}\alpha_{t+1,2} & \cdots & \tilde{\xi}_{t+1}\alpha_{t+1,J-1} & 0 & s_1\\
-0 & \phi_{t,2} \psi_{t,2,2} & \cdots & \phi_{t,2} \psi_{t,2,J-1} & 1-\phi_{t,2} & s_2\\
-\vdots &  \vdots & \vdots &\vdots & \vdots & \vdots \\
-0 & \phi_{t,J-1} \psi_{t,J-1,2} & \cdots & \phi_{t,J-1} \psi_{t,J-1,J-1} & 1-\phi_{t,J-1} & s_{J-1}\\
-0 & 0 & \cdots & 0 & 1 & s_J\\
-\end{block}
-\end{blockarray}.
+\bG_t = 
+\left[\begin{array}{ccccccc}
+1-\tilde{\xi}_{t+1} & \tilde{\xi}_{t+1}\alpha_{1,t+1} & \cdots & \tilde{\xi}_{t+1}\alpha_{J,t+1} & 0\\
+0 & \phi_{1,t} \psi_{1,1,t} & \cdots & \phi_{1,t} \psi_{1,J,t} & 1-\phi_{1,t}\\
+\vdots & \vdots & & \vdots & \vdots \\
+0 & \phi_{J,t} \psi_{J,1,t} & \cdots & \phi_{J,t} \psi_{J,J,t} & 1-\phi_{J,t}\\
+0 & 0 & \cdots & 0 & 1
+\end{array} \right]
 \end{equation}
 
-Now that we have an efficient JS likelihood formulation, the first stage MCMC can proceed using standard Metropolis-within-Gibbs updates for $\bt$. To facilitate regular use we used the bespoke distribution and function definition capability in {\tt nimble} to define the JS likelihood for a single capture history in the {\tt nimbleJSextras} package. The first stage sample can drawn by coding \verb|x[i,1:K] ~ dJS_ms(...,pstar)| and \verb|n ~ dpois(lambda * pstar)| into a {\tt nimble} model statement, where \verb|pstar <- pstar_ms(...)| is the probability of being captured during the study. The ``\verb|...|'' arguments are where the HMM matrices,  $\bpi$, $\bP_t(x_{it})$ and $\bG_t$, are specified. 
+Now that we have an efficient JS likelihood formulation, the first stage MCMC can proceed using standard Metropolis-within-Gibbs updates for $\bt$ and $\lambda$. If only the demographic processes are of interest, one can just use (\ref{eq.js.lik}) to sample $\bt$. If the overall population abundance is desired, one can sample the number of uncaptured individuals, $N_u$, from the predictive distribution,
+\[
+[N_u|\bt, \lambda] = \text{Poisson}(\lambda (1-p^*)).
+\] 
+This results from the infinite augmentation scheme because 
+\[
+[N_u|\bt,\gamma] = \text{Binomial}(M, \gamma(1-p^*)) \to \text{Poisson}(N_u|\lambda(1-p^*))
+\]
+as $M\to\infty$. So, for each iteration of an MCMC algorithm it can be updated with a draw from a standard Poisson distribution as a posterior predictive variable. Then $N = N_u + n$ results directly \citep{johnson2010model, schofield2023estimating}. If other abundance quantities such as $N_t$ are desired, we must sample the individual states to calculate these within the second stage sampler. We can use Bayesian HMM algorithms to efficiently draw from those posterior predictive distributions as well. 
 
 
 \subsection{Predicting states and abundance}
 
-Now we turn our focus to drawing the second stage posterior predictive sample of states, $\bz^+$, and abundance quantities, denoted as $\bvt = f(\bz^+, \bw^+)$. First we note that because we are in an infinite augmentation paradigm, $\bz_{aug}$ and $\bw_{aug}$ are no longer well defined as they are infinite vectors. Therefore we switch to prediction of $\bz$, $\bz_u$ and $n_u$ where $\bz_u$ are the states of the individuals in the population but remained uncaptured through out the study and $n_u$ is the number of uncaptured individuals. Therefore, the second sample is drawn from the predictive distribution,
+Now we turn our focus to drawing the second stage posterior predictive sample of states, $\bz^+$ and $\bw^+$, and associated abundance quantities. Because we are in an infinite augmentation paradigm, $\bz_{aug}$ and $\bw_{aug}$ are no longer well defined as they are infinite vectors. Therefore we switch to prediction of $\bz$ plus the states and time dependent abundance values of individuals that were never captured, $\bN_u = (N_{u,s,t})$ for $s=0,\dots,J+1$ and $t=1,\dots,K$. The second sample is drawn from the predictive distribution,
 \begin{equation}
-[\bz, \bz_u, n_u|\bt,\lambda,\bx] = [\bz|\bt,\bx][\bz_u|n_u,\bt,\bx][n_u|\bt,\lambda,\bx].
+[\bz, \bN_u|N_u, \bt,\bx] = [\bz|\bt,\bx][\bN_u|N_u,\bt].
 \end{equation} 
 
-To begin, because $[N|\lambda] = \text{Poisson}(\lambda)$ under the same infinite augmentation scheme and $[n,n_u|N,\bt] = \text{Multinomial}(N, p^*, 1-p^*)$ implies 
-\[
-[n_u|\bt, \lambda] = \text{Poisson}(\lambda (1-p^*)),
-\]
-conditionally independent of the data, $\bx$. So, for each iteration of an MCMC algorithm it can be updated with a draw from a standard Poisson distribution as a posterior predictive variable. Then the prediction for the overall abundance, $N$, results directly from $N = n_u + n$. \cite{schofield2023estimating} and \cite{johnson2010model} both describe abundance estimation as {\it predicting} the number of undetected individuals. If other abundance quantities such as $N_t$ are desired, we must sample $\bz$ and $\bz_u$ to calculate these within the second stage sampler. We can use Bayesian HMM algorithms to efficiently draw from those posterior distributions as well. 
+To sample the latent states of individuals in the population we first sample the states of the individuals captured at least once from $[\bz_i| \bt, \bx_i]$. This can be accomplished efficiently with the Forward--Filtering Backward--Sampling (FFBS) algorithm for conditional state sampling of HMMs \citep{scott2002bayesian}. The details of the of the FFBS algorithm can be found in the online supplement (Appendix A, algorithm 1). Heuristically, the algorithm works by first using the HMM forward algorithm \citep{zucchini2016hidden} followed by a backward pass through the capture history to sample from $[z_{it}|z_{i,t+1},\dots,z_{i,K},\bt, \bx_i]$ at each occasion. To facilitate this sampling algorithm we have coded the FFBS algorithm into the {\tt nimbleJSextras} package and it can be implemented as a stochastic node in model code statements. Once we perform the the FFBS algorithm for each captured individual we can calculate the derived quantity, $n_{s,t} = \sum_{i=1}^n \mathcal{I}(z_{it}=s)$, the abundance of individuals observed at least once in state $s$ at time $t$. For simplicity, we use the bold notation, $\bn_t = (n_{1,t},\dots,n_{J,t})$, to represent the vector of state-specific abundances and $n_t = \sum_{s=1}^{J} n_{s,t}$ to represent the total abundance of captured individuals available at time $t$. 
 
-To sample the latent states of individuals in the population we first sample the true states for the observed individuals from $[\bz_i| \bt, \bx_i]$. This can be accomplished efficiently with the Forward--Filtering Backward--Sampling (FFBS) algorithm for conditional state sampling of HMMs \citep{scott2002bayesian}. The details of the of the FFBS algorithm can be found in Appendix A (algorithm 1). Heuristically, the algorithm works by first using the HMM forward algorithm \citep{zucchini2016hidden} followed by a backward pass through the capture history to sample from $[z_{it}|z_{i,t+1},\dots,z_{i,K},\bt, \bx_i]$ at each occasion. To facilitate this sampling algorithm we have coded the FFBS algorithm into the {\tt nimbleJSextras} package and it can be implemented via model code statements, \verb|z[i,1:K] <- sample_det_ms(x[i,1:K], ...)|. Here we have proceeded against convention by specifying a random quantity with a deterministic {\tt nimble} function, however, one would never use this distribution as a likelihood, so the coding overhead to specify it as a bespoke distribution seems unnecessary and it functions in the same manner for drawing a realization.  
-
-Once we perform the the FFBS algorithm for each captured individual we can calculate the derived quantity, $n_{t,l} = \sum_{i=1}^n I(z_{it}=s_l)$, the abundance of observed individuals in state $s_l$ at time $t$. For simplicity, we use the bold notation, $\bn_t = (n_{t,1},\dots,n_{t,J})$, to represent the vector of state-specific abundances and $n_t = \sum_{l=2}^{J-1} n_{t,l}$ to represent the total abundance of captured individuals available at time $t$. 
-
-Now that we have the state and time-specific abundances for the observed individuals, we shift to the $n_u$ individuals that are never captured. We could use the same FFBS algorithm to individually sample the states of all $n_u$ individuals all with the capture-history $\bx_i=\mathbf{0}$. However, Because all uncaptured individuals have the same capture-history, we can use a multinomial version of the FFBS, to sample the state and time-specific abundance in one forward and backward pass without simulating individual state histories (Appendix A, algorithm 2). This can be accomplished using {\tt nimbleJSextras} with the model statement \verb|nu_t[1:3, 1:K] <- sample_undet_ms(nu,...)|.
-
-Now that we have posterior samples of $\bn_t$ and $\bn_{u,t}$ we can predict the state and time-specific abundances $\bN_t =  \bn_t + \bn_{u,t}$, $N_t =  n_t + n_{u,t}$, or any other function of state and time-specific abundance.   
+Now that we have the state and time-specific abundances for the observed individuals, we shift to the $N_u$ individuals that are never captured. We could use the same FFBS algorithm to individually sample the states of all $N_u$ individuals all with the capture-history $\bx_i=\mathbf{0}$. However, Because all uncaptured individuals have the same history, we can use a multinomial version of the FFBS, to sample the state and time-specific abundance in one forward and backward pass without simulating individual state histories (Online supplement Appendix A, algorithm 2). The {\tt nimbleJSextras} also contains a distribution for sampling the state and time specific counts of uncaptured individuals, $\mathbf{N}_u$. 
+Now that we have posterior samples of $\bn_t$ and $\bN_{u}$ we can predict the state and time-specific abundances $\bN_t =  \bn_t + \bN_{u,t}$, and $N_t =  n_t + \sum_{s=1}^J N_{u,s,t}$, or any other function of state and time-specific abundance.   
 
 \subsection{Additional computation benefits of the collapsed sampler} \label{sec.savings}
 
@@ -305,7 +281,7 @@ Here we demonstrate some additional computational savings that we can use due to
 \end{equation}
 where $\bx_j^*$ is the $j$th unique capture-history, $w_j$ is the number of times it occurs in $\bx$ and $n^*$ is number of unique histories in $\bx$. This is standard practice when fitting models using maximum likelihood methods, however, it is not possible using the PX-DA approach for Bayesian analysis. This can be a substantial computational savings if $n^*$ is much smaller than $n$ \citep{turek2016efficient}. 
 
-The second computational saving is due to the predictive factoring in the collapsed sampler. This is the same approach used by \cite{Hooten:2023aa}, and \cite{hooten2024geostatistical} to facilitate an efficient 2-stage approach to Bayesian estimation of closed-population models and we can extend this to open-population models. The 2-stage approach first involves drawing a posterior sample from $[\bt,\lambda|\bx]$, preferably using just the unique capture-histories. Then, divide the sample into $B$ batches and sample from $[\bz, \bz_u,n_u|\bt,\lambda,\bx]$ in parallel for each $(\bt,\lambda)$ in the separate batches. 
+The second computational saving is due to the predictive factoring in the collapsed sampler. This is the same approach used by \cite{Hooten:2023aa}, and \cite{hooten2024geostatistical} to facilitate an efficient 2-stage approach to Bayesian estimation of closed-population models and we can extend this to open-population models. The 2-stage approach first involves drawing a posterior sample from $[\bt,\lambda|\bx]$, preferably using just the unique capture-histories. Then, divide the sample into $B$ batches and sample from $[\bz, \bN_u|N_u, \bt,\lambda,\bx]$ in parallel for each $(N_u, \bt,\lambda)$ in the separate batches. 
 
 
 \section{Examples and Extensions}
@@ -332,15 +308,15 @@ $[\text{logit } p_t] = N(\mu_p,\sigma_p^2)$, and $[\text{log } f_t] = N(\mu_f,\s
 \end{center}
 This allows shrinkage of the full time model to the temporally constant model. We used the complexity prior distribution \citep{martins2017penalising} on each of the three the variance components, $\sigma_* \sim \text{Exponential}(1)$. All mean components of the random effect where given the vaguely informative $N(0,1.5^2)$ prior distribution. For $\lambda$ we used $[\lambda] =$ Gamma(1.0e-6, 1.0e-6) to approximate the objective prior, $[\lambda]=\lambda^{-1}$\citep{schofield2023estimating}.
 
-Code for this example is provided in the online supplement and the dipper data was obtained from the {\tt marked} package \citep{Laake:2013aa}. We analyzed this same model with four different methods: (1) PX-DA with 300 augmented individuals, (2) PX-DA with 1,000 augmented individuals, (3) the collapsed sampler, and (4) the collapsed sampler using additional computational savings of Section (\ref{sec.savings}).  For the 2-stage collapsed sampler, we used 10 parallel sessions so that each session used 5,000 iterations from the first stage to sample abundance. We compared the first 5,000 iterations of methods to assess progress toward convergence using the scale reduction diagnostic \citep{GelmanRubin1992a} as well as the multivariate version \citep{BrooksGelman1998a}. For full estimation we used 50,000 MCMC iterations following a 10,000 iteration burnin. 
+Code for this example is provided in the online supplement and the dipper data was obtained from the {\tt marked} package \citep{Laake:2013aa}. We analyzed this same model with four different methods: (1) PX-DA with 300 augmented individuals, (2) PX-DA with 1,000 augmented individuals, (3) the collapsed sampler, and (4) the collapsed sampler using additional computational savings of Section (\ref{sec.savings}).  For the 2-stage collapsed sampler, we used 10 parallel sessions so that each session used 5,000 iterations from the first stage to sample abundance. We compared the first 5,000 iterations of methods to assess progress toward convergence using the scale reduction diagnostic \citep{GelmanRubin1992a} as well as the multivariate version \citep{BrooksGelman1998a}. For this diagnostic a value $\approx 1$ implies convergence. For full estimation we used 50,000 MCMC iterations following a 10,000 iteration burnin. 
 
 \subsubsection{Results}
 
-The multivariate scale reduction for the first 5,000 iterations of the collapsed approach was 1.11, while the scale reduction for the PX-DA approach with 300 and 1,000 augmented individuals was 1.22 and 1.33 respectively. For this diagnostic a value $\approx 1$ implies convergence. So, we can see that convergence begins sooner for the collapsed sampler, but for this analysis it was of little practical consequence because all methods had converged well before the 10,000 iteration burnin.   
+The multivariate scale reduction for the first 5,000 iterations of the collapsed approach was 1.06, while the scale reduction for the PX-DA approach with 300 and 1,000 augmented individuals was 1.43 and 1.25 respectively. So, we can see that convergence begins sooner for the collapsed sampler. It is unclear why the PX-DA (1,000) analysis seemed to converge at a faster rate. Perhaps the extra augmentation allowed the model to mix faster. 
 
-To compare the relative run-times of each of the methods we hold PX-DA (300) as the default standard. The extra 700 augmented individuals in the second PX-DA increased run-time by 3.68$\times$. Run-time for the standard collapsed sampler was 1.82$\times$. Finally, the run-time of the two-stage parallel collapsed sampler was 0.11$\times$, a substantial improvement over the PX-DA methods. For the dipper data there are only $n^* =32$ unique capture-histories in the $n=294$ observed individuals. So, the likelihood calculation only needs to loop over the 32 unique histories for each MCMC iteration. 
+To compare the relative run-times of each of the methods we hold PX-DA (300) as the default standard. The extra 700 augmented individuals in the second PX-DA analysis increased run-time by 3.63$\times$ PX-DA (300) analysis. Run-time for the standard collapsed sampler was 0.63$\times$ the PX-DA (300) analysis. Finally, the run-time of the two-stage parallel collapsed sampler was 0.11$\times$ the PX-DA (300) analysis, a substantial improvement over the PX-DA methods. For the dipper data there are only $n^* =32$ unique capture-histories in the $n=294$ observed individuals. So, the likelihood calculation only needs to loop over the 32 unique histories for each MCMC iteration. 
 
-Parameter estimates  are given in Table \ref{tab:dipper} for the standard collapsed sampler. For each of the four methods, the parameter and abundance estimates aligned outside of Monte Carlo error, as expected. The super population size estimate is $N = 324.6$ with SD = 16.3 and 95\% highest probability density interval of [300--356]. Yearly abundance estimates are illustrated in Figure \ref{fig:dipper.Nt}. 
+For each of the four methods, the parameter and abundance estimates aligned outside of Monte Carlo error, as expected. The super population size estimate is $N = 322.2$ with SD = 15.5 and 95\% highest probability density interval (HPD) of [299--353]. Yearly abundance estimates are illustrated in Figure \ref{fig:dipper.Nt}. All other parameter estimates are presented in the online supplement (Table S1). 
 \begin{figure}
 \centering
 \begin{minipage}{0.8\textwidth}
@@ -353,23 +329,24 @@ Parameter estimates  are given in Table \ref{tab:dipper} for the standard collap
 
 
 %
-%pxda300: 4.582749 mins
-%pxda1000: 16.86174 mins
-%collapsed: 2.916474 mins
-%parallel time: 1-18.42314 secs 2- 10.85654 secs
+%pxda300: 4.6 mins
+%pxda1000: 16.7 mins
+%collapsed: 2.9 mins
+%parallel time: 1-19 secs 2-12 secs
 
 \subsection{Abundance and reproductive demographics of nesting Hawaiian green sea turtles}
 
-Here we present an example analysis with a multistate component, abundance of female nesting Hawaiian green sea turtles ({\it Chelonia mydas}) or {\it honu}. This analysis demonstrates use of the 2-stage collapsed sampler to fit a model that incorporates individual by time effects on capture probability heterogenity. Specifically we fitted a behavioral model with effect of previous capture on the current capture probability. In addition, these data are relatively large and PX-DA methods can be computationally expensive in that case. So, we can use the two-stage collapsed sampler to efficiently sample the posterior. 
+Here we present an example analysis with a multistate component, abundance of female nesting Hawaiian green sea turtles ({\it Chelonia mydas}) or {\it honu}. This analysis demonstrates use of the 2-stage collapsed sampler to fit a model that incorporates individual by time effects on capture probability heterogeneity. Specifically we fitted a behavioral model with effect of previous capture on the current capture probability. In addition, these data are relatively large and PX-DA methods can be computationally expensive in that case. So, we can use the two-stage collapsed sampler to efficiently sample the posterior. 
 
 The data presented here are from the 1973--2016 nesting season surveys on the islets within the atoll of Lalo (French Frigate Shoals), in the Northwestern Hawaiian Islands. Over the 44 year study period $n$ = 5,271 females were captured. During the season, honu will migrate from the Main Hawaiian Islands (MHI) to nest at Lalo starting in late April through early August. After nesting is complete honu will return to the MHI and enter the foraging phase which lasts between 2--10 (average {\it c.} 4) years, where no nesting occurs \citep{BalazsEtAl2015a}. The time between nesting occasions is termed {\it remigration interval}. 
 
 
 \subsubsection{Model Specifications}
 
-There are two alterations to the traditional JS model that are necessary to estimate the size of the nesting female population with this data. The first issue is that individuals become unavailable for capture for an extended time while they are foraging because it is not feasible to capture individuals in the MHI with any systematic effort. During nesting phase individuals are concentrated at Lalo, thus, relatively easy to capture. Second, processing individuals on their initial capture (i.e., unmarked animals) is more time consuming than recording individuals that already have a permanent identification (marked). In some years there is not enough total survey resources to equally process marked and unmarked individuals. Therefore, in some years capture and processing of unmarked individuals is lower priority than recording marked individuals. This is similar to a closed-population $M_b$ model \citep{OtisEtAl1978a} where the individuals become ``trap happy'', however, this mathematical behavioral response is due to capture effort on the part of the researchers, not actual honu behavior.
+There are two alterations to the traditional JS model that are necessary to estimate the size of the nesting female population with this data. The first issue is that individuals become unavailable for capture for an extended time while they are foraging because it is not feasible to capture individuals in the MHI with any systematic effort. During nesting phase individuals are concentrated at Lalo and relatively easy to capture. Second, processing individuals on their initial capture (i.e., unmarked animals) is more time consuming than recording individuals that already have a permanent identification (marked). In some years there is not enough total survey resources to equally process marked and unmarked individuals. Therefore, in some years capture and processing of unmarked individuals is lower priority than recording marked individuals. This is similar to a closed-population $M_b$ model \citep{OtisEtAl1978a} where the individuals become ``trap happy'', however, this mathematical behavioral response is due to capture effort on the part of the researchers, not actual honu behavior.
 
-To model the effect of the remigration interval on abundance of hawksbill marine turtles ({\it Eretmochelys imbricata}) \citet{kendall2019multistate} used the breeding return time (JS-BRT) model of \cite{PledgerEtAl2013a} which is a special case of the semi-Markov capture-recpature model described by \cite{king2016semi}. The JS-BRT model uses several intermediate substates to represent the overall condition of the individual being in a nonbreeding state, e.g., for honu, the individual is in a foraging (nonbreeding) state if it is in any one of the substates, $F_1,\dots, \text{or } F_m$. The transition probabilities force the individual to pass through the substates sequentially or return to the nesting state. With regard to the composite state, $F=\{F_1,\dots,F_m\}$, the underlying model is a Hidden {\it semi}-Markov model (HSMM), because the dwell-time in the composite state is not geometrically distributed as it would be in a strictly Markov chain.
+To model the effect of the remigration interval on abundance of hawksbill marine turtles ({\it Eretmochelys imbricata}) \citet{kendall2019multistate} used the breeding return time (JS-BRT) model of \cite{PledgerEtAl2013a} which is a special case of the semi-Markov capture-recpature model described by \cite{king2016semi}. The JS-BRT model uses several intermediate substates to represent the overall condition of the individual being in a nonbreeding state, e.g., for honu, the individual is in a foraging (nonbreeding) state if it is in any one of the substates, $F_1,\dots, \text{or } F_m$. The transition probabilities force the individual to pass through the substates sequentially or return to the nesting state. 
+%With regard to the composite state, $F=\{F_1,\dots,F_m\}$, the underlying model is a Hidden {\it semi}-Markov model (HSMM), because the dwell-time in the composite state is not geometrically distributed as it would be in a strictly Markov chain.
 
 Now we examine the effort-induced trap response issue. In a PX-DA analysis this would be taken care of with a individual $\times$ occasion covariate, say $c_{it}$ that indicates if individual $i$ has been previously captured on occasion $t$. We cannot use that approach in the collapsed sampler because we are not explicitly simulating state-histories for uncaptured individuals. However, we can use the another set of substates to define our reproductive state: $R_{00}$, $R_{01}$, $R_{10}$, $R_{11}$, where the subscripts indicate, respectively, that an individual has been previously captured and is currently captured on occasion $t$. We have moved the capture process into the state transitions. In addition to the composite reproductive state, we also need to further expand the foraging substates to $F_{01},\dots,F_{0m},F_{11},\dots,F_{1m}$ where the first subscript denotes previous capture. These additional foraging states are not biologically different, they simply serve to prevent transitions among the reproductive states that are not permitted, e.g., if an individual is in $R_{00}$ its next reproductive state cannot be $R_{11}$ or $R_{10}$.
 
@@ -400,22 +377,27 @@ The $F_1$ transitions are identical and all other probabilities are 0.
 
 The bulk of the model specification falls in the transition matrix. The other HMM matrices are, comparatively, more straightforward. The initial entry vector is,
 \[
-\bpi = \left[1-\tilde{\xi}_1\quad \tilde{\xi}_1(1-\eta_1) \quad \tilde{\xi}_1\eta_1\quad \mathbf{0}\right]
+\bpi = \left[1-\tilde{\xi}_1\quad \tilde{\xi}_1(1-\eta_1 p_1) \quad \tilde{\xi}_1\eta_1 p_1\quad \mathbf{0}\right]
 \]
-where $\mathbf{0}$ is a $2m+3$ row vector of zeros. The observation matrices, $\bP(x_{it})$, are still diagonal with $[x_{it}|s_l]$ entries. However, because the detection process has been absorbed in the state transition, $[x_{it}|s_l]$ is just an indicator that the observation $x_{it}$ is possible in state $s_l$. For example $[x_{it}=0|s_l=R_{00}]=1$ and $[x_{it}=1|s_l=R_{00}]=0$. 
+where $\mathbf{0}$ is a $2m+3$ row vector of zeros. The observation matrices, $\bP(x_{i,t})$, are still diagonal with $[x_{i,t}|s]$ entries. However, because the detection process has been absorbed in the state transition, $[x_{i,t}|s]$ is just an indicator that the observation $x_{i,t}$ is possible in state $s$. For example $[x_{i,t}=0|s=R_{00}]=1$ and $[x_{i,t}=1|s=R_{00}]=0$. 
 
-Now that we have the general form of the HMM matrices, we can define specific parameterization for this analysis. Honu are long-lived with very stable survival once they reach adulthood \citep{PiacenzaEtAl2016a} so we modeled survival probability as constant over time and between states, $\phi_{l,t} = \phi$ with prior distribution $[\text{logit }\phi] = t(\sigma=1.52,\text{df}=6)$, where $t(\sigma,\text{df})$ is a scaled $t$ distribution with df degrees of freedom. We used this specification to closely approximate a uniform distribution for $\phi$ but the sampled parameter, $\text{logit }\phi$, is unconstrained.
-The entrance probabilities are modeled using recruitment probability \citep{Royle:2008kx}. The recruitment probability, $\rho_t$, is the probability that the individual enters at occasion $t$ given it has not yet entered. This essentially mirrors the exit probability. To use it in the collapsed sampler we need the unconditional entry probability,
-\[
-\xi_t \propto \left\{
-\begin{array}{ll}
-\rho_1 & t=1 \\
-\rho_t \prod_{j=1}^{t-1} (1-\rho_j) & t \ge 2
-\end{array}, \right.
-\]
-from which we obtain $\tilde{\xi}_t$ for the transition matrices. We, again, used the logit transformation to specify the prior distributions $[\text{logit }\rho_t] = t(1.52,6)$. For the capture probability parameters, $p_t$ and $\eta_t$ we used the $t(1.52,6)$ prior distributions as well with $p_1 \equiv 1$ The probability of capture in year 1 is defined to be $\eta_1$. Finally, we used $m=5$ foraging substates to model the remigration interval, with $[\text{logit }\tau_j] = t(1.52,6)$. This choice of $m$ results in a total of $J=1+4+2(5)+1 =16$ states for the model. Finally, we used the approximate objective prior $[\lambda]=$ Gamma(1.0e-6, 1.0e-6).
+Now that we have the general form of the HMM matrices, we can define specific parameterization for this analysis. Honu are long-lived with very stable survival once they reach adulthood \citep{PiacenzaEtAl2016a} so we modeled survival probability as constant over time and between states, $\phi_{s,t} = \phi$ with prior distribution $[\text{logit }\phi] = t(\sigma=1.52,\text{df}=6)$, where $t(\sigma,\text{df})$ is a scaled $t$ distribution with df degrees of freedom. We used this specification to closely approximate a uniform distribution for $\phi$ but the sampled parameter, $\text{logit }\phi$, is unconstrained. 
 
-Using the two-stage approach we ran the MCMC sampler for 50,000 iterations following a 20,000 iteration burn-in. Within the histories of the 5,271 observed individuals, there were only 1,338 unique capture histories. So, we reduced the sample size burden in the first stage by about 75\%. Anecdotally, as all computation environments are different, on an Apple MacBook Pro with an M2 Max processor, the first-stage MCMC took approximately 3.4 hours to run. For the second stage we used 10 parallel sessions and this completed in approximately 7.5 minutes. If we assume that there is linear run time relative to $n$, this implies the equivalent PX-DA version would take approximately 32 hours to complete. This is, of course, just an educated guess but illustrative of the possible improvement based on the dipper example.
+Because we modeling occasion specific capture probabilities for unmarked individuals, allowing unrestricted entry probabilities (outside of sum-to-one constraint) is somewhat confounded in the model. Because entry to the state of reproductive adult is the culmination of $\sim$20 years of survival and growth from hatching \citep{HoutanEtAl2014a} we assume that this process is relatively smooth from year to year. To model this autocorrelation we used the basis function $\text{mlogit }\boldsymbol{\xi}= \mathbf{B}\bb$, where the coefficients have distribution $[\beta_k|\sigma_{\xi}] = N(0,\sigma_{\xi}^2)$ \citep{hefley2016basis}. To avoid over smoothing we used a Mat\'{e}rn ($\nu=1.5$; \citealt{kammann2003geoadditive}) function as a basis instead of a Gaussian radial basis function. We used 10 evenly spaced internal knots and 4 external knots on each end outside of [1--$K$] to eliminate boundary effects for a total of 18 knots. To complete the specification we used the complexity penalty prior distribution $[\sigma_{\xi}] = \text{exponential}(1)$ \citep{martins2017penalising} to shrink $\xi_t$ to uniform $1/K$ if the data do not support an occasion specific entry process.  
+
+%using recruitment probability \citep{Royle:2008kx}. The recruitment probability, $\rho_t$, is the probability that the individual enters at occasion $t$ given it has not yet entered. This essentially mirrors the exit probability. To use it in the collapsed sampler we need the unconditional entry probability,
+%\[
+%\xi_t \propto \left\{
+%\begin{array}{ll}
+%\rho_1 & t=1 \\
+%\rho_t \prod_{j=1}^{t-1} (1-\rho_j) & t \ge 2
+%\end{array}, \right.
+%\]
+%from which we obtain $\tilde{\xi}_t$ for the transition matrices. We, again, used the logit transformation to specify the prior distributions $[\text{logit }\rho_t] = t(1.52,6)$. 
+
+For the capture probability parameters, $p_t$ and $\eta_t$ we used the $t(1.52,6)$ prior distributions as well as setting $\eta_1=\eta_2 \equiv 1$ because all individuals are unmarked on occasions 1 and 2. Finally, we used $m=5$ foraging substates to model the remigration interval, with $[\text{logit }\tau_j] = t(1.52,6)$. This choice of $m$ results in $J=4+2(5)=14$ active states and 16 total states for the model. Finally, we used the approximate objective prior $[\lambda]=$ Gamma(1.0e-6, 1.0e-6).
+
+Using the two-stage approach we ran the MCMC sampler for 250,000 iterations following a 50,000 iteration burn-in, only every fifth iteration was retained for storage. Out of 5,271 observed individuals, there were only 1,338 unique capture histories, so, the sample size burden in the first stage is reduced by about 75\%. Anecdotally, as all computation environments are different, on an Apple MacBook Pro with an M2 Max processor, the first-stage MCMC took approximately 3.5 hours to run. For the second stage we used 10 parallel sessions and this completed in approximately 7.7 minutes. 
 
 \subsubsection{Results}
 
@@ -430,10 +412,11 @@ As expected, there were several years where capture probability was significantl
 \end{minipage}
 \end{figure}
 On some occasions $\hat{p}_t\approx 1$ while $\hat{\eta}_t\hat{p}_t$ was substantially lower. Yearly survival probability was $\hat{\phi}$ = 0.91 [95\% CI: 0.91 -- 0.92].
-The probability distribution function for remigration interval, $r$, can be calculated from the breeding return probabilities, $\tau_j$ using,
+The probability distribution function for remigration interval, $R$, can be calculated from the breeding return probabilities, $\tau_j$ using,
 \[
-[r=k|\tau_1,\dots,\tau_5] = \left\{
+[R=k|\tau_1,\dots,\tau_5] = \left\{
 \begin{array}{ll}
+0 & k=1\\
 \tau_1 & k=2\\
 \tau_{k-1}\prod_{j=1}^{k-2} (1-\tau_j) & k \ge 3 
 \end{array} \right.
@@ -448,19 +431,19 @@ where $\tau_j=\tau_5$ if $j \ge 5$. Remigration probability estimates peaked at 
 \label{fig:honu.remig}
 \end{minipage}
 \end{figure}
-The estimated average remigration interval calculated from these probabilities is 3.74 years [3.68 -- 3.82] which is similar to the empirically observed value of 4 reported by \cite{BalazsEtAl2015a}. 
+The estimated average remigration interval calculated from these probabilities is 3.74 years [3.68 -- 3.81] which is similar to the empirically observed value of 4 reported by \cite{BalazsEtAl2015a}. 
 
-The estimates of recruitment probability ($\rho_t$) were low but relatively consistent for the bulk of the time series (Figure \ref{fig:honu.rho}A) with a marked increase in both point estimates and uncertainty as the end of the series is reached. This is expected and is not indicative of a real biological increase in population entry, as can be seen by examining the corresponding estimates of marginal entry probability ($\xi_t$; Figure \ref{fig:honu.rho}B). 
+The estimates of entry probability ($\xi_t$) show some evidence of year-to-year variation (Figure \ref{fig:honu.xi}). The basis variance component estimate $\hat{\sigma}_\xi = 0.18$ [0.00--0.56] was small, but did not shrink to zero. However, uncertainty is high enough that one cannot rule out a uniform entry process.  
 \begin{figure}
 \centering
 \begin{minipage}{0.8\textwidth}
 \centering
- \includegraphics[width=0.9\textwidth]{rho_entry_probs.png}
-\caption{Plot A illustrates individual recruitment probability estimates ($\rho_t$) for Lalo honu. Plot B illustrates unconditional entry probabilities ($\xi_t$). In both plots error bars represent 90\% highest probability density intervals.}
-\label{fig:honu.rho}
+ \includegraphics[width=0.9\textwidth]{entry_probs.png}
+\caption{Occasion specific estimates of the unconditional entry probabilities ($\xi_t$). The red dashed line marks the uniform $\xi_t = 1/K$ model. The gray envelope marks the 90\% highest probability density interval.}
+\label{fig:honu.xi}
 \end{minipage}
 \end{figure}
-It is a result of the fact that the model constrains entry to occur before the end of the study, and the uncertainty results from the breeding return time portion of the model. Individuals may enter near the end of the study and, if not captured, they most likely will not be seen before the study concludes. 
+ 
  
 Yearly abundance of female reproductive age honu and 90\% credible intervals are shown in Figure \ref{fig:honu.abund}. 
 \begin{figure}
@@ -471,15 +454,7 @@ Yearly abundance of female reproductive age honu and 90\% credible intervals are
 \label{fig:honu.abund}
 \end{minipage}
 \end{figure}
-The first 6 years were discarded because there are females that have nested before and are in the desired population, but they were in the foraging phase and did not have a chance to be exposed to capture \citep{kendall2019multistate}. As Figure (\ref{fig:honu.abund}) illustrates, the population climbs rapidly for the first few years as all the foraging females become exposed to capture. The 6-year burn-in was chosen based on the posterior renesting interval distribution. For all MCMC samples, $<1$\% of renesting intervals last 7 years or more. So for those individuals that nested immediately before the first occasion, there is only a small chance that they did not nest again by the 7th occasion; thus, all females have been exposed to capture and $N_t$ represents the abundance of all nesting females. The overall, superpopulation abundance was estimated $\hat{N}$ = 10,280 [9,041--11,437]. The 99\%-tile of the posterior was 12,217. Thus in order to make sure that $M$ is large enough for a PX-DA version analysis, one should add at least 12,217 - 5,271 $\approx$ 7,000 individuals. 
-%3.389517 hours and 7.49999 mins = 3.514517 hrs
-%expanded = 31.95015 hours
-%n = 5271 and u = 1338
-%growth 0.53\% [-0.58 -- 1.44]
-%expected ri 3.74 yr [3.68 -- 3.82]
-%survival 0.91 [0.91 -- 0.92]
-
-% https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/global/time-series/hawaiianRegion/land_ocean/
+The first 6 years were discarded because there are females that have nested before and are in the desired population, but they were in the foraging phase and did not have a chance to be exposed to capture \citep{kendall2019multistate} before the 6th occasion. The 6-year burn-in was chosen based on the posterior renesting interval distribution. For all MCMC samples $<1$\% of renesting intervals last 7 years or more. So for those individuals that nested immediately before the first occasion, there is a vanishingly small chance that they did not nest again by the 7th occasion; thus, approximately all females have been exposed to capture and $N_t$ represents the abundance of all nesting females after the 6th occasion. The superpopulation abundance was estimated $\hat{N}$ = 9,159 [8,416--9,964]. The 99\%-tile of the posterior was 10,339. Thus in order to make sure that $M$ is large enough for a PX-DA analysis, one should add at least 10,339 - 5,271 = 5,068 individuals. 
 
 \section{Discussion}
 
@@ -489,7 +464,7 @@ To make the collapsed approach straightforward for practitioners to use we devel
 
 The examples of Section 4 illustrate both a standard JS analysis with the dipper data, as well as, inclusion of individual $\times$ occasion effects on capture heterogeneity in the honu analysis. But it is useful to consider when the PX-DA approach might be preferred. One of the main benefits of the PX-DA approach over even standard frequentist methods such as maximum likelihood estimation is the ease of which all types of heterogeneity can be included in a model. For example, individual heterogeneity in survival or capture probability can easily be included with an individual random effect within logit specifications of the parameters (see \citealt{Royle:2008kx}, Chapter 10). These continuously valued random effects would be difficult if not prohibitively challenging to implement with the collapsed approach. However, we speculate that, as in the honu example, there may be finite state alternatives or approximations for these models which could produce similar results. \citet{Pledger:2010fk} note that finite state models with 2 states can be effective approximations for continuous capture heterogeneity models. However, a model with many different continuous random effects components might greatly expand the number of states necessary to approximate said model. So, while a single random effect for individual capture heterogeneity might be easily approximated by a few states, the number of states needed for heterogeneity in capture, survival, and state transitions will grow multiplicatively. In that case, PX-DA models may be easier to implement, but, some further investigation is warranted. For example, \citet{johnson2016multivariate}, show that multivariate states can be represented more parsimoniously than a full product of levels. 
 
-Astute readers will notice, while we used the collapsed Gibbs sampler to derive a fully marginal approach, in the end we arrived at a standard Bayesian analysis in which we use the exact data likelihood and prior distributions to arrive at posterior inference. For the true model parameters: $\bp$, $\bphi$, $\bxi$, and $\lambda$, this is, indeed, the case. However, using the derivation of the collapsed sampler to arrive at this realization serves three purposes. First, it allows us to use some theoretical justification to provide some assurance that there is a very high likelihood that we will improve the MCMC mixing and convergence rate versus the PX-DA version, even if only slightly as in the dipper example. \cite{yackulic2020need} also demonstrated this for marginalized Cormack-Jolly-Seber models through simulation. Although, we are not mathematically guaranteed that this will occur. Second, the collapsed Gibbs sampler allows us to explicitly formulate abundance values, e.g., $N_1,\dots,N_K$, as posterior predictive quantities, which is not immediately obvious from classical likelihood derivations such as \cite{schwarz1996general}. This allows the use of the parallel sampling in the second stage. Finally, the process of deriving the collapsed Gibbs sampler allows us to connect the traditional frequentist JS likelihood to the the Bayesian PX-DA version, which for many practitioners has become the default way to think about abundance estimation from capture-recapture data. 
+Astute readers will notice, while we used the collapsed Gibbs sampler to derive a fully marginal approach, in the end we arrived at a standard Bayesian analysis in which we use the exact data likelihood and prior distributions to arrive at posterior inference. For the true model parameters: $\bp$, $\bphi$, $\bxi$, and $\lambda$, this is, indeed, the case. However, using the derivation of the collapsed sampler to arrive at this realization serves three purposes. First, it allows us to use some theoretical justification to provide some assurance that there is a very high likelihood that we will improve the MCMC mixing and convergence rate versus the PX-DA version. \cite{yackulic2020need} also demonstrated this for marginalized Cormack-Jolly-Seber (CJS) models through simulation. Although, we are not mathematically guaranteed that this will occur. Second, the collapsed Gibbs sampler allows us to explicitly formulate abundance values, e.g., $N_1,\dots,N_K$, as posterior predictive quantities, which is not immediately obvious from classical likelihood derivations such as \cite{schwarz1996general}. This allows the use of the parallel sampling in the second stage. Finally, the process of deriving the collapsed Gibbs sampler allows us to connect the traditional frequentist JS likelihood to the the Bayesian PX-DA version, which for many practitioners has become the default way to think about abundance estimation from capture-recapture data. 
 
 Given that we are using the exact likelihood in a traditional Bayesian analysis we can also examine some implications of our development in that light. The first thing to note is that $N$ is not a parameter in our likelihood, $\lambda$ takes its place. In the \cite{schwarz1996general} JS likelihood, $[n|\bt, N] = \text{Binomial}(N,p^*)$ is used instead of $\text{Poisson}(\lambda p^*)$ \citep{king2015capture}. In a traditional Bayesian analysis using the likelihood we would put a prior distribution on $N$. If we assume $[N] = \text{Poisson}(\lambda)$ we will arrive at the same likelihood here, developed from allowing $M \to \infty$, after marginalizing over $N$. However, \cite{link2013cautionary} suggests the objective prior $[N]=N^{-1}$. But as \cite{schofield2023estimating} proves, using the Poisson prior with hyper-prior $[\lambda]=\lambda^{-1}$ will give the exact same posterior inference as when using the objective prior for $N$ directly. So, while it may seem that we are making a specific distributional assumption for $N$ by using the Poisson distribution, it is not as consequential as it might seem. In the example sections we used $[\lambda] = \text{Gamma}(\epsilon, \epsilon)$ which approximates $\lambda^{-1}$ for $\epsilon \to 0$. So, the collapsed development provides a framework to complete the arc of Bayesian inference for JS models from the exact likelihood of \cite{schwarz1996general} to the PX-DA expansion of \cite{Durban:2005yw} and \cite{Royle:2007kx} and back again to use of the exact likelihood. 
 
@@ -504,128 +479,5 @@ The findings and conclusions in the paper are those of the authors and do not ne
 
 
 \bibliography{bayes_jolly_seber}
-
-\clearpage
-
-\renewcommand{\baselinestretch}{1.5}\normalsize
-
-
-
-\begin{table}
-    \caption{Parameter estimates for random effect {\it per capita} recruitment model for the European dipper data. Credible intervals are 95\% highest probability density (HPD) intervals.} \bigskip
-    \label{tab:dipper}
-    \centering
-    \begin{tabular}{ccccc}
-        \hline\hline
-        Parameter & Estimate &  SD & 95\% CI \\
-        \hline
-        $\lambda$ & 324.67 & 24.21 & [279.80 -- 373.47]  \\
-        $N$ & 324.61 & 16.25 & [300 -- 356]  \\
-        \hline
-        $f_1$ & 1.27 & 0.76 & [0.30 -- 2.66]  \\
-         $f_2$ & 0.70  & 0.19 &  [0.39 -- 1.08]  \\
-         $f_3$ & 0.53  & 0.10 &  [0.35 -- 0.74]  \\
-         $f_4$ & 0.48  & 0.09 &  [0.31 -- 0.65]  \\
-         $f_5$ & 0.49  & 0.08 &  [0.34 -- 0.66]  \\
-         $f_6$ & 0.43  & 0.08 &  [0.27 -- 0.59]  \\
-         \hline
-         $\phi_1$ & 0.59 & 0.07 &  [0.46 -- 0.75]  \\
-         $\phi_2$ & 0.51 & 0.06 &  [0.40 -- 0.62]  \\
-         $\phi_3$ & 0.52 & 0.05 &  [0.42 -- 0.61]  \\
-         $\phi_4$ & 0.59 & 0.05 &  [0.50 -- 0.69]  \\
-         $\phi_5$ & 0.58 & 0.05 &  [0.50 -- 0.67]  \\
-         $\phi_6$ &  0.58 & 0.06 &  [0.48 -- 0.70]  \\
-         \hline
-         $p_1$ & 0.64 & 0.27 &  [0.22 -- 0.96]  \\
-         $p_2$ & 0.82 & 0.10 &  [0.60 -- 0.96]  \\
-         $p_3$ & 0.89 & 0.05 &  [0.79 -- 0.99]  \\
-         $p_4$ & 0.89 & 0.05 &  [0.79 -- 0.98]  \\
-         $p_5$ & 0.89 & 0.04 &  [0.81 -- 0.97]  \\
-         $p_6$ & 0.91 & 0.04 & [0.83 -- 0.98]   \\
-         $p_7$ & 0.88 & 0.07 &  [0.75 -- 1.00]  \\
-         \hline
-         $\mu_f$        & -0.55 & 0.28 &  [-1.04 -- 0.03]  \\
-         $\sigma_f $    & 0.48 & 0.34 &  [0.00 -- 1.09]  \\
-         $\mu_\phi$     &  0.25 & 0.19 &  [-0.10 -- 0.63]  \\
-         $\sigma_\phi $ & 0.28 & 0.22 &  [0.00 -- 0.68]  \\
-         $\mu_p$        &  1.85 & 0.55 &  [0.71 -- 2.87]  \\
-         $\sigma_p $    & 0.84 & 0.66 &  [0.02 -- 2.03]  \\
-         \hline
-    \end{tabular}
-\end{table}
-
-\clearpage
-
-\appendix
-
-
-
-\section{Forward-Backward Posterior Abundance Sampling Algorithms}
-
-\renewcommand{\baselinestretch}{1.8}\normalsize
-
-
-Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS) algorithm for sampling the conditional posterior distribution of the true state of an individual(s). These algorithms are used within each round of MCMC updates to draw from the state distributions conditional on the observed data, $\bx=\{\bx_1,\dots,\bx_n\}$, and the parameters, $\bt$ at the current iteration. The first version is for updating the true state, $\bz_i=(z_{i1},\dots,z_{iK})$ of an observed individual with capture history $\bx_i\ne\mathbf{0}$. The second version is for updating the state and time-specific abundance of all unobserved individuals given the observed data, $\bx$, the number of unobserved individuals, $n_u$, and the current parameters, $\bt$. Both of these algorithms are coded as {\tt nimble} functions (\verb|sample_det_**| and \verb|sample_undet_**|) in the {\tt nimbleJSextras} package available at \url{https://github.com/dsjohnson/nimbleJSextras}. %or \href{https://dsjohnson.r-universe.dev/nimbleJSextras}{https://dsjohnson.r-universe.dev/nimbleJSextras}.
-
-\renewcommand{\baselinestretch}{1.5}\normalsize
-
-
-\begin{algorithm}[H]
-\caption{FFBS for Observed Individuals}
-\begin{algorithmic}[1]
-\STATE \textbf{Inputs:} $\bx_i$, $\bpi$, $\{\bG_t\}$, $\{\mathbf{P}_t(x_{it})\}$
-\STATE \textbf{Output:} posterior draw of hidden state sequence $\mathbf{z}_i \sim [\mathbf{z}_i|\bx_i, \bt]$
-
-\vspace{0.5em}
-\STATE \textbf{Forward pass:}
-\STATE Compute $\mathbf{f}_1 = \bpi \mathbf{P}_1(x_{i,1})$
-\STATE Normalize $\mathbf{f}_{1} = \mathbf{f}_{1}/\text{sum}(\mathbf{f}_{1})$
-\FOR{$t = 1$ to $K-1$}
-    \STATE $\mathbf{f}_{t+1} = \mathbf{f}_{t} \bG_{t} \mathbf{P}_{t+1}(x_{i,t+1}) $
-    \STATE Normalize $\mathbf{f}_{t+1} = \mathbf{f}_{t+1}/\text{sum}(\mathbf{f}_{t+1})$
-\ENDFOR
-
-\vspace{0.5em}
-\STATE \textbf{Backward sampling:}
-\STATE Sample $z_{iK} \sim \text{categorical}(\mathbf{f}_K)$
-\FOR{$t = K-1$ down to $1$}
-    \STATE Compute $\mathbf{b} = \mathbf{f}_t \odot \bG_t[,z_{i,t+1}]$ ($\odot$ \text{ is elementwise multiplication})
-    \STATE Normalize $\mathbf{b} = \mathbf{b}/\text{sum}(\mathbf{b})$
-     \STATE Sample $z_{it} \sim \text{categorical}(\mathbf{b})$
-\ENDFOR
-\STATE Return $\mathbf{z}_i=(z_{i,1},\dots,z_{i,K})$
-\end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}[H]
-\caption{Multinomial FFBS for Unobserved Individuals}
-\begin{algorithmic}[1]
-\STATE \textbf{Inputs:} $\bpi$, $\{\bG_t\}$, $\{\mathbf{P}_t(0)\}$, $n_u$.
-\STATE \textbf{Output:} posterior draw of abundance of unobserved individuals $\mathbf{n}_{u} \sim [\mathbf{n}_{u}|\bx, n, \bt]$, where $\mathbf{n}_u$ is a $J\times K$ matrix of state- and occasion-specific abundance of unobserved individuals. 
-
-\vspace{0.5em}
-\STATE \textbf{Forward pass:}
-\STATE Compute $\mathbf{f}_1 = \bpi \mathbf{P}_1(0)$
-\STATE Normalize $\mathbf{f}_{1} = \mathbf{f}_{1}/\text{sum}(\mathbf{f}_{1})$
-\FOR{$t = 1$ to $K-1$}
-    \STATE $\mathbf{f}_{t+1} = \mathbf{f}_{t} \bG_{t} \mathbf{P}_{t+1}(0) $
-    \STATE Normalize $\mathbf{f}_{t+1} = \mathbf{f}_{t+1}/\text{sum}(\mathbf{f}_{t+1})$
-\ENDFOR
-\vspace{0.5em}
-\STATE \textbf{Backward sampling:}
-\STATE Sample $\mathbf{n}_u[,K] \sim \text{multinomial}(n_u,\mathbf{f}_K)$
-\FOR{$t = K-1$ down to $1$}
-    \FOR{$l=1$ to $J$}
-     \STATE Compute $\mathbf{b} = \mathbf{f}_t \odot \bG_t[,l]$ ($\odot$ \text{ is elementwise multiplication})
-     \STATE Normalize $\mathbf{b} = \mathbf{b}/\text{sum}(\mathbf{b})$
-     \STATE Sample $\mathbf{Z}[,l] \sim \text{multinomial}(\mathbf{n}_u[l,t+1], \mathbf{b})$
-    \ENDFOR
-    \FOR{$l=1$ to $J$}
-        \STATE $\mathbf{n}_u[l,t] = \text{sum}(\mathbf{Z}[l,])$
-    \ENDFOR
-\ENDFOR
-\STATE Return $\mathbf{\mathbf{n}_u}$
-\end{algorithmic}
-\end{algorithm}
 
 \end{document}

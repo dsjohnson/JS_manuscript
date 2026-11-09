@@ -1,0 +1,246 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+
+\usepackage{amsmath,amssymb,amsthm,epsfig,rotfloat,psfrag,natbib,url,graphicx,lineno,hyperref}
+\usepackage{authblk}
+
+\usepackage[symbol]{footmisc}
+
+\usepackage{blkarray}
+
+\usepackage{booktabs} 
+\usepackage{makecell}
+
+\usepackage{algorithm, algorithmic}
+
+
+\bibliographystyle{apalike}
+
+%%%%
+% Some shortcut notation
+%%%%
+
+\newcommand{\bu}{\ensuremath{\mathbf{u}}}
+\newcommand{\bx}{\ensuremath{\mathbf{x}}}
+\newcommand{\by}{\ensuremath{\mathbf{y}}}
+\newcommand{\bB}{\ensuremath{\mathbf{B}}}
+\newcommand{\bp}{\ensuremath{\mathbf{p}}}
+\newcommand{\bc}{\ensuremath{\mathbf{c}}}
+\newcommand{\bfr}{\ensuremath{\mathbf{f}}}
+\newcommand{\bn}{\ensuremath{\mathbf{n}}}
+\newcommand{\bP}{\ensuremath{\mathbf{P}}}
+\newcommand{\bz}{\ensuremath{\mathbf{z}}}
+\newcommand{\bN}{\ensuremath{\mathbf{N}}}
+\newcommand{\bT}{\ensuremath{\mathbf{T}}}
+
+\newcommand{\bxi}{\ensuremath{\boldsymbol{\xi}}}
+\newcommand{\bPsi}{\ensuremath{\boldsymbol{\Psi}}}
+\newcommand{\bphi}{\ensuremath{\boldsymbol{\phi}}}
+\newcommand{\bpi}{\ensuremath{\boldsymbol{\pi}}}
+\newcommand{\bG}{\ensuremath{\boldsymbol{\Gamma}}}
+\newcommand{\bt}{\ensuremath{\boldsymbol{\theta}}}
+\newcommand{\bvt}{\ensuremath{\boldsymbol{\vartheta}}}
+
+%% \tt software names
+%\newcommand{\jags}{{\tt JAGS }}
+%\newcommand{\nimble}{{\tt nimble }}
+%\newcommand{\nimbleEcology}{{\tt nimbleEcology }}
+%\newcommand{\nimbleJSextras}{{\tt nimbleJSExtras }}
+
+%%%%%%%%%%%%%
+
+
+\newcommand{\bX}{\ensuremath{\mathbf{X}}}
+\newcommand{\bC}{\ensuremath{\mathbf{C}}}
+\newcommand{\bW}{\ensuremath{\mathbf{W}}}
+\newcommand{\bK}{\ensuremath{\mathbf{K}}}
+\newcommand{\bk}{\ensuremath{\mathbf{k}}}
+\newcommand{\bI}{\ensuremath{\mathbf{I}}}
+\newcommand{\bH}{\ensuremath{\mathbf{H}}}
+\newcommand{\bh}{\ensuremath{\mathbf{h}}}
+\newcommand{\bw}{\ensuremath{\mathbf{w}}}
+\newcommand{\bD}{\ensuremath{\mathbf{D}}}
+\newcommand{\bdp}{\ensuremath{\mathbf{d}^+}}
+
+
+
+\newcommand{\bb}{\ensuremath{\boldsymbol{\beta}}}
+\newcommand{\ba}{\ensuremath{\boldsymbol{\alpha}}}
+\newcommand{\be}{\ensuremath{\boldsymbol{\epsilon}}}
+\newcommand{\bSig}{\ensuremath{\boldsymbol{\Sigma}}}
+\newcommand{\bmu}{\ensuremath{\boldsymbol{\mu}}}
+\newcommand{\bO}{\ensuremath{\boldsymbol{\Omega}}}
+\newcommand{\bs}{\ensuremath{\boldsymbol{\sigma}}}
+\newcommand{\bo}{\ensuremath{\boldsymbol{\omega}}}
+\newcommand{\bg}{\ensuremath{\boldsymbol{\gamma}}}
+
+
+
+%mathcal
+\newcommand{\fN}{\ensuremath{\mathcal{N}}}
+\newcommand{\fG}{\ensuremath{\mathcal{G}}}
+\newcommand{\fP}{\ensuremath{\mathcal{P}}}
+\newcommand{\fH}{\ensuremath{\mathcal{H}}}
+
+\raggedright
+\raggedbottom
+
+\setcounter{section}{0}
+\renewcommand{\thesection}{S\arabic{section}}
+
+\setcounter{figure}{0}
+\renewcommand{\thefigure}{S\arabic{figure}}
+
+\setcounter{table}{0}
+\renewcommand{\thetable}{S\arabic{table}}
+
+
+\begin{document}
+
+\setlength{\parindent}{0pt}
+\renewcommand{\baselinestretch}{1.25}\normalsize
+
+
+{\Large \bf Online Supplement} \bigskip\bigskip
+
+
+
+{\Large Efficient Bayesian Estimation for Open Population Capture-Recapture Models Without Data Augmentation}
+
+\bigskip\bigskip
+
+
+{Devin S. Johnson$^1$, Shelbie K. Ishimaru$^2$, and Janelle J. Gardner$^1$} \bigskip
+
+$^1$Pacific Islands Fisheries Science Center, National Marine Fisheries Service, NOAA, Honolulu, Hawai`i, USA \bigskip
+ 
+$^2$Hawai`i Institute of Marine Biology and Cooperative Institute of Marine and Atmospheric Research, University of Hawai`i at Mānoa, Honolulu, Hawai`i, USA \bigskip
+
+\today
+
+\clearpage
+
+\raggedright
+\setlength{\parindent}{2em}
+\raggedbottom
+
+
+
+\section{Forward-Backward Posterior Abundance Sampling Algorithms}
+
+
+Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS) algorithm for sampling the conditional posterior distribution of the true state of an individual(s). These algorithms are used within each round of MCMC updates to draw from the state distributions conditional on the observed data, $\bx=\{\bx_1,\dots,\bx_n\}$, and the parameters, $\bt$ at the current iteration. The first version is for updating the true state, $\bz_i=(z_{i1},\dots,z_{iK})$ of an observed individual with capture history $\bx_i\ne\mathbf{0}$. The second version is for updating the state and time-specific abundance of all unobserved individuals given the observed data, $\bx$, the number of unobserved individuals, $n_u$, and the current parameters, $\bt$. Both of these algorithms are coded as {\tt nimble} functions (\verb|sample_det_**| and \verb|sample_undet_**|) in the {\tt nimbleJSextras} package available at \url{https://github.com/dsjohnson/nimbleJSextras}. %or \href{https://dsjohnson.r-universe.dev/nimbleJSextras}{https://dsjohnson.r-universe.dev/nimbleJSextras}.
+
+
+
+\begin{algorithm}[H]
+\caption{FFBS for Observed Individuals}
+\begin{algorithmic}[1]
+\STATE \textbf{Inputs:} $\bx_i$, $\bpi$, $\{\bG_t\}$, $\{\mathbf{P}_t(x_{it})\}$
+\STATE \textbf{Output:} posterior draw of hidden state sequence $\mathbf{z}_i \sim [\mathbf{z}_i|\bx_i, \bt]$
+
+\vspace{0.5em}
+\STATE \textbf{Forward pass:}
+\STATE Compute $\mathbf{f}_1 = \bpi \mathbf{P}_1(x_{i,1})$
+\STATE Normalize $\mathbf{f}_{1} = \mathbf{f}_{1}/\text{sum}(\mathbf{f}_{1})$
+\FOR{$t = 1$ to $K-1$}
+    \STATE $\mathbf{f}_{t+1} = \mathbf{f}_{t} \bG_{t} \mathbf{P}_{t+1}(x_{i,t+1}) $
+    \STATE Normalize $\mathbf{f}_{t+1} = \mathbf{f}_{t+1}/\text{sum}(\mathbf{f}_{t+1})$
+\ENDFOR
+
+\vspace{0.5em}
+\STATE \textbf{Backward sampling:}
+\STATE Sample $z_{i,K} \sim \text{categorical}(\mathbf{f}_K)$
+\FOR{$t = K-1$ down to $1$}
+    \STATE Compute $\mathbf{b} = \mathbf{f}_t \odot \bG_t[,z_{i,t+1}]$ ($\odot$ \text{ is elementwise multiplication})
+    \STATE Normalize $\mathbf{b} = \mathbf{b}/\text{sum}(\mathbf{b})$
+     \STATE Sample $z_{i,t} \sim \text{categorical}(\mathbf{b})$
+\ENDFOR
+\STATE Return $\mathbf{z}_i=(z_{i,1},\dots,z_{i,K})$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Multinomial FFBS for Unobserved Individuals}
+\begin{algorithmic}[1]
+\STATE \textbf{Inputs:} $\bpi$, $\{\bG_t\}$, $\{\mathbf{P}_t(0)\}$, $N_u$.
+\STATE \textbf{Output:} posterior draw of abundance of unobserved individuals $\mathbf{N}_{u} \sim [\mathbf{N}_{u}|\bx, n, \bt]$, where $\mathbf{N}_u$ is a $J\times K$ matrix of state- and occasion-specific abundance of unobserved individuals. 
+
+\vspace{0.5em}
+\STATE \textbf{Forward pass:}
+\STATE Compute $\mathbf{f}_1 = \bpi \mathbf{P}_1(0)$
+\STATE Normalize $\mathbf{f}_{1} = \mathbf{f}_{1}/\text{sum}(\mathbf{f}_{1})$
+\FOR{$t = 1$ to $K-1$}
+    \STATE $\mathbf{f}_{t+1} = \mathbf{f}_{t} \bG_{t} \mathbf{P}_{t+1}(0) $
+    \STATE Normalize $\mathbf{f}_{t+1} = \mathbf{f}_{t+1}/\text{sum}(\mathbf{f}_{t+1})$
+\ENDFOR
+\vspace{0.5em}
+\STATE \textbf{Backward sampling:}
+\STATE Sample $\mathbf{N}_u[,K] \sim \text{multinomial}(N_u,\mathbf{f}_K)$
+\FOR{$t = K-1$ down to $1$}
+    \FOR{$l=1$ to $J$}
+     \STATE Compute $\mathbf{b} = \mathbf{f}_t \odot \bG_t[,l]$ ($\odot$ \text{ is elementwise multiplication})
+     \STATE Normalize $\mathbf{b} = \mathbf{b}/\text{sum}(\mathbf{b})$
+     \STATE Sample $\mathbf{Z}[,l] \sim \text{multinomial}(\mathbf{N}_u[l,t+1], \mathbf{b})$
+    \ENDFOR
+    \FOR{$l=1$ to $J$}
+        \STATE $\mathbf{N}_u[l,t] = \text{sum}(\mathbf{Z}[l,])$
+    \ENDFOR
+\ENDFOR
+\STATE Return $\mathbf{\mathbf{N}_u}$
+\end{algorithmic}
+\end{algorithm}
+
+
+\clearpage
+
+\section{Additional Dipper Results}
+\renewcommand{\baselinestretch}{1.15}\normalsize
+
+\begin{table}[h]
+    \caption{Parameter estimates for random effect {\it per capita} recruitment model for the European dipper data. Credible intervals are 95\% highest probability density (HPD) intervals.} \bigskip
+    \label{tab:dipper}
+    \centering
+    \begin{tabular}{ccccc}
+        \hline\hline
+        Parameter & Estimate &  SD & 95\% CI \\
+        \hline
+        $\lambda$ & 324.67 & 24.21 & [279.80 -- 373.47]  \\
+        $N$ & 324.61 & 16.25 & [300 -- 356]  \\
+        \hline
+        $f_1$ & 1.27 & 0.76 & [0.30 -- 2.66]  \\
+         $f_2$ & 0.70  & 0.19 &  [0.39 -- 1.08]  \\
+         $f_3$ & 0.53  & 0.10 &  [0.35 -- 0.74]  \\
+         $f_4$ & 0.48  & 0.09 &  [0.31 -- 0.65]  \\
+         $f_5$ & 0.49  & 0.08 &  [0.34 -- 0.66]  \\
+         $f_6$ & 0.43  & 0.08 &  [0.27 -- 0.59]  \\
+         \hline
+         $\phi_1$ & 0.59 & 0.07 &  [0.46 -- 0.75]  \\
+         $\phi_2$ & 0.51 & 0.06 &  [0.40 -- 0.62]  \\
+         $\phi_3$ & 0.52 & 0.05 &  [0.42 -- 0.61]  \\
+         $\phi_4$ & 0.59 & 0.05 &  [0.50 -- 0.69]  \\
+         $\phi_5$ & 0.58 & 0.05 &  [0.50 -- 0.67]  \\
+         $\phi_6$ &  0.58 & 0.06 &  [0.48 -- 0.70]  \\
+         \hline
+         $p_1$ & 0.64 & 0.27 &  [0.22 -- 0.96]  \\
+         $p_2$ & 0.82 & 0.10 &  [0.60 -- 0.96]  \\
+         $p_3$ & 0.89 & 0.05 &  [0.79 -- 0.99]  \\
+         $p_4$ & 0.89 & 0.05 &  [0.79 -- 0.98]  \\
+         $p_5$ & 0.89 & 0.04 &  [0.81 -- 0.97]  \\
+         $p_6$ & 0.91 & 0.04 & [0.83 -- 0.98]   \\
+         $p_7$ & 0.88 & 0.07 &  [0.75 -- 1.00]  \\
+         \hline
+         $\mu_f$        & -0.55 & 0.28 &  [-1.04 -- 0.03]  \\
+         $\sigma_f $    & 0.48 & 0.34 &  [0.00 -- 1.09]  \\
+         $\mu_\phi$     &  0.25 & 0.19 &  [-0.10 -- 0.63]  \\
+         $\sigma_\phi $ & 0.28 & 0.22 &  [0.00 -- 0.68]  \\
+         $\mu_p$        &  1.85 & 0.55 &  [0.71 -- 2.87]  \\
+         $\sigma_p $    & 0.84 & 0.66 &  [0.02 -- 2.03]  \\
+         \hline
+    \end{tabular}
+\end{table}
+
+
+\end{document}
+
