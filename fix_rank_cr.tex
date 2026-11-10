@@ -268,9 +268,9 @@ Now we turn our focus to drawing the second stage posterior predictive sample of
 [\bz, \bN_u|N_u, \bt,\bx] = [\bz|\bt,\bx][\bN_u|N_u,\bt].
 \end{equation} 
 
-To sample the latent states of individuals in the population we first sample the states of the individuals captured at least once from $[\bz_i| \bt, \bx_i]$. This can be accomplished efficiently with the Forward--Filtering Backward--Sampling (FFBS) algorithm for conditional state sampling of HMMs \citep{scott2002bayesian}. The details of the of the FFBS algorithm can be found in the online supplement (Appendix A, algorithm 1). Heuristically, the algorithm works by first using the HMM forward algorithm \citep{zucchini2016hidden} followed by a backward pass through the capture history to sample from $[z_{it}|z_{i,t+1},\dots,z_{i,K},\bt, \bx_i]$ at each occasion. To facilitate this sampling algorithm we have coded the FFBS algorithm into the {\tt nimbleJSextras} package and it can be implemented as a stochastic node in model code statements. Once we perform the the FFBS algorithm for each captured individual we can calculate the derived quantity, $n_{s,t} = \sum_{i=1}^n \mathcal{I}(z_{it}=s)$, the abundance of individuals observed at least once in state $s$ at time $t$. For simplicity, we use the bold notation, $\bn_t = (n_{1,t},\dots,n_{J,t})$, to represent the vector of state-specific abundances and $n_t = \sum_{s=1}^{J} n_{s,t}$ to represent the total abundance of captured individuals available at time $t$. 
+To sample the latent states of individuals in the population we first sample the states of the individuals captured at least once from $[\bz_i| \bt, \bx_i]$. This can be accomplished efficiently with the Forward--Filtering Backward--Sampling (FFBS) algorithm for conditional state sampling of HMMs \citep{scott2002bayesian}. The details of the of the FFBS algorithm can be found in the online supplement (Appendix A, algorithm 1). Heuristically, the algorithm works by first using the HMM forward algorithm \citep{zucchini2016hidden} followed by a backward pass through the capture history to sample from $[z_{it}|z_{i,t+1},\dots,z_{i,K},\bt, \bx_i]$ at each occasion. To facilitate this sampling algorithm we have coded the FFBS algorithm into the {\tt nimbleJSextras} package and it can be implemented as a stochastic node in model code statements. Once we perform the the FFBS algorithm for each captured individual we can calculate the derived quantity, $n_{s,t} = \sum_{i=1}^n \mathcal{I}(z_{i,t}=s)$, the abundance of individuals observed at least once in state $s$ at time $t$. For simplicity, we use the bold notation, $\bn_t = \{n_{s,t};s=0,\dots,J+1\}$, to represent the vector of state-specific abundances and $n_t = \sum_{s=1}^{J} n_{s,t}$ to represent the total abundance of captured individuals available at time $t$. 
 
-Now that we have the state and time-specific abundances for the observed individuals, we shift to the $N_u$ individuals that are never captured. We could use the same FFBS algorithm to individually sample the states of all $N_u$ individuals all with the capture-history $\bx_i=\mathbf{0}$. However, Because all uncaptured individuals have the same history, we can use a multinomial version of the FFBS, to sample the state and time-specific abundance in one forward and backward pass without simulating individual state histories (Online supplement Appendix A, algorithm 2). The {\tt nimbleJSextras} also contains a distribution for sampling the state and time specific counts of uncaptured individuals, $\mathbf{N}_u$. 
+Now that we have the state and time-specific abundances for the observed individuals, we shift to the $N_u$ individuals that are never captured. We could use the same FFBS algorithm to individually sample the states of all $N_u$ individuals all with the capture-history $\bx_i=\mathbf{0}$. However, Because all uncaptured individuals have the same history, we can use a multinomial version of the FFBS, to sample the state and time-specific abundance in one forward and backward pass without simulating individual state histories (Online supplement Appendix A, algorithm 2). The {\tt nimbleJSextras} also contains a distribution for sampling the state and time specific counts of uncaptured individuals, $\mathbf{N}_u = \{N_{u,s,t}; s=0,\dots,J+1,\ t=1,\dots,K\}$. 
 Now that we have posterior samples of $\bn_t$ and $\bN_{u}$ we can predict the state and time-specific abundances $\bN_t =  \bn_t + \bN_{u,t}$, and $N_t =  n_t + \sum_{s=1}^J N_{u,s,t}$, or any other function of state and time-specific abundance.   
 
 \subsection{Additional computation benefits of the collapsed sampler} \label{sec.savings}
@@ -385,16 +385,6 @@ Now that we have the general form of the HMM matrices, we can define specific pa
 
 Because we modeling occasion specific capture probabilities for unmarked individuals, allowing unrestricted entry probabilities (outside of sum-to-one constraint) is somewhat confounded in the model. Because entry to the state of reproductive adult is the culmination of $\sim$20 years of survival and growth from hatching \citep{HoutanEtAl2014a} we assume that this process is relatively smooth from year to year. To model this autocorrelation we used the basis function $\text{mlogit }\boldsymbol{\xi}= \mathbf{B}\bb$, where the coefficients have distribution $[\beta_k|\sigma_{\xi}] = N(0,\sigma_{\xi}^2)$ \citep{hefley2016basis}. To avoid over smoothing we used a Mat\'{e}rn ($\nu=1.5$; \citealt{kammann2003geoadditive}) function as a basis instead of a Gaussian radial basis function. We used 10 evenly spaced internal knots and 4 external knots on each end outside of [1--$K$] to eliminate boundary effects for a total of 18 knots. To complete the specification we used the complexity penalty prior distribution $[\sigma_{\xi}] = \text{exponential}(1)$ \citep{martins2017penalising} to shrink $\xi_t$ to uniform $1/K$ if the data do not support an occasion specific entry process.  
 
-%using recruitment probability \citep{Royle:2008kx}. The recruitment probability, $\rho_t$, is the probability that the individual enters at occasion $t$ given it has not yet entered. This essentially mirrors the exit probability. To use it in the collapsed sampler we need the unconditional entry probability,
-%\[
-%\xi_t \propto \left\{
-%\begin{array}{ll}
-%\rho_1 & t=1 \\
-%\rho_t \prod_{j=1}^{t-1} (1-\rho_j) & t \ge 2
-%\end{array}, \right.
-%\]
-%from which we obtain $\tilde{\xi}_t$ for the transition matrices. We, again, used the logit transformation to specify the prior distributions $[\text{logit }\rho_t] = t(1.52,6)$. 
-
 For the capture probability parameters, $p_t$ and $\eta_t$ we used the $t(1.52,6)$ prior distributions as well as setting $\eta_1=\eta_2 \equiv 1$ because all individuals are unmarked on occasions 1 and 2. Finally, we used $m=5$ foraging substates to model the remigration interval, with $[\text{logit }\tau_j] = t(1.52,6)$. This choice of $m$ results in $J=4+2(5)=14$ active states and 16 total states for the model. Finally, we used the approximate objective prior $[\lambda]=$ Gamma(1.0e-6, 1.0e-6).
 
 Using the two-stage approach we ran the MCMC sampler for 250,000 iterations following a 50,000 iteration burn-in, only every fifth iteration was retained for storage. Out of 5,271 observed individuals, there were only 1,338 unique capture histories, so, the sample size burden in the first stage is reduced by about 75\%. Anecdotally, as all computation environments are different, on an Apple MacBook Pro with an M2 Max processor, the first-stage MCMC took approximately 3.5 hours to run. For the second stage we used 10 parallel sessions and this completed in approximately 7.7 minutes. 
@@ -402,6 +392,7 @@ Using the two-stage approach we ran the MCMC sampler for 250,000 iterations foll
 \subsubsection{Results}
 
 As expected, there were several years where capture probability was significantly lower for newly encountered individuals than those that had been previously captured (Figure \ref{fig:honu.p}). 
+
 \begin{figure}
 \centering
 \begin{minipage}{0.8\textwidth}
@@ -411,6 +402,7 @@ As expected, there were several years where capture probability was significantl
 \label{fig:honu.p}
 \end{minipage}
 \end{figure}
+
 On some occasions $\hat{p}_t\approx 1$ while $\hat{\eta}_t\hat{p}_t$ was substantially lower. Yearly survival probability was $\hat{\phi}$ = 0.91 [95\% CI: 0.91 -- 0.92].
 The probability distribution function for remigration interval, $R$, can be calculated from the breeding return probabilities, $\tau_j$ using,
 \[
@@ -422,6 +414,7 @@ The probability distribution function for remigration interval, $R$, can be calc
 \end{array} \right.
 \]
 where $\tau_j=\tau_5$ if $j \ge 5$. Remigration probability estimates peaked at 3 years and showed a slight decline to 4 years, illustrating the most common remigration interval is somewhere between 3 and 4 years (Figure \ref{fig:honu.remig}). 
+
 \begin{figure}
 \centering
 \begin{minipage}{0.8\textwidth}
@@ -431,18 +424,10 @@ where $\tau_j=\tau_5$ if $j \ge 5$. Remigration probability estimates peaked at 
 \label{fig:honu.remig}
 \end{minipage}
 \end{figure}
+
 The estimated average remigration interval calculated from these probabilities is 3.74 years [3.68 -- 3.81] which is similar to the empirically observed value of 4 reported by \cite{BalazsEtAl2015a}. 
 
-The estimates of entry probability ($\xi_t$) show some evidence of year-to-year variation (Figure \ref{fig:honu.xi}). The basis variance component estimate $\hat{\sigma}_\xi = 0.18$ [0.00--0.56] was small, but did not shrink to zero. However, uncertainty is high enough that one cannot rule out a uniform entry process.  
-\begin{figure}
-\centering
-\begin{minipage}{0.8\textwidth}
-\centering
- \includegraphics[width=0.9\textwidth]{entry_probs.png}
-\caption{Occasion specific estimates of the unconditional entry probabilities ($\xi_t$). The red dashed line marks the uniform $\xi_t = 1/K$ model. The gray envelope marks the 90\% highest probability density interval.}
-\label{fig:honu.xi}
-\end{minipage}
-\end{figure}
+The estimates of entry probability ($\xi_t$) show some evidence of year-to-year variation (Supplementary material Figure S1). The basis variance component estimate $\hat{\sigma}_\xi = 0.18$ [0.00--0.56] was small, but did not shrink to zero. However, uncertainty is high enough that one cannot rule out a uniform entry process.  
  
  
 Yearly abundance of female reproductive age honu and 90\% credible intervals are shown in Figure \ref{fig:honu.abund}. 

@@ -102,7 +102,7 @@
 \renewcommand{\baselinestretch}{1.25}\normalsize
 
 
-{\Large \bf Online Supplement} \bigskip\bigskip
+{\Large \bf Supplementary Material} \bigskip\bigskip
 
 
 
@@ -130,9 +130,13 @@ $^2$Hawai`i Institute of Marine Biology and Cooperative Institute of Marine and 
 \section{Forward-Backward Posterior Abundance Sampling Algorithms}
 
 
-Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS) algorithm for sampling the conditional posterior distribution of the true state of an individual(s). These algorithms are used within each round of MCMC updates to draw from the state distributions conditional on the observed data, $\bx=\{\bx_1,\dots,\bx_n\}$, and the parameters, $\bt$ at the current iteration. The first version is for updating the true state, $\bz_i=(z_{i1},\dots,z_{iK})$ of an observed individual with capture history $\bx_i\ne\mathbf{0}$. The second version is for updating the state and time-specific abundance of all unobserved individuals given the observed data, $\bx$, the number of unobserved individuals, $n_u$, and the current parameters, $\bt$. Both of these algorithms are coded as {\tt nimble} functions (\verb|sample_det_**| and \verb|sample_undet_**|) in the {\tt nimbleJSextras} package available at \url{https://github.com/dsjohnson/nimbleJSextras}. %or \href{https://dsjohnson.r-universe.dev/nimbleJSextras}{https://dsjohnson.r-universe.dev/nimbleJSextras}.
-
-
+Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS) algorithm for sampling the conditional posterior distribution of the true state of an individual(s). These algorithms are used to sample from the posterior predictive distribution of the true states, $\bz_i=(z_{i1},\dots,z_{iK})$. The first version is for updating $\bz_i$ of an observed individual with capture history $\bx_i\ne\mathbf{0}$. The second version is for updating the state and time-specific abundance of all unobserved individuals given the observed data, $\bx$, the predicted number of unobserved individuals, $N_u$, and the current parameters, $\bt$. These samplers are implemented in a nimble model via statements of the form 
+\begin{verbatim}
+z[i,1:K] ~ dJS_cond_ms(x[i,1:K],...)      # Alg. 1
+Nu ~ dpois(lambda*(1-pstar))              # Predicted abund. of undetected id
+Nu_t[1:(J+2): 1:K] ~ dJS_undet_ms(Nu,...) # Alg. 2
+\end{verbatim}
+where {\tt J+2} is the total number of states and ``{\tt ...}'' are the arguments specifying the JS parameters. 
 
 \begin{algorithm}[H]
 \caption{FFBS for Observed Individuals}
@@ -240,6 +244,21 @@ Here we present two versions of the Forward--Filtering Backward--Sampling (FFBS)
          \hline
     \end{tabular}
 \end{table}
+
+\clearpage
+
+\section{Additional Honu Results}
+
+\begin{figure}[h]
+\centering
+\begin{minipage}{0.8\textwidth}
+\centering
+ \includegraphics[width=0.9\textwidth]{entry_probs.png}
+\caption{Occasion specific estimates of the unconditional entry probabilities ($\xi_t$). The red dashed line marks the uniform $\xi_t = 1/K$ model. The gray envelope marks the 90\% highest probability density interval.}
+\label{fig:honu.xi}
+\end{minipage}
+\end{figure}
+
 
 
 \end{document}
